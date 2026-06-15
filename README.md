@@ -1,17 +1,26 @@
-# travel_journal
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+# Travel Journal
+Moblile app that lets user:
+* Browse Counries fetched from API
+* Mark visited countries
+* Manage travel journals
+* Add pictures
+* Browse visited places on map
+* Synchronize data between multiple devices
+## Technologies
+* Flutter
+* flutter_bloc
+* get_it
+* dio
+* firebase_auth
+* cloud_firestore
+* drift (or Hive)
+* flutter_map
+* image_picker
+## API
+Source of countries' Data:
+REST Countries API
+https://restcountries.com/docs
+## Instalacja 
+1. clone repo
+2. Install dependencies
+3. Build project
