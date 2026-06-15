@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
-import '../viewmodels/country_viewmodel.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../models/country.dart';
+import '../bloc/country_bloc.dart';
+import '../bloc/country_event.dart';
 
 class DetailScreen extends StatelessWidget {
-  final CountryViewModel vm;
+  final Country country;
 
-  const DetailScreen({super.key, required this.vm});
+  const DetailScreen({super.key, required this.country});
 
   @override
   Widget build(BuildContext context) {
-    final c = vm.selected!;
     return Scaffold(
       appBar: AppBar(
-        title: Text(c.name),
+        title: Text(country.name),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: vm.clear,
+          onPressed: () => context.read<CountryBloc>().add(ClearSelection()),
         ),
       ),
       body: Padding(
@@ -22,11 +24,11 @@ class DetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Kraj: ${c.name}', style: const TextStyle(fontSize: 24)),
+            Text('Kraj: ${country.name}', style: const TextStyle(fontSize: 24)),
             const SizedBox(height: 16),
-            Text('Powierzchnia: ${c.areaSqM} m^2', style: const TextStyle(fontSize: 18)),
+            Text('Powierzchnia: ${country.areaSqM} m^2', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 8),
-            Text('Populacja: ${c.population}', style: const TextStyle(fontSize: 18)),
+            Text('Populacja: ${country.population}', style: const TextStyle(fontSize: 18)),
           ],
         ),
       ),
