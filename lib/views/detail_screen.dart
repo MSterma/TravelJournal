@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../models/country.dart';
 import '../bloc/country_bloc.dart';
 import '../bloc/country_event.dart';
-
+import '../l10n/app_localizations.dart';
 class DetailScreen extends StatelessWidget {
   final Country country;
 
@@ -11,6 +11,7 @@ class DetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: Text(country.name),
@@ -33,15 +34,15 @@ class DetailScreen extends StatelessWidget {
                 ),
               ),
             const SizedBox(height: 24),
-            Text('Kraj: ${country.name}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text('${l10n.country}: ${country.name}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const Divider(),
-            Text('Stolica: ${country.capital}', style: const TextStyle(fontSize: 18)),
+            Text('${l10n.capital}: ${country.capital}', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 8),
-            Text('Populacja: ${country.population}', style: const TextStyle(fontSize: 18)),
+            Text('${l10n.population}: ${country.population}', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 8),
-            Text('Region: ${country.region}', style: const TextStyle(fontSize: 18)),
+            Text('${l10n.region}: ${country.region}', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 8),
-            Text('Współrzędne: ${country.lat}, ${country.lng}', style: const TextStyle(fontSize: 18)),
+            Text('${l10n.coordinates}: ${country.lat}, ${country.lng}', style: const TextStyle(fontSize: 18)),
           ],
         ),
       ),

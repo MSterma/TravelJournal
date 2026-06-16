@@ -1,0 +1,13 @@
+{
+  "appTitle": "Travel Journal",
+  "countryList": "Lista Krajów",
+  "country": "Kraj",
+  "capital": "Stolica",
+  "population": "Populacja",
+  "region": "Region",
+  "coordinates": "Współrzędne",
+  "tryAgain": "Spróbuj ponownie",
+  "noName": "Brak nazwy",
+  "noCapital": "Brak stolicy",
+  "noRegion": "Brak regionu"
+}
