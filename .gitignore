@@ -43,3 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+*.g.dart
+
+app_localizations.dart
+app_localizations_en.dart
+app_localizations_pl.dart
+
+*.sqlite
+*.db
+
+.env

@@ -1,21 +1,25 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../models/country.dart';
 import '../repositories/country_repo.dart';
+import '../repositories/local_repo.dart';
 import 'country_event.dart';
 import 'country_state.dart';
 
 class CountryBloc extends Bloc<CountryEvent, CountryState> {
   final CountryRepo repo;
+  final LocalRepo localRepo;
   int _currentOffset = 0;
   final int _limit = 25;
-  String? _currentQuery; // Gojmini zapamiętywać wyszukiwanie
+  String? _currentQuery;
 
-  CountryBloc(this.repo) : super(CountryLoading()) {
+  CountryBloc(this.repo, this.localRepo) : super(CountryLoading()) {
     on<LoadCountries>(_onLoadCountries);
     on<LoadMoreCountries>(_onLoadMoreCountries);
     on<SearchCountries>(_onSearchCountries);
     on<SelectCountry>(_onSelectCountry);
     on<ClearSelection>(_onClearSelection);
+    on<MarkVisited>(_onMarkVisited);
+    on<AddPhoto>(_onAddPhoto);
   }
 
   Future<void> _onLoadCountries(LoadCountries event, Emitter<CountryState> emit) async {
@@ -77,10 +81,17 @@ class CountryBloc extends Bloc<CountryEvent, CountryState> {
     }
   }
 
-  void _onSelectCountry(SelectCountry event, Emitter<CountryState> emit) {
+  Future<void> _onSelectCountry(SelectCountry event, Emitter<CountryState> emit) async {
+    final visited = await localRepo.checkVisited(event.country.name);
+    final photos = await localRepo.getPhotos(event.country.name);
+
     if (state is CountryLoaded) {
       final currentState = state as CountryLoaded;
-      emit(currentState.copyWith(selectedCountry: event.country));
+      emit(currentState.copyWith(
+        selectedCountry: event.country,
+        isVisited: visited,
+        photos: photos,
+      ));
     }
   }
 
@@ -92,7 +103,33 @@ class CountryBloc extends Bloc<CountryEvent, CountryState> {
         selectedCountry: null,
         hasReachedMax: currentState.hasReachedMax,
         isFetchingMore: currentState.isFetchingMore,
+        isSearching: currentState.isSearching,
       ));
+    }
+  }
+
+  Future<void> _onMarkVisited(MarkVisited event, Emitter<CountryState> emit) async {
+    try {
+      await localRepo.markVisited(event.countryName);
+      if (state is CountryLoaded) {
+        final currentState = state as CountryLoaded;
+        emit(currentState.copyWith(isVisited: true));
+      }
+    } catch (e) {
+      //print("err: $e");
+    }
+  }
+
+  Future<void> _onAddPhoto(AddPhoto event, Emitter<CountryState> emit) async {
+    try {
+      await localRepo.addPhoto(event.countryName, event.imagePath);
+      if (state is CountryLoaded) {
+        final currentState = state as CountryLoaded;
+        final newPhotos = List<String>.from(currentState.photos)..add(event.imagePath);
+        emit(currentState.copyWith(photos: newPhotos));
+      }
+    } catch (e) {
+      //print("err pic: $e");
     }
   }
 }

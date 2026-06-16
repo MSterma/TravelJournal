@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.dark,
       home: BlocProvider(
-        create: (context) => CountryBloc(locator())..add(LoadCountries()),
+        create: (context) => CountryBloc(locator(),locator())..add(LoadCountries()),
         child: const MainScreen(),
       ),
     );

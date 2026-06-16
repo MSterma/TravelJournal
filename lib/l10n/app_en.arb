@@ -14,6 +14,8 @@
    "navMap": "Map",
    "navAccount": "Account",
    "search": "Search country...",
-    "noResults": "noResults"
-
+    "noResults": "noResults",
+    "countryVisited":"Country visited!",
+    "addPhoto":"Add photo",
+    "markVisited":"Mark as visited"
 }

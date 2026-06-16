@@ -15,6 +15,8 @@ class CountryLoaded extends CountryState {
   final bool hasReachedMax;
   final bool isFetchingMore;
   final bool isSearching;
+  final bool isVisited;
+  final List<String> photos;
 
   CountryLoaded({
     required this.countries,
@@ -22,6 +24,8 @@ class CountryLoaded extends CountryState {
     this.hasReachedMax = false,
     this.isFetchingMore = false,
     this.isSearching = false,
+    this.isVisited = false,
+    this.photos = const [],
   });
 
   CountryLoaded copyWith({
@@ -30,6 +34,8 @@ class CountryLoaded extends CountryState {
     bool? hasReachedMax,
     bool? isFetchingMore,
     bool? isSearching,
+    bool? isVisited,
+    List<String>? photos,
   }) {
     return CountryLoaded(
       countries: countries ?? this.countries,
@@ -37,6 +43,8 @@ class CountryLoaded extends CountryState {
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       isFetchingMore: isFetchingMore ?? this.isFetchingMore,
       isSearching: isSearching ?? this.isSearching,
+      isVisited: isVisited ?? this.isVisited,
+      photos: photos ?? this.photos,
     );
   }
 }

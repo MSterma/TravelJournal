@@ -8,7 +8,7 @@ import '../l10n/app_localizations.dart';
 class ListScreen extends StatefulWidget {
   final List<Country> countries;
   final bool isFetchingMore;
-  final bool isSearching; // Nowy parametr
+  final bool isSearching;
 
   const ListScreen({
     super.key,
