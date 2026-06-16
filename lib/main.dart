@@ -4,6 +4,7 @@ import 'locator.dart';
 import 'bloc/country_bloc.dart';
 import 'bloc/country_event.dart';
 import 'views/main_screen.dart';
+import 'theme.dart';
 
 void main() {
   setupLocator();
@@ -17,7 +18,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Travel Journal',
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue)),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.dark,
       home: BlocProvider(
         create: (context) => CountryBloc(locator())..add(LoadCountries()),
         child: const MainScreen(),

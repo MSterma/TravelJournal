@@ -1,5 +1,6 @@
 import '../models/country.dart';
 import '../network/api_client.dart';
+import '../network/app_urls.dart';
 
 class CountryRepo {
   final ApiClient apiClient;
@@ -7,7 +8,7 @@ class CountryRepo {
   CountryRepo(this.apiClient);
 
   Future<List<Country>> getCountries() async {
-    final responseData = await apiClient.get('?pretty=1');
+    final responseData =await apiClient.get(AppUrls.countriesEndpoint);
 
     final dataMap = responseData['data'];
     final list = dataMap != null ? dataMap['objects'] : [];

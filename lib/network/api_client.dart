@@ -1,10 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:travel_journal/network/app_urls.dart';
 
 class ApiClient {
   final Dio dio;
 
   ApiClient(this.dio) {
-    dio.options.baseUrl = 'https://api.restcountries.com/countries/v5';
+    dio.options.baseUrl = AppUrls.countriesBaseUrl;
     dio.options.headers = {'Authorization': 'Bearer '};
   }
 

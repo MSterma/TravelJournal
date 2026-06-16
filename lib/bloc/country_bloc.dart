@@ -20,7 +20,7 @@ class CountryBloc extends Bloc<CountryEvent, CountryState> {
       final data = await repo.getCountries();
       emit(CountryLoaded(countries: data));
     } catch (e) {
-      print('Error: $e');
+      //print('Error: $e');
       emit(CountryError(e.toString()));
     }
   }

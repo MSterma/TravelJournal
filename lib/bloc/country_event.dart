@@ -5,8 +5,8 @@ abstract class CountryEvent {}
 class LoadCountries extends CountryEvent {}
 
 class SelectCountry extends CountryEvent {
-  final Country country;
   SelectCountry(this.country);
+  final Country country;
 }
 
 class ClearSelection extends CountryEvent {}
