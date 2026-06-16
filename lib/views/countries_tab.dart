@@ -42,6 +42,7 @@ class CountriesTab extends StatelessWidget {
             return ListScreen(
               countries: state.countries,
               isFetchingMore: state.isFetchingMore,
+              isSearching: state.isSearching,
             );
           } else {
             return DetailScreen(country: state.selectedCountry!);

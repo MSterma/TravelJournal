@@ -14,12 +14,14 @@ class CountryLoaded extends CountryState {
   final Country? selectedCountry;
   final bool hasReachedMax;
   final bool isFetchingMore;
+  final bool isSearching;
 
   CountryLoaded({
     required this.countries,
     this.selectedCountry,
     this.hasReachedMax = false,
     this.isFetchingMore = false,
+    this.isSearching = false,
   });
 
   CountryLoaded copyWith({
@@ -27,12 +29,14 @@ class CountryLoaded extends CountryState {
     Country? selectedCountry,
     bool? hasReachedMax,
     bool? isFetchingMore,
+    bool? isSearching,
   }) {
     return CountryLoaded(
       countries: countries ?? this.countries,
       selectedCountry: selectedCountry ?? this.selectedCountry,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       isFetchingMore: isFetchingMore ?? this.isFetchingMore,
+      isSearching: isSearching ?? this.isSearching,
     );
   }
 }

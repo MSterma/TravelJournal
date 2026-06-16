@@ -49,4 +49,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get navAccount => 'Konto';
+
+  @override
+  String get search => 'Szukaj kraju...';
+
+  @override
+  String get noResults => 'Brak wyników';
 }

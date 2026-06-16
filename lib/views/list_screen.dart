@@ -8,11 +8,13 @@ import '../l10n/app_localizations.dart';
 class ListScreen extends StatefulWidget {
   final List<Country> countries;
   final bool isFetchingMore;
+  final bool isSearching; // Nowy parametr
 
   const ListScreen({
     super.key,
     required this.countries,
     required this.isFetchingMore,
+    required this.isSearching,
   });
 
   @override
@@ -21,6 +23,7 @@ class ListScreen extends StatefulWidget {
 
 class _ListScreenState extends State<ListScreen> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -31,6 +34,7 @@ class _ListScreenState extends State<ListScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -47,29 +51,64 @@ class _ListScreenState extends State<ListScreen> {
     return currentScroll >= (maxScroll - 200);
   }
 
+  void _onSearchSubmit(String query) {
+    context.read<CountryBloc>().add(SearchCountries(query));
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.countryList)),
-      body: ListView.builder(
-        controller: _scrollController,
-        itemCount: widget.countries.length + (widget.isFetchingMore ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index >= widget.countries.length) {
-            return const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Center(child: CircularProgressIndicator()),
-            );
-          }
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: l10n.search,
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: () {
+                    _searchController.clear();
+                    context.read<CountryBloc>().add(LoadCountries());
+                  },
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+              onSubmitted: _onSearchSubmit,
+            ),
+          ),
+          Expanded(
+            child: widget.isSearching
+                ? const Center(child: CircularProgressIndicator())
+                : widget.countries.isEmpty
+                ?  Center(child: Text("${l10n.noResults}"))
+                : ListView.builder(
+              controller: _scrollController,
+              itemCount: widget.countries.length + (widget.isFetchingMore ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index >= widget.countries.length) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
 
-          final c = widget.countries[index];
-          return ListTile(
-            title: Text(c.name),
-            onTap: () => context.read<CountryBloc>().add(SelectCountry(c)),
-          );
-        },
+                final c = widget.countries[index];
+                return ListTile(
+                  title: Text(c.name),
+                  onTap: () => context.read<CountryBloc>().add(SelectCountry(c)),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

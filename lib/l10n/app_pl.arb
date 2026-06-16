@@ -12,5 +12,8 @@
   "noRegion": "Brak regionu",
   "navCountries": "Kraje",
   "navMap": "Mapa",
-  "navAccount": "Konto"
+  "navAccount": "Konto",
+  "search": "Szukaj kraju...",
+  "noResults": "Brak wyników"
+
 }

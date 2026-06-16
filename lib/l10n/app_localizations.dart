@@ -181,6 +181,18 @@ abstract class AppLocalizations {
   /// In pl, this message translates to:
   /// **'Konto'**
   String get navAccount;
+
+  /// No description provided for @search.
+  ///
+  /// In pl, this message translates to:
+  /// **'Szukaj kraju...'**
+  String get search;
+
+  /// No description provided for @noResults.
+  ///
+  /// In pl, this message translates to:
+  /// **'Brak wyników'**
+  String get noResults;
 }
 
 class _AppLocalizationsDelegate
