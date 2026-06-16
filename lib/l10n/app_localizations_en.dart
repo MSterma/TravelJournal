@@ -40,4 +40,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noRegion => 'Not provided';
+
+  @override
+  String get navCountries => 'Countries';
+
+  @override
+  String get navMap => 'Map';
+
+  @override
+  String get navAccount => 'Account';
 }

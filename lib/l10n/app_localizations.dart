@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In pl, this message translates to:
-  /// **'Travel Journal'**
+  /// **'Dziennik Podróży'**
   String get appTitle;
 
   /// No description provided for @countryList.
@@ -163,6 +163,24 @@ abstract class AppLocalizations {
   /// In pl, this message translates to:
   /// **'Brak regionu'**
   String get noRegion;
+
+  /// No description provided for @navCountries.
+  ///
+  /// In pl, this message translates to:
+  /// **'Kraje'**
+  String get navCountries;
+
+  /// No description provided for @navMap.
+  ///
+  /// In pl, this message translates to:
+  /// **'Mapa'**
+  String get navMap;
+
+  /// No description provided for @navAccount.
+  ///
+  /// In pl, this message translates to:
+  /// **'Konto'**
+  String get navAccount;
 }
 
 class _AppLocalizationsDelegate

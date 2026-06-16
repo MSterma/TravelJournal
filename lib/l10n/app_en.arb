@@ -9,5 +9,8 @@
   "tryAgain": "Try again",
   "noName": "Not provided",
   "noCapital": "Not provided",
-  "noRegion": "Not provided"
+  "noRegion": "Not provided",
+  "navCountries": "Countries",
+   "navMap": "Map",
+   "navAccount": "Account"
 }

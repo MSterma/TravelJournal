@@ -1,5 +1,5 @@
 {
-  "appTitle": "Travel Journal",
+  "appTitle": "Dziennik Podróży",
   "countryList": "Lista Krajów",
   "country": "Kraj",
   "capital": "Stolica",
@@ -9,5 +9,8 @@
   "tryAgain": "Spróbuj ponownie",
   "noName": "Brak nazwy",
   "noCapital": "Brak stolicy",
-  "noRegion": "Brak regionu"
+  "noRegion": "Brak regionu",
+  "navCountries": "Kraje",
+  "navMap": "Mapa",
+  "navAccount": "Konto"
 }

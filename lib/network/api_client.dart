@@ -6,7 +6,7 @@ class ApiClient {
 
   ApiClient(this.dio) {
     dio.options.baseUrl = AppUrls.countriesBaseUrl;
-    dio.options.headers = {'Authorization': 'Bearer rc_live_4aa91fd3a5bd41c493237726cd31ad52'};
+    dio.options.headers = {'Authorization': 'Bearer '};
   }
 
   Future<dynamic> get(String path) async {

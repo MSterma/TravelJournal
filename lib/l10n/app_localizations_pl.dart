@@ -9,7 +9,7 @@ class AppLocalizationsPl extends AppLocalizations {
   AppLocalizationsPl([String locale = 'pl']) : super(locale);
 
   @override
-  String get appTitle => 'Travel Journal';
+  String get appTitle => 'Dziennik Podróży';
 
   @override
   String get countryList => 'Lista Krajów';
@@ -40,4 +40,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get noRegion => 'Brak regionu';
+
+  @override
+  String get navCountries => 'Kraje';
+
+  @override
+  String get navMap => 'Mapa';
+
+  @override
+  String get navAccount => 'Konto';
 }
