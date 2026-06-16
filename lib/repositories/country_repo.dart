@@ -1,11 +1,20 @@
 import '../models/country.dart';
+import '../network/api_client.dart';
 
 class CountryRepo {
-  List<Country> getCountries() {
-    return [
-      Country(name: "Polska", areaSqM: 312696000000, population: 38000000),
-      Country(name: "Niemcy", areaSqM: 357022000000, population: 83000000),
-      Country(name: "Francja", areaSqM: 551695000000, population: 67000000),
-    ];
+  final ApiClient apiClient;
+
+  CountryRepo(this.apiClient);
+
+  Future<List<Country>> getCountries() async {
+    final responseData = await apiClient.get('?pretty=1');
+
+    final dataMap = responseData['data'];
+    final list = dataMap != null ? dataMap['objects'] : [];
+
+    if (list is List) {
+      return list.map((e) => Country.fromJson(e)).toList();
+    }
+    return [];
   }
 }

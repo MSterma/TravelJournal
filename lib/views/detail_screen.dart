@@ -19,16 +19,29 @@ class DetailScreen extends StatelessWidget {
           onPressed: () => context.read<CountryBloc>().add(ClearSelection()),
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Kraj: ${country.name}', style: const TextStyle(fontSize: 24)),
-            const SizedBox(height: 16),
-            Text('Powierzchnia: ${country.areaSqM} m^2', style: const TextStyle(fontSize: 18)),
+            if (country.flagUrl.isNotEmpty)
+              Center(
+                child: Image.network(
+                  country.flagUrl,
+                  height: 150,
+                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.error, size: 50),
+                ),
+              ),
+            const SizedBox(height: 24),
+            Text('Kraj: ${country.name}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const Divider(),
+            Text('Stolica: ${country.capital}', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 8),
             Text('Populacja: ${country.population}', style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 8),
+            Text('Region: ${country.region}', style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 8),
+            Text('Współrzędne: ${country.lat}, ${country.lng}', style: const TextStyle(fontSize: 18)),
           ],
         ),
       ),

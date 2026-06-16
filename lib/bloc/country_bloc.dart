@@ -8,29 +8,40 @@ class CountryBloc extends Bloc<CountryEvent, CountryState> {
   final CountryRepo repo;
 
   CountryBloc(this.repo) : super(CountryLoading()) {
-    on<LoadCountries>((event, emit) {
-      final data = repo.getCountries();
+    on<LoadCountries>(_onLoadCountries);
+    on<SelectCountry>(_onSelectCountry);
+    on<ClearSelection>(_onClearSelection);
+  }
+
+
+  Future<void> _onLoadCountries(LoadCountries event, Emitter<CountryState> emit) async {
+    emit(CountryLoading());
+    try {
+      final data = await repo.getCountries();
       emit(CountryLoaded(countries: data));
-    });
+    } catch (e) {
+      print('Error: $e');
+      emit(CountryError(e.toString()));
+    }
+  }
 
-    on<SelectCountry>((event, emit) {
-      if (state is CountryLoaded) {
-        final currentState = state as CountryLoaded;
-        emit(CountryLoaded(
-          countries: currentState.countries,
-          selectedCountry: event.country,
-        ));
-      }
-    });
+  void _onSelectCountry(SelectCountry event, Emitter<CountryState> emit) {
+    if (state is CountryLoaded) {
+      final currentState = state as CountryLoaded;
+      emit(CountryLoaded(
+        countries: currentState.countries,
+        selectedCountry: event.country,
+      ));
+    }
+  }
 
-    on<ClearSelection>((event, emit) {
-      if (state is CountryLoaded) {
-        final currentState = state as CountryLoaded;
-        emit(CountryLoaded(
-          countries: currentState.countries,
-          selectedCountry: null,
-        ));
-      }
-    });
+  void _onClearSelection(ClearSelection event, Emitter<CountryState> emit) {
+    if (state is CountryLoaded) {
+      final currentState = state as CountryLoaded;
+      emit(CountryLoaded(
+        countries: currentState.countries,
+        selectedCountry: null,
+      ));
+    }
   }
 }
