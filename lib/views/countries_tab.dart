@@ -5,7 +5,6 @@ import '../bloc/country_event.dart';
 import '../bloc/country_state.dart';
 import '../l10n/app_localizations.dart';
 import 'list_screen.dart';
-import 'detail_screen.dart';
 
 class CountriesTab extends StatelessWidget {
   const CountriesTab({super.key});
@@ -38,15 +37,11 @@ class CountriesTab extends StatelessWidget {
             ),
           );
         } else if (state is CountryLoaded) {
-          if (state.selectedCountry == null) {
-            return ListScreen(
-              countries: state.countries,
-              isFetchingMore: state.isFetchingMore,
-              isSearching: state.isSearching,
-            );
-          } else {
-            return DetailScreen(country: state.selectedCountry!);
-          }
+          return ListScreen(
+            countries: state.countries,
+            isFetchingMore: state.isFetchingMore,
+            isSearching: state.isSearching,
+          );
         }
         return const SizedBox.shrink();
       },

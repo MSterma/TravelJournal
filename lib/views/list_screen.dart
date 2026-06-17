@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../locator.dart';
 import '../models/country.dart';
 import '../bloc/country_bloc.dart';
 import '../bloc/country_event.dart';
+import '../bloc/country_details_bloc.dart';
+import '../bloc/country_details_event.dart';
 import '../l10n/app_localizations.dart';
+import '../repositories/local_repo.dart';
+import 'detail_screen.dart';
 
 class ListScreen extends StatefulWidget {
-  final List<Country> countries;
-  final bool isFetchingMore;
-  final bool isSearching;
-
   const ListScreen({
     super.key,
     required this.countries,
     required this.isFetchingMore,
     required this.isSearching,
   });
+  final List<Country> countries;
+  final bool isFetchingMore;
+  final bool isSearching;
 
   @override
   State<ListScreen> createState() => _ListScreenState();
@@ -88,7 +92,7 @@ class _ListScreenState extends State<ListScreen> {
             child: widget.isSearching
                 ? const Center(child: CircularProgressIndicator())
                 : widget.countries.isEmpty
-                ?  Center(child: Text("${l10n.noResults}"))
+                ? Center(child: Text(l10n.noResults))
                 : ListView.builder(
               controller: _scrollController,
               itemCount: widget.countries.length + (widget.isFetchingMore ? 1 : 0),
@@ -103,7 +107,19 @@ class _ListScreenState extends State<ListScreen> {
                 final c = widget.countries[index];
                 return ListTile(
                   title: Text(c.name),
-                  onTap: () => context.read<CountryBloc>().add(SelectCountry(c)),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BlocProvider(
+                          create: (context) => CountryDetailsBloc(
+                            locator<LocalRepo>(),
+                          )..add(LoadDetails(c.name)),
+                          child: DetailScreen(country: c),
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             ),
