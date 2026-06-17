@@ -63,28 +63,83 @@ class AccountScreen extends StatelessWidget {
   }
 
   void _changePassword(BuildContext context, AppLocalizations l10n) {
-    final ctrl = TextEditingController();
+    final newCtrl = TextEditingController();
+    final confirmCtrl = TextEditingController();
+    bool obscure = true;
+    String? errorMsg;
+
     showDialog(
       context: context,
-      builder: (c) => AlertDialog(
-        title: Text(l10n.newPassword),
-        content: TextField(controller: ctrl, obscureText: true),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(c), child: Text(l10n.cancel)),
-          TextButton(
-            onPressed: () async {
-              try {
-                await locator<FirebaseAuth>().currentUser?.updatePassword(ctrl.text);
-                if (context.mounted) {
-                  Navigator.pop(c);
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.passwordChanged)));
-                }
-              } catch (e) {
-              }
-            },
-            child: Text(l10n.save),
-          ),
-        ],
+      builder: (c) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text(l10n.changePassword),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (errorMsg != null) ...[
+                  Text(errorMsg!, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                ],
+                TextField(
+                  controller: newCtrl,
+                  obscureText: obscure,
+                  decoration: InputDecoration(
+                    labelText: l10n.newPassword,
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: Icon(obscure ? Icons.visibility : Icons.visibility_off),
+                      onPressed: () => setState(() => obscure = !obscure),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: confirmCtrl,
+                  obscureText: obscure,
+                  decoration:  InputDecoration(
+                    labelText: l10n.confirmPassword,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(c), child: Text(l10n.cancel)),
+              ElevatedButton(
+                onPressed: () async {
+                  if (newCtrl.text.length < 6) {
+                    setState(() => errorMsg = 'Min. 6 znaków');
+                    return;
+                  }
+                  if (newCtrl.text != confirmCtrl.text) {
+                    setState(() => errorMsg = 'Hasła nie pasować');
+                    return;
+                  }
+
+                  setState(() => errorMsg = null);
+
+                  try {
+                    await locator<FirebaseAuth>().currentUser?.updatePassword(newCtrl.text);
+                    if (context.mounted) {
+                      Navigator.pop(c);
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.passwordChanged)));
+                    }
+                  } on FirebaseAuthException catch (e) {
+                    if (e.code == 'requires-recent-login') {
+                      setState(() => errorMsg = 'Wymagać ponowne logowanie przed zmiana');
+                    } else {
+                      setState(() => errorMsg = 'Błąd chmura');
+                    }
+                  } catch (e) {
+                    setState(() => errorMsg = 'Błąd');
+                  }
+                },
+                child: Text(l10n.save),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

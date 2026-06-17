@@ -33,7 +33,8 @@
      "createAccount": "Create account",
      "save":"Save",
      "noAccount":"You don't have an account yet?",
-        "newPassword":"New Password",
+        "newPassword":"New password",
            "cancel":"Cancel",
-           "passwordChanged":"Password changed"
+           "passwordChanged":"Password changed",
+           "confirmPassword":"Confirm password"
 }

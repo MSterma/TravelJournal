@@ -36,6 +36,8 @@
       "noAccount":"Nie masz konta? Zarejestruj się",
       "newPassword":"Nowe hasło",
       "cancel":"Anuluj",
-      "passwordChanged":"Zmień hasło"
+      "passwordChanged":"Zmień hasło",
+      "confirmPassword":"Potwierdź hasło"
+
 
 }
