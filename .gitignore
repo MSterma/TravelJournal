@@ -54,3 +54,9 @@ app_localizations_pl.dart
 *.db
 
 .env
+
+/Pods/
+
+.symlinks/
+
+.plugin_symlinks/

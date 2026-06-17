@@ -129,7 +129,6 @@ class CountryBloc extends Bloc<CountryEvent, CountryState> {
         emit(currentState.copyWith(photos: newPhotos));
       }
     } catch (e) {
-      //print("err pic: $e");
     }
   }
 }
