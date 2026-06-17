@@ -17,5 +17,25 @@
   "noResults": "Brak wyników",
   "countryVisited":"Kraj odwiedzony!",
   "addPhoto":"Dodaj zdjęcie",
-  "markVisited":"Oznacz jako odwiedzone"
+  "markVisited":"Oznacz jako odwiedzone",
+  "flushDatabase":"Wyczyść bazę danych",
+   "noEmail":"Brak",
+   "changePassword":"Zmień hasło",
+   "loggedAs":"Zalogowany jako:",
+   "deleteAccount":"Usuń konto",
+    "logOut":"Wyloguj",
+    "noData":"Brak danych",
+    "databaseFlushed":"Baza została wyczyszczona",
+     "visitedPlaces":"Odwiedzone miejsca",
+     "signUp":"Zarejestruj się",
+     "email":"Adres e-mail",
+     "password":"Hasło",
+      "createAccount": "Stwórz konto",
+      "save":"zapisz",
+      "logIn":"Zaloguj się",
+      "noAccount":"Nie masz konta? Zarejestruj się",
+      "newPassword":"Nowe hasło",
+      "cancel":"Anuluj",
+      "passwordChanged":"Zmień hasło"
+
 }

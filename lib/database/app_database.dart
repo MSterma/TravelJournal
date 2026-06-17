@@ -13,7 +13,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -22,6 +22,10 @@ class AppDatabase extends _$AppDatabase {
       if (from == 1) {
         await m.alterTable(TableMigration(visitedCountries));
         await m.alterTable(TableMigration(countryPhotos));
+      }
+      if (from < 3) {
+       await m.addColumn(visitedCountries, visitedCountries.lat);
+        await m.addColumn(visitedCountries, visitedCountries.lng);
       }
     },
   );

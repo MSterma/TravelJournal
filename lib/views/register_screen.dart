@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -24,8 +25,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Rejestracja')),
+      appBar: AppBar(title: Text(l10n.signUp)),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
@@ -33,7 +36,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
               SnackBar(content: Text(state.message), backgroundColor: Colors.red),
             );
           } else if (state is AuthAuthenticated) {
-            // Zamknąć ekran rejestracji po sukcesie, AuthWrapper sam pokaże MainScreen
             Navigator.pop(context);
           }
         },
@@ -49,13 +51,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 TextField(
                   controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
+                  decoration: InputDecoration(labelText: l10n.email, border: const OutlineInputBorder()),
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Hasło', border: OutlineInputBorder()),
+                  decoration: InputDecoration(labelText: l10n.password, border: const OutlineInputBorder()),
                   obscureText: true,
                 ),
                 const SizedBox(height: 24),
@@ -65,7 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       AuthSignUpRequested(_emailController.text, _passwordController.text),
                     );
                   },
-                  child: const Text('Utwórz konto'),
+                  child: Text(l10n.createAccount),
                 ),
               ],
             ),

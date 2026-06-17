@@ -16,26 +16,38 @@ class DetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(country.name),
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0, top: 8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 5,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(color: Colors.grey[600], borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+            Center(
+              child: Text(country.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            ),
+            const SizedBox(height: 16),
             if (country.flagUrl.isNotEmpty)
               Center(
                 child: Image.network(
                   country.flagUrl,
-                  height: 150,
+                  height: 100,
                   errorBuilder: (context, error, stackTrace) => const Icon(Icons.error, size: 50),
                 ),
               ),
             const SizedBox(height: 24),
-            Text('${l10n.country}: ${country.name}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const Divider(),
             Text('${l10n.capital}: ${country.capital}', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 8),
             Text('${l10n.population}: ${country.population}', style: const TextStyle(fontSize: 18)),
@@ -43,16 +55,12 @@ class DetailScreen extends StatelessWidget {
             Text('${l10n.region}: ${country.region}', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 8),
             Text('${l10n.coordinates}: ${country.lat}, ${country.lng}', style: const TextStyle(fontSize: 18)),
-
             const SizedBox(height: 32),
             BlocConsumer<CountryDetailsBloc, CountryDetailsState>(
               listener: (context, state) {
                 if (state is DetailsLoaded && state.failure != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.failure!.message),
-                      backgroundColor: Colors.red,
-                    ),
+                    SnackBar(content: Text(state.failure!.message), backgroundColor: Colors.red),
                   );
                 }
               },
@@ -70,37 +78,29 @@ class DetailScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 16),
-
                         ElevatedButton.icon(
                           icon: const Icon(Icons.add_a_photo),
                           onPressed: () async {
                             final picker = ImagePicker();
                             final image = await picker.pickImage(source: ImageSource.gallery);
-                            if (image != null) {
+                            if (image != null && context.mounted) {
                               context.read<CountryDetailsBloc>().add(AddCountryPhoto(country.name, image.path));
                             }
                           },
                           label: Text(l10n.addPhoto),
                         ),
                         const SizedBox(height: 16),
-
                         if (state.photos.isNotEmpty)
                           GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                crossAxisSpacing: 8,
-                                mainAxisSpacing: 8
-                            ),
+                                crossAxisCount: 3, crossAxisSpacing: 8, mainAxisSpacing: 8),
                             itemCount: state.photos.length,
                             itemBuilder: (context, index) {
                               return ClipRRect(
                                 borderRadius: BorderRadius.circular(8.0),
-                                child: Image.file(
-                                  File(state.photos[index]),
-                                  fit: BoxFit.cover,
-                                ),
+                                child: Image.file(File(state.photos[index]), fit: BoxFit.cover),
                               );
                             },
                           )
@@ -110,7 +110,7 @@ class DetailScreen extends StatelessWidget {
                     return Center(
                       child: ElevatedButton.icon(
                         icon: const Icon(Icons.add_location),
-                        onPressed: () => context.read<CountryDetailsBloc>().add(MarkCountryVisited(country.name)),
+                        onPressed: () => context.read<CountryDetailsBloc>().add(MarkCountryVisited(country.name, country.lat, country.lng)),
                         label: Text(l10n.markVisited),
                       ),
                     );

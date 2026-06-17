@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../l10n/app_localizations.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -25,8 +26,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Logowanie')),
+      appBar: AppBar(title: Text(l10n.logIn)),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
@@ -47,13 +50,13 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 TextField(
                   controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
+                  decoration: InputDecoration(labelText: l10n.email, border: const OutlineInputBorder()),
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Hasło', border: OutlineInputBorder()),
+                  decoration: InputDecoration(labelText: l10n.password, border: const OutlineInputBorder()),
                   obscureText: true,
                 ),
                 const SizedBox(height: 24),
@@ -63,7 +66,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       AuthSignInRequested(_emailController.text, _passwordController.text),
                     );
                   },
-                  child: const Text('Zaloguj się'),
+                  child: Text(l10n.logIn),
                 ),
                 TextButton(
                   onPressed: () {
@@ -72,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       MaterialPageRoute(builder: (context) => const RegisterScreen()),
                     );
                   },
-                  child: const Text('Nie masz konta? Zarejestruj się'),
+                  child: Text(l10n.noAccount, textAlign: TextAlign.center),
                 ),
               ],
             ),

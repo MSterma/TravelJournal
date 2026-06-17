@@ -8,6 +8,7 @@ import '../bloc/country_details_bloc.dart';
 import '../bloc/country_details_event.dart';
 import '../l10n/app_localizations.dart';
 import '../repositories/local_repo.dart';
+import '../repositories/auth_repo.dart';
 import 'detail_screen.dart';
 
 class ListScreen extends StatefulWidget {
@@ -108,14 +109,21 @@ class _ListScreenState extends State<ListScreen> {
                 return ListTile(
                   title: Text(c.name),
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BlocProvider(
-                          create: (context) => CountryDetailsBloc(
-                            locator<LocalRepo>(),
-                          )..add(LoadDetails(c.name)),
-                          child: DetailScreen(country: c),
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => Padding(
+                        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                        child: FractionallySizedBox(
+                          heightFactor: 0.85,
+                          child: BlocProvider(
+                            create: (context) => CountryDetailsBloc(
+                              locator<LocalRepo>(),
+                              locator<AuthRepo>(),
+                            )..add(LoadDetails(c.name)),
+                            child: DetailScreen(country: c),
+                          ),
                         ),
                       ),
                     );

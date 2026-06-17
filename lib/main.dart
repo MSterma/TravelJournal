@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
           create: (context) => locator<AuthBloc>()..add(AuthCheckRequested()),
         ),
         BlocProvider<CountryBloc>(
-          create: (context) => CountryBloc(locator(), locator())..add(LoadCountries()),
+          create: (context) => CountryBloc(locator())..add(LoadCountries()),
         ),
       ],
       child: MaterialApp(
