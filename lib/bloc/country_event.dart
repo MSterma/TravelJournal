@@ -7,21 +7,21 @@ class LoadCountries extends CountryEvent {}
 class LoadMoreCountries extends CountryEvent {}
 
 class SearchCountries extends CountryEvent {
-  final String query;
   SearchCountries(this.query);
+  final String query;
 }
 
 class SelectCountry extends CountryEvent {
-  final Country country;
   SelectCountry(this.country);
+  final Country country;
 }
 class MarkVisited extends CountryEvent {
-  final String countryName;
   MarkVisited(this.countryName);
+  final String countryName;
 }
 class ClearSelection extends CountryEvent {}
 class AddPhoto extends CountryEvent {
+  AddPhoto(this.countryName, this.imagePath);
   final String countryName;
   final String imagePath;
-  AddPhoto(this.countryName, this.imagePath);
 }
