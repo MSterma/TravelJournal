@@ -37,7 +37,12 @@
       "newPassword":"Nowe hasło",
       "cancel":"Anuluj",
       "passwordChanged":"Zmień hasło",
-      "confirmPassword":"Potwierdź hasło"
+      "confirmPassword":"Potwierdź hasło",
+      "min6Chars": "Min. 6 znaków",
+        "passwordsNotMatch": "Hasła nie pasują do siebie",
+        "requiresRecentLogin": "Wymagane ponowne logowanie",
+        "cloudError": "Błąd chmury",
+        "errorMsg": "Błąd"
 
 
 }

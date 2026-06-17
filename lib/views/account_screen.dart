@@ -97,9 +97,13 @@ class AccountScreen extends StatelessWidget {
                 TextField(
                   controller: confirmCtrl,
                   obscureText: obscure,
-                  decoration:  InputDecoration(
+                  decoration: InputDecoration(
                     labelText: l10n.confirmPassword,
-                    border: OutlineInputBorder(),
+                    border: const OutlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: Icon(obscure ? Icons.visibility : Icons.visibility_off),
+                      onPressed: () => setState(() => obscure = !obscure),
+                    ),
                   ),
                 ),
               ],
@@ -109,11 +113,11 @@ class AccountScreen extends StatelessWidget {
               ElevatedButton(
                 onPressed: () async {
                   if (newCtrl.text.length < 6) {
-                    setState(() => errorMsg = 'Min. 6 znaków');
+                    setState(() => errorMsg = l10n.min6Chars);
                     return;
                   }
                   if (newCtrl.text != confirmCtrl.text) {
-                    setState(() => errorMsg = 'Hasła nie pasować');
+                    setState(() => errorMsg = l10n.passwordsNotMatch);
                     return;
                   }
 
@@ -127,12 +131,12 @@ class AccountScreen extends StatelessWidget {
                     }
                   } on FirebaseAuthException catch (e) {
                     if (e.code == 'requires-recent-login') {
-                      setState(() => errorMsg = 'Wymagać ponowne logowanie przed zmiana');
+                      setState(() => errorMsg = l10n.requiresRecentLogin);
                     } else {
-                      setState(() => errorMsg = 'Błąd chmura');
+                      setState(() => errorMsg = l10n.cloudError);
                     }
                   } catch (e) {
-                    setState(() => errorMsg = 'Błąd');
+                    setState(() => errorMsg = l10n.errorMsg);
                   }
                 },
                 child: Text(l10n.save),

@@ -36,5 +36,10 @@
         "newPassword":"New password",
            "cancel":"Cancel",
            "passwordChanged":"Password changed",
-           "confirmPassword":"Confirm password"
+           "confirmPassword":"Confirm password",
+           "min6Chars": "Min. 6 characters",
+             "passwordsNotMatch": "Passwords do not match",
+             "requiresRecentLogin": "Requires recent login",
+             "cloudError": "Cloud error",
+             "errorMsg": "Error"
 }
