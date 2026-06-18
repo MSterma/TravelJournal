@@ -1,17 +1,12 @@
-abstract class AuthState {}
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class AuthInitial extends AuthState {}
+part 'auth_state.freezed.dart';
 
-class AuthLoading extends AuthState {}
-
-class AuthAuthenticated extends AuthState {
-  AuthAuthenticated(this.userId);
-  final String userId;
-}
-
-class AuthUnauthenticated extends AuthState {}
-
-class AuthError extends AuthState {
-  AuthError(this.message);
-  final String message;
+@freezed
+abstract class AuthState with _$AuthState {
+  const factory AuthState.initial() = AuthInitial;
+  const factory AuthState.loading() = AuthLoading;
+  const factory AuthState.authenticated(String userId) = AuthAuthenticated;
+  const factory AuthState.unauthenticated() = AuthUnauthenticated;
+  const factory AuthState.error(String message) = AuthError;
 }

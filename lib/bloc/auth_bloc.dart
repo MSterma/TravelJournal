@@ -5,7 +5,7 @@ import '../repositories/auth_repo.dart';
 import '../services/sync_service.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthBloc(this.authRepo, this.syncService) : super(AuthInitial()) {
+  AuthBloc(this.authRepo, this.syncService) : super(const AuthState.initial()) {
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthSignInRequested>(_onAuthSignInRequested);
     on<AuthSignUpRequested>(_onAuthSignUpRequested);
@@ -15,53 +15,51 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepo authRepo;
   final SyncService syncService;
 
+  void _runSync(String userId) {
+    syncService.syncCloudToLocal(userId).then((_) {
+      syncService.syncLocalToCloud(userId);
+    });
+  }
+
   Future<void> _onAuthCheckRequested(AuthCheckRequested event, Emitter<AuthState> emit) async {
     final userId = await authRepo.getCurrentUserId();
     if (userId != null) {
-      emit(AuthAuthenticated(userId));
-      syncService.syncCloudToLocal(userId).then((_) {
-        syncService.syncLocalToCloud(userId);
-      });
+      emit(AuthState.authenticated(userId));
+      _runSync(userId);
     } else {
-      emit(AuthUnauthenticated());
+      emit(const AuthState.unauthenticated());
     }
   }
 
   Future<void> _onAuthSignInRequested(AuthSignInRequested event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
+    emit(const AuthState.loading());
     try {
       await authRepo.signIn(event.email, event.password);
       final userId = await authRepo.getCurrentUserId();
-      emit(AuthAuthenticated(userId!));
-
-      syncService.syncCloudToLocal(userId).then((_) {
-        syncService.syncLocalToCloud(userId);
-      });
+      emit(AuthState.authenticated(userId!));
+      _runSync(userId);
     } catch (e) {
-      emit(AuthError(e.toString()));
-      emit(AuthUnauthenticated());
+      emit(AuthState.error(e.toString()));
+      emit(const AuthState.unauthenticated());
     }
   }
 
   Future<void> _onAuthSignUpRequested(AuthSignUpRequested event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
+    emit(const AuthState.loading());
     try {
       await authRepo.signUp(event.email, event.password);
       final userId = await authRepo.getCurrentUserId();
-      emit(AuthAuthenticated(userId!));
-
-      syncService.syncCloudToLocal(userId).then((_) {
-        syncService.syncLocalToCloud(userId);
-      });
+      emit(AuthState.authenticated(userId!));
+      _runSync(userId);
     } catch (e) {
-      emit(AuthError(e.toString()));
-      emit(AuthUnauthenticated());
+      emit(AuthState.error(e.toString()));
+      emit(const AuthState.unauthenticated());
     }
   }
 
   Future<void> _onAuthSignOutRequested(AuthSignOutRequested event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
+    emit(const AuthState.loading());
     await authRepo.signOut();
-    emit(AuthUnauthenticated());
+    emit(const AuthState.unauthenticated());
   }
 }

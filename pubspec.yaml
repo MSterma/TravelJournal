@@ -49,6 +49,9 @@ dependencies:
   flutter_map: ^8.3.0
   latlong2: ^0.9.1
   fl_chart: ^1.2.0
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.12.0
+  retrofit: ^4.9.2
 
 dev_dependencies:
   flutter_test:
@@ -57,7 +60,7 @@ dev_dependencies:
     sdk: flutter
   intl: any
   drift_dev: ^2.14.0
-  build_runner: ^2.4.7
+  build_runner: ^2.15.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -65,6 +68,9 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  freezed: ^3.2.6-dev.1
+  json_serializable: ^6.14.0
+  retrofit_generator: ^10.2.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

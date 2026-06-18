@@ -1,29 +1,14 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'failures.dart';
 
-abstract class CountryDetailsState {}
+part 'country_details_state.freezed.dart';
 
-class DetailsLoading extends CountryDetailsState {}
-
-class DetailsLoaded extends CountryDetailsState {
-  DetailsLoaded({
-    required this.isVisited,
-    required this.photos,
-    this.failure,
-  });
-
-  final bool isVisited;
-  final List<String> photos;
-  final Failure? failure;
-
-  DetailsLoaded copyWith({
-    bool? isVisited,
-    List<String>? photos,
+@freezed
+abstract class CountryDetailsState with _$CountryDetailsState {
+  const factory CountryDetailsState.loading() = DetailsLoading;
+  const factory CountryDetailsState.loaded({
+    required bool isVisited,
+    required List<String> photos,
     Failure? failure,
-  }) {
-    return DetailsLoaded(
-      isVisited: isVisited ?? this.isVisited,
-      photos: photos ?? this.photos,
-      failure: failure,
-    );
-  }
+  }) = DetailsLoaded;
 }
