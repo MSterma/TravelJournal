@@ -1,28 +1,25 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../models/country.dart';
 import '../repositories/country_repo.dart';
-import '../repositories/local_repo.dart';
 import 'country_event.dart';
 import 'country_state.dart';
+import '../locator.dart';
+import '../services/sync_service.dart';
+import '../repositories/auth_repo.dart';
 
 class CountryBloc extends Bloc<CountryEvent, CountryState> {
   final CountryRepo repo;
-  final LocalRepo localRepo;
   int _currentOffset = 0;
   final int _limit = 25;
   String? _currentQuery;
 
-  CountryBloc(this.repo, this.localRepo) : super(CountryLoading()) {
+  CountryBloc(this.repo) : super(CountryLoading()) {
     on<LoadCountries>(_onLoadCountries);
     on<LoadMoreCountries>(_onLoadMoreCountries);
     on<SearchCountries>(_onSearchCountries);
-    on<SelectCountry>(_onSelectCountry);
-    on<ClearSelection>(_onClearSelection);
-    on<MarkVisited>(_onMarkVisited);
-    on<AddPhoto>(_onAddPhoto);
   }
 
   Future<void> _onLoadCountries(LoadCountries event, Emitter<CountryState> emit) async {
+    _runBackgroundSync();
     emit(CountryLoading());
     try {
       _currentOffset = 0;
@@ -35,6 +32,7 @@ class CountryBloc extends Bloc<CountryEvent, CountryState> {
   }
 
   Future<void> _onSearchCountries(SearchCountries event, Emitter<CountryState> emit) async {
+    _runBackgroundSync();
     if (state is CountryLoaded) {
       final currentState = state as CountryLoaded;
       emit(currentState.copyWith(isSearching: true, countries: []));
@@ -55,8 +53,19 @@ class CountryBloc extends Bloc<CountryEvent, CountryState> {
       }
     }
   }
-
+  void _runBackgroundSync() async {
+    try {
+      final userId = await locator<AuthRepo>().getCurrentUserId();
+      if (userId != null) {
+        await locator<SyncService>().syncCloudToLocal(userId);
+        await locator<SyncService>().syncLocalToCloud(userId);
+      }
+    } catch (e) {
+    }
+  }
   Future<void> _onLoadMoreCountries(LoadMoreCountries event, Emitter<CountryState> emit) async {
+    _runBackgroundSync();
+
     if (state is CountryLoaded) {
       final currentState = state as CountryLoaded;
       if (currentState.hasReachedMax || currentState.isFetchingMore) return;
@@ -78,57 +87,6 @@ class CountryBloc extends Bloc<CountryEvent, CountryState> {
       } catch (e) {
         emit(currentState.copyWith(isFetchingMore: false));
       }
-    }
-  }
-
-  Future<void> _onSelectCountry(SelectCountry event, Emitter<CountryState> emit) async {
-    final visited = await localRepo.checkVisited(event.country.name);
-    final photos = await localRepo.getPhotos(event.country.name);
-
-    if (state is CountryLoaded) {
-      final currentState = state as CountryLoaded;
-      emit(currentState.copyWith(
-        selectedCountry: event.country,
-        isVisited: visited,
-        photos: photos,
-      ));
-    }
-  }
-
-  void _onClearSelection(ClearSelection event, Emitter<CountryState> emit) {
-    if (state is CountryLoaded) {
-      final currentState = state as CountryLoaded;
-      emit(CountryLoaded(
-        countries: currentState.countries,
-        selectedCountry: null,
-        hasReachedMax: currentState.hasReachedMax,
-        isFetchingMore: currentState.isFetchingMore,
-        isSearching: currentState.isSearching,
-      ));
-    }
-  }
-
-  Future<void> _onMarkVisited(MarkVisited event, Emitter<CountryState> emit) async {
-    try {
-      await localRepo.markVisited(event.countryName);
-      if (state is CountryLoaded) {
-        final currentState = state as CountryLoaded;
-        emit(currentState.copyWith(isVisited: true));
-      }
-    } catch (e) {
-      //print("err: $e");
-    }
-  }
-
-  Future<void> _onAddPhoto(AddPhoto event, Emitter<CountryState> emit) async {
-    try {
-      await localRepo.addPhoto(event.countryName, event.imagePath);
-      if (state is CountryLoaded) {
-        final currentState = state as CountryLoaded;
-        final newPhotos = List<String>.from(currentState.photos)..add(event.imagePath);
-        emit(currentState.copyWith(photos: newPhotos));
-      }
-    } catch (e) {
     }
   }
 }

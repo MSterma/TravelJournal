@@ -6,8 +6,10 @@ class LoadDetails extends CountryDetailsEvent {
 }
 
 class MarkCountryVisited extends CountryDetailsEvent {
-  MarkCountryVisited(this.countryName);
+  MarkCountryVisited(this.countryName, this.lat, this.lng);
   final String countryName;
+  final double lat;
+  final double lng;
 }
 
 class AddCountryPhoto extends CountryDetailsEvent {
