@@ -46,8 +46,10 @@ class LocalRepo {
   Future<String?> _getCountryId(String countryName, String userId) async {
     final query = db.select(db.visitedCountries)
       ..where((tbl) => tbl.countryCode.equals(countryName) & tbl.userId.equals(userId));
-    final result = await query.getSingleOrNull();
-    return result?.id;
+    // Gojmini pobierać wszystkie i brać pierwszy element. Unikać StateError przy duplikaty.
+    final results = await query.get();
+    if (results.isEmpty) return null;
+    return results.first.id;
   }
 
   Future<void> addPhoto(String countryName, String imagePath, String userId) async {
@@ -96,6 +98,7 @@ class LocalRepo {
       ..where((tbl) => tbl.userId.equals(userId));
     return await query.get();
   }
+
   Future<void> clearUserData(String userId) async {
     await (db.delete(db.visitedCountries)..where((tbl) => tbl.userId.equals(userId))).go();
     await (db.delete(db.countryPhotos)..where((tbl) => tbl.userId.equals(userId))).go();

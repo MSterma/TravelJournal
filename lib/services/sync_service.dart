@@ -5,6 +5,7 @@ class SyncService {
   SyncService(this.localRepo, this.firestore);
   final LocalRepo localRepo;
   final FirebaseFirestore firestore;
+
   Future<void> syncCloudToLocal(String userId) async {
     try {
       final userDoc = firestore.collection('users').doc(userId);
@@ -12,6 +13,9 @@ class SyncService {
 
       for (final doc in snapshot.docs) {
         final data = doc.data();
+
+        if (data['countryCode'] == null) continue;
+
         final lat = (data['lat'] as num?)?.toDouble() ?? 0.0;
         final lng = (data['lng'] as num?)?.toDouble() ?? 0.0;
 
@@ -20,6 +24,7 @@ class SyncService {
     } catch (e) {
     }
   }
+
   Future<void> syncLocalToCloud(String userId) async {
     try {
       final unsynced = await localRepo.getUnsyncedCountries(userId);
@@ -44,6 +49,7 @@ class SyncService {
     } catch (e) {
     }
   }
+
   Future<void> clearCloudData(String userId) async {
     try {
       final collection = firestore.collection('users').doc(userId).collection('visited');
