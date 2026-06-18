@@ -1,8 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../models/country.dart';
 import '../repositories/country_repo.dart';
 import 'country_event.dart';
 import 'country_state.dart';
+import '../locator.dart';
+import '../services/sync_service.dart';
+import '../repositories/auth_repo.dart';
 
 class CountryBloc extends Bloc<CountryEvent, CountryState> {
   final CountryRepo repo;
@@ -17,6 +19,7 @@ class CountryBloc extends Bloc<CountryEvent, CountryState> {
   }
 
   Future<void> _onLoadCountries(LoadCountries event, Emitter<CountryState> emit) async {
+    _runBackgroundSync();
     emit(CountryLoading());
     try {
       _currentOffset = 0;
@@ -29,6 +32,7 @@ class CountryBloc extends Bloc<CountryEvent, CountryState> {
   }
 
   Future<void> _onSearchCountries(SearchCountries event, Emitter<CountryState> emit) async {
+    _runBackgroundSync();
     if (state is CountryLoaded) {
       final currentState = state as CountryLoaded;
       emit(currentState.copyWith(isSearching: true, countries: []));
@@ -49,8 +53,19 @@ class CountryBloc extends Bloc<CountryEvent, CountryState> {
       }
     }
   }
-
+  void _runBackgroundSync() async {
+    try {
+      final userId = await locator<AuthRepo>().getCurrentUserId();
+      if (userId != null) {
+        await locator<SyncService>().syncCloudToLocal(userId);
+        await locator<SyncService>().syncLocalToCloud(userId);
+      }
+    } catch (e) {
+    }
+  }
   Future<void> _onLoadMoreCountries(LoadMoreCountries event, Emitter<CountryState> emit) async {
+    _runBackgroundSync();
+
     if (state is CountryLoaded) {
       final currentState = state as CountryLoaded;
       if (currentState.hasReachedMax || currentState.isFetchingMore) return;
