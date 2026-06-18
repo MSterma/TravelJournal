@@ -7,8 +7,8 @@ class CountryRepo {
 
   CountryRepo(this.apiClient);
 
-  Future<List<Country>> getCountries({int limit = 25, int offset = 0}) async {
-    final responseData = await apiClient.get(AppUrls.countriesPaginated(limit, offset));
+  Future<List<Country>> getCountries({int limit = 25, int offset = 0, String? query}) async {
+    final responseData = await apiClient.get(AppUrls.countriesPaginated(limit, offset, query));
 
     final dataMap = responseData['data'];
     final list = dataMap != null ? dataMap['objects'] : [];

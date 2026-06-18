@@ -12,5 +12,10 @@
   "noRegion": "Not provided",
   "navCountries": "Countries",
    "navMap": "Map",
-   "navAccount": "Account"
+   "navAccount": "Account",
+   "search": "Search country...",
+    "noResults": "noResults",
+    "countryVisited":"Country visited!",
+    "addPhoto":"Add photo",
+    "markVisited":"Mark as visited"
 }
