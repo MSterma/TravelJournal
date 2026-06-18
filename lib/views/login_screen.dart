@@ -33,8 +33,14 @@ class _LoginScreenState extends State<LoginScreen> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
+            String msg = state.message;
+            if (msg.contains('invalid-email')) msg = l10n.errorInvalidEmail;
+            else if (msg.contains('user-not-found') || msg.contains('invalid-credential')) msg = l10n.errorUserNotFound;
+            else if (msg.contains('wrong-password')) msg = l10n.errorWrongPassword;
+            else msg = l10n.errorAuth;
+
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+              SnackBar(content: Text(msg), backgroundColor: Colors.red),
             );
           }
         },

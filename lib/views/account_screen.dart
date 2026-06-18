@@ -51,7 +51,7 @@ class AccountScreen extends StatelessWidget {
                   icon: const Icon(Icons.delete_forever),
                   label: Text(l10n.deleteAccount),
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  onPressed: () => _deleteAccount(context, state.userId),
+                  onPressed: () => _deleteAccount(context, state.userId, l10n),
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton.icon(
@@ -186,6 +186,7 @@ class AccountScreen extends StatelessWidget {
                   setState(() => errorMsg = null);
 
                   try {
+                    await locator<FirebaseAuth>().setLanguageCode(l10n.localeName);
                     await locator<FirebaseAuth>().currentUser?.updatePassword(newCtrl.text);
                     if (context.mounted) {
                       Navigator.pop(c);
@@ -218,14 +219,32 @@ class AccountScreen extends StatelessWidget {
     }
   }
 
-  void _deleteAccount(BuildContext context, String userId) async {
+  void _deleteAccount(BuildContext context, String userId, AppLocalizations l10n) async {
     try {
+      await locator<FirebaseAuth>().setLanguageCode(l10n.localeName);
       await locator<LocalRepo>().clearUserData(userId);
       await locator<SyncService>().clearCloudData(userId);
 
       await locator<FirebaseAuth>().currentUser?.delete();
       if (context.mounted) context.read<AuthBloc>().add(AuthSignOutRequested());
+    } on FirebaseAuthException catch (e) {
+      if (context.mounted) {
+        if (e.code == 'requires-recent-login') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.requiresRecentLogin), backgroundColor: Colors.red),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(l10n.cloudError), backgroundColor: Colors.red),
+          );
+        }
+      }
     } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.errorMsg), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 }

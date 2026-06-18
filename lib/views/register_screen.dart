@@ -32,8 +32,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
+            String msg = state.message;
+            if (msg.contains('invalid-email')) msg = l10n.errorInvalidEmail;
+            else if (msg.contains('email-already-in-use')) msg = l10n.errorEmailInUse;
+            else if (msg.contains('weak-password')) msg = l10n.errorWeakPassword;
+            else msg = l10n.errorAuth;
+
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+              SnackBar(content: Text(msg), backgroundColor: Colors.red),
             );
           } else if (state is AuthAuthenticated) {
             Navigator.pop(context);

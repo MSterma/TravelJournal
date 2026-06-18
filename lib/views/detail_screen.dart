@@ -59,8 +59,13 @@ class DetailScreen extends StatelessWidget {
             BlocConsumer<CountryDetailsBloc, CountryDetailsState>(
               listener: (context, state) {
                 if (state is DetailsLoaded && state.failure != null) {
+                  String msg = state.failure!.message;
+                  if (msg == "Failed to load details") msg = l10n.errorLoadDetails;
+                  else if (msg == "Failed to mark as visited") msg = l10n.errorMarkVisited;
+                  else if (msg == "Failed to add photo") msg = l10n.errorAddPhoto;
+
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.failure!.message), backgroundColor: Colors.red),
+                    SnackBar(content: Text(msg), backgroundColor: Colors.red),
                   );
                 }
               },

@@ -11,6 +11,8 @@ import 'bloc/auth_bloc.dart';
 import 'bloc/auth_event.dart';
 import 'views/auth_wrapper.dart';
 import 'theme.dart';
+import 'repositories/auth_repo.dart';
+import 'services/sync_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +31,10 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(
-          create: (context) => locator<AuthBloc>()..add(AuthCheckRequested()),
+          create: (context) => AuthBloc(
+              locator<AuthRepo>(),
+              locator<SyncService>()
+          )..add(AuthCheckRequested()),
         ),
         BlocProvider<CountryBloc>(
           create: (context) => CountryBloc(locator())..add(LoadCountries()),

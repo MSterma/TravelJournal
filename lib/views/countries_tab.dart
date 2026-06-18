@@ -26,7 +26,7 @@ class CountriesTab extends StatelessWidget {
                 children: [
                   const Icon(Icons.error_outline, color: Colors.red, size: 48),
                   const SizedBox(height: 16),
-                  Text(state.message, textAlign: TextAlign.center),
+                  Text(l10n?.errorFetchCountries ?? 'Error', textAlign: TextAlign.center),
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => context.read<CountryBloc>().add(LoadCountries()),

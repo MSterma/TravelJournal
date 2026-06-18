@@ -42,7 +42,17 @@
         "passwordsNotMatch": "Hasła nie pasują do siebie",
         "requiresRecentLogin": "Wymagane ponowne logowanie",
         "cloudError": "Błąd chmury",
-        "errorMsg": "Błąd"
+        "errorMsg": "Błąd",
+       "errorLoadDetails": "Nie udało się załadować danych",
+         "errorMarkVisited": "Nie udało się zapisać",
+         "errorAddPhoto": "Nie udało się dodać zdjęcia",
+         "errorAuth": "Błąd logowanie/rejestracja",
+         "errorInvalidEmail": "Nieprawidłowy adres email",
+         "errorWrongPassword": "Błędne hasło",
+         "errorUserNotFound": "Nie znaleziono użytkownika",
+         "errorEmailInUse": "Adres email jest zajęty",
+         "errorWeakPassword": "Hasło jest zbyt słabe",
+         "errorFetchCountries": "Błąd pobierania państw"
 
 
 }

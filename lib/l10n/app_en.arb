@@ -41,5 +41,15 @@
              "passwordsNotMatch": "Passwords do not match",
              "requiresRecentLogin": "Requires recent login",
              "cloudError": "Cloud error",
-             "errorMsg": "Error"
+             "errorMsg": "Error",
+             "errorLoadDetails": "Failed to load details",
+               "errorMarkVisited": "Failed to mark as visited",
+               "errorAddPhoto": "Failed to add photo",
+               "errorAuth": "Authentication error",
+               "errorInvalidEmail": "Invalid email",
+               "errorWrongPassword": "Wrong password",
+               "errorUserNotFound": "User not found",
+               "errorEmailInUse": "Email is already in use",
+               "errorWeakPassword": "Password is too weak",
+               "errorFetchCountries": "Failed to fetch countries"
 }

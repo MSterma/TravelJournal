@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
 import 'package:travel_journal/repositories/auth_repo.dart';
 import 'package:travel_journal/services/sync_service.dart';
-import 'bloc/auth_bloc.dart';
 import 'database/app_database.dart';
 import 'repositories/country_repo.dart';
 import 'repositories/local_repo.dart';
@@ -24,6 +23,4 @@ void setupLocator() {
 
   locator.registerLazySingleton<FirebaseFirestore>(() => FirebaseFirestore.instance);
   locator.registerLazySingleton<SyncService>(() => SyncService(locator<LocalRepo>(), locator<FirebaseFirestore>()));
-
-  locator.registerFactory<AuthBloc>(() => AuthBloc(locator<AuthRepo>(), locator<SyncService>()));
 }

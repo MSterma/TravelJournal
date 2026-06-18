@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import '../locator.dart';
 import '../repositories/local_repo.dart';
 import '../repositories/auth_repo.dart';
+import '../repositories/country_repo.dart';
 import '../database/app_database.dart';
 import '../models/country.dart';
 import '../bloc/country_details_bloc.dart';
@@ -75,21 +76,41 @@ class _MapScreenState extends State<MapScreen> {
                             padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                             child: FractionallySizedBox(
                               heightFactor: 0.85,
-                              child: BlocProvider(
-                                create: (context) => CountryDetailsBloc(
-                                  locator<LocalRepo>(),
-                                  locator<AuthRepo>(),
-                                )..add(LoadDetails(c.countryCode)),
-                                child: DetailScreen(
-                                  country: Country(
-                                    name: c.countryCode,
-                                    lat: c.lat,
-                                    lng: c.lng,
-                                    capital: '',
-                                    flagUrl: '',
-                                    population: 0,
-                                    region: '',
-                                  ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).scaffoldBackgroundColor,
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                                ),
+                                child: FutureBuilder<List<Country>>(
+                                  future: locator<CountryRepo>().getCountries(query: c.countryCode),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState == ConnectionState.waiting) {
+                                      return const Center(child: CircularProgressIndicator());
+                                    }
+
+                                    Country displayCountry;
+                                    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                                      displayCountry = snapshot.data!.first;
+                                    } else {
+                                      displayCountry = Country(
+                                        name: c.countryCode,
+                                        lat: c.lat,
+                                        lng: c.lng,
+                                        capital: l10n.noData,
+                                        flagUrl: '',
+                                        population: 0,
+                                        region: l10n.noData,
+                                      );
+                                    }
+
+                                    return BlocProvider(
+                                      create: (context) => CountryDetailsBloc(
+                                        locator<LocalRepo>(),
+                                        locator<AuthRepo>(),
+                                      )..add(LoadDetails(displayCountry.name)),
+                                      child: DetailScreen(country: displayCountry),
+                                    );
+                                  },
                                 ),
                               ),
                             ),
