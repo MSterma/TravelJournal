@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../models/country.dart';
+import '../../models/country.dart';
 
 part 'country_event.freezed.dart';
 

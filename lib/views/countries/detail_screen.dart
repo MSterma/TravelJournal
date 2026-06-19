@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../models/country.dart';
-import '../../bloc/country_details_bloc.dart';
-import '../../bloc/country_details_event.dart';
-import '../../bloc/country_details_state.dart';
+import '../../bloc/country_details/country_details_bloc.dart';
+import '../../bloc/country_details/country_details_event.dart';
+import '../../bloc/country_details/country_details_state.dart';
 import '../../l10n/app_localizations.dart';
 
 class DetailScreen extends StatelessWidget {

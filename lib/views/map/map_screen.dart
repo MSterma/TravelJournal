@@ -8,9 +8,10 @@ import '../../repositories/auth_repo.dart';
 import '../../repositories/country_repo.dart';
 import '../../database/app_database.dart';
 import '../../models/country.dart';
-import '../../bloc/country_details_bloc.dart';
-import '../../bloc/country_details_event.dart';
+import '../../bloc/country_details/country_details_bloc.dart';
+import '../../bloc/country_details/country_details_event.dart';
 import '../../l10n/app_localizations.dart';
+import '../../services/sync_service.dart';
 import '../countries/detail_screen.dart';
 import '../widgets/loading_indicator.dart';
 
@@ -116,6 +117,7 @@ class _MapScreenState extends State<MapScreen> {
                                       create: (context) => CountryDetailsBloc(
                                         locator<LocalRepo>(),
                                         locator<AuthRepo>(),
+                                        locator<SyncService>(),
                                       )..add(LoadDetails(displayCountry.name)),
                                       child: DetailScreen(
                                         country: displayCountry,

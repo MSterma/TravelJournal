@@ -6,4 +6,5 @@ part 'failures.freezed.dart';
 abstract class Failure with _$Failure {
   const factory Failure.database([@Default("Database Error") String message]) = DatabaseFailure;
   const factory Failure.network([@Default("Network Error") String message]) = NetworkFailure;
+  const factory Failure.auth(String message) = AuthFailure;
 }

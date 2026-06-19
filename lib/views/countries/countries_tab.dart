@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../bloc/country_bloc.dart';
-import '../../bloc/country_event.dart';
-import '../../bloc/country_state.dart';
+import '../../bloc/countries/country_bloc.dart';
+import '../../bloc/countries/country_event.dart';
+import '../../bloc/countries/country_state.dart';
 import '../../l10n/app_localizations.dart';
 import '../widgets/loading_indicator.dart';
 import '../widgets/error_view.dart';

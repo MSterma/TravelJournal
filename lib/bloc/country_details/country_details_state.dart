@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'failures.dart';
+import '../common/failures.dart';
 
 part 'country_details_state.freezed.dart';
 

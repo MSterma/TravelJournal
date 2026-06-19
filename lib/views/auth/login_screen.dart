@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../bloc/auth_bloc.dart';
-import '../../bloc/auth_event.dart';
-import '../../bloc/auth_state.dart';
+import '../../bloc/auth/auth_bloc.dart';
+import '../../bloc/auth/auth_event.dart';
+import '../../bloc/auth/auth_state.dart';
+import '../../bloc/common/failures.dart';
 import '../../l10n/app_localizations.dart';
 import '../widgets/loading_indicator.dart';
 import 'register_screen.dart';
@@ -34,75 +35,100 @@ class _LoginScreenState extends State<LoginScreen> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthError) {
-            String msg = state.message;
-            if (msg.contains('invalid-email')) {
-              msg = l10n.errorInvalidEmail;
-            } else if (msg.contains('user-not-found') ||
-                msg.contains('invalid-credential')) {
-              msg = l10n.errorUserNotFound;
-            } else if (msg.contains('wrong-password')) {
-              msg = l10n.errorWrongPassword;
-            } else {
-              msg = l10n.errorAuth;
-            }
+            final failure = state.failure;
+            if (failure is AuthFailure) {
+              final String code = failure.message;
+              String msg;
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(msg), backgroundColor: Colors.red),
-            );
+              if (code == 'wrong-password' || code.contains('wrong-password')) {
+                msg = l10n.errorWrongPassword;
+              } else if (code == 'invalid-email' || code.contains('invalid-email')) {
+                msg = l10n.errorInvalidEmail;
+              } else if (code == 'user-not-found' || code.contains('user-not-found')) {
+                msg = l10n.errorUserNotFound;
+              } else if (code == 'invalid-credential' || code.contains('invalid-credential')) {
+                msg = l10n.errorAuth;
+              } else if (code == 'user-disabled' || code.contains('user-disabled')) {
+                msg = l10n.errorUserNotFound;
+              } else {
+                msg = l10n.errorAuth;
+              }
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(msg),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
           }
         },
         builder: (context, state) {
-          if (state is AuthLoading) {
-            return const LoadingIndicator();
-          }
+          final isLoading = state is AuthLoading;
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: l10n.email,
-                    border: const OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    labelText: l10n.password,
-                    border: const OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () {
-                    context.read<AuthBloc>().add(
-                      AuthSignInRequested(
-                        _emailController.text,
-                        _passwordController.text,
+          return Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        labelText: l10n.email,
+                        border: const OutlineInputBorder(),
                       ),
-                    );
-                  },
-                  child: Text(l10n.logIn),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const RegisterScreen(),
+                      keyboardType: TextInputType.emailAddress,
+                      enabled: !isLoading,
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                        labelText: l10n.password,
+                        border: const OutlineInputBorder(),
                       ),
-                    );
-                  },
-                  child: Text(l10n.noAccount, textAlign: TextAlign.center),
+                      obscureText: true,
+                      enabled: !isLoading,
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              context.read<AuthBloc>().add(
+                                    AuthSignInRequested(
+                                      _emailController.text,
+                                      _passwordController.text,
+                                    ),
+                                  );
+                            },
+                      child: Text(l10n.logIn),
+                    ),
+                    TextButton(
+                      onPressed: isLoading
+                          ? null
+                          : () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const RegisterScreen(),
+                                ),
+                              );
+                            },
+                      child: Text(l10n.noAccount, textAlign: TextAlign.center),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              if (isLoading)
+                const AbsorbPointer(
+                  child: Center(
+                    child: LoadingIndicator(),
+                  ),
+                ),
+            ],
           );
         },
       ),
