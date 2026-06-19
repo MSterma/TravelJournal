@@ -39,20 +39,20 @@ class DetailScreen extends StatelessWidget {
               child: Text(country.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             ),
             const SizedBox(height: 16),
-            if (country.flagUrl.isNotEmpty)
+            if (country.flagUrl != null && country.flagUrl!.isNotEmpty)
               Center(
                 child: Image.network(
-                  country.flagUrl,
+                  country.flagUrl!,
                   height: 100,
                   errorBuilder: (context, error, stackTrace) => const Icon(Icons.error, size: 50),
                 ),
               ),
             const SizedBox(height: 24),
-            Text('${l10n.capital}: ${country.capital}', style: const TextStyle(fontSize: 18)),
+            Text('${l10n.capital}: ${country.capital ?? l10n.noCapital}', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 8),
             Text('${l10n.population}: ${country.population}', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 8),
-            Text('${l10n.region}: ${country.region}', style: const TextStyle(fontSize: 18)),
+            Text('${l10n.region}: ${country.region ?? l10n.noRegion}', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 8),
             Text('${l10n.coordinates}: ${country.lat}, ${country.lng}', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 32),
