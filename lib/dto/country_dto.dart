@@ -5,6 +5,8 @@ part 'country_dto.g.dart';
 
 @freezed
 abstract class CountryDto with _$CountryDto {
+  const CountryDto._();
+
   const factory CountryDto({
     @JsonKey(name: 'names') CountryNamesDto? names,
     @JsonKey(name: 'capitals') List<dynamic>? capitals,
@@ -15,6 +17,17 @@ abstract class CountryDto with _$CountryDto {
   }) = _CountryDto;
 
   factory CountryDto.fromJson(Map<String, dynamic> json) => _$CountryDtoFromJson(json);
+
+  String? get firstCapital {
+    if (capitals == null || capitals!.isEmpty) return null;
+    final firstCap = capitals!.first;
+    if (firstCap is Map && firstCap['name'] != null) {
+      return firstCap['name'].toString();
+    } else if (firstCap is String) {
+      return firstCap;
+    }
+    return null;
+  }
 }
 
 @freezed
