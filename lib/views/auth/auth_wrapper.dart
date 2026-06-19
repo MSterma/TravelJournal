@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/auth_bloc.dart';
-import '../bloc/auth_state.dart';
-import 'main_screen.dart';
+import '../../bloc/auth_bloc.dart';
+import '../../bloc/auth_state.dart';
+import '../main/main_screen.dart';
+import '../widgets/loading_indicator.dart';
 import 'login_screen.dart';
 
 class AuthWrapper extends StatelessWidget {
@@ -18,7 +19,7 @@ class AuthWrapper extends StatelessWidget {
           return const LoginScreen();
         }
         return const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
+          body: LoadingIndicator(),
         );
       },
     );

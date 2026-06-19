@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
-import '../locator.dart';
-import '../repositories/local_repo.dart';
-import '../repositories/auth_repo.dart';
-import '../repositories/country_repo.dart';
-import '../database/app_database.dart';
-import '../models/country.dart';
-import '../bloc/country_details_bloc.dart';
-import '../bloc/country_details_event.dart';
-import '../l10n/app_localizations.dart';
-import 'detail_screen.dart';
+import '../../locator.dart';
+import '../../repositories/local_repo.dart';
+import '../../repositories/auth_repo.dart';
+import '../../repositories/country_repo.dart';
+import '../../database/app_database.dart';
+import '../../models/country.dart';
+import '../../bloc/country_details_bloc.dart';
+import '../../bloc/country_details_event.dart';
+import '../../l10n/app_localizations.dart';
+import '../countries/detail_screen.dart';
+import '../widgets/loading_indicator.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -45,7 +46,7 @@ class _MapScreenState extends State<MapScreen> {
         future: _futureMarkers,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const LoadingIndicator();
           }
 
           final visited = snapshot.data ?? [];
@@ -73,23 +74,31 @@ class _MapScreenState extends State<MapScreen> {
                           isScrollControlled: true,
                           backgroundColor: Colors.transparent,
                           builder: (context) => Padding(
-                            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                            padding: EdgeInsets.only(
+                              bottom: MediaQuery.of(context).viewInsets.bottom,
+                            ),
                             child: FractionallySizedBox(
                               heightFactor: 0.85,
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).scaffoldBackgroundColor,
-                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                                  color:
+                                      Theme.of(context).scaffoldBackgroundColor,
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(20),
+                                  ),
                                 ),
                                 child: FutureBuilder<List<Country>>(
-                                  future: locator<CountryRepo>().getCountries(query: c.countryCode),
+                                  future: locator<CountryRepo>()
+                                      .getCountries(query: c.countryCode),
                                   builder: (context, snapshot) {
-                                    if (snapshot.connectionState == ConnectionState.waiting) {
-                                      return const Center(child: CircularProgressIndicator());
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const LoadingIndicator();
                                     }
 
                                     Country displayCountry;
-                                    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                                    if (snapshot.hasData &&
+                                        snapshot.data!.isNotEmpty) {
                                       displayCountry = snapshot.data!.first;
                                     } else {
                                       displayCountry = Country(
@@ -108,7 +117,9 @@ class _MapScreenState extends State<MapScreen> {
                                         locator<LocalRepo>(),
                                         locator<AuthRepo>(),
                                       )..add(LoadDetails(displayCountry.name)),
-                                      child: DetailScreen(country: displayCountry),
+                                      child: DetailScreen(
+                                        country: displayCountry,
+                                      ),
                                     );
                                   },
                                 ),

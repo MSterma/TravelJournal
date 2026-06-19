@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/auth_bloc.dart';
-import '../bloc/auth_event.dart';
-import '../bloc/auth_state.dart';
-import '../l10n/app_localizations.dart';
+import '../../bloc/auth_bloc.dart';
+import '../../bloc/auth_event.dart';
+import '../../bloc/auth_state.dart';
+import '../../l10n/app_localizations.dart';
+import '../widgets/loading_indicator.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -34,10 +35,16 @@ class _LoginScreenState extends State<LoginScreen> {
         listener: (context, state) {
           if (state is AuthError) {
             String msg = state.message;
-            if (msg.contains('invalid-email')) msg = l10n.errorInvalidEmail;
-            else if (msg.contains('user-not-found') || msg.contains('invalid-credential')) msg = l10n.errorUserNotFound;
-            else if (msg.contains('wrong-password')) msg = l10n.errorWrongPassword;
-            else msg = l10n.errorAuth;
+            if (msg.contains('invalid-email')) {
+              msg = l10n.errorInvalidEmail;
+            } else if (msg.contains('user-not-found') ||
+                msg.contains('invalid-credential')) {
+              msg = l10n.errorUserNotFound;
+            } else if (msg.contains('wrong-password')) {
+              msg = l10n.errorWrongPassword;
+            } else {
+              msg = l10n.errorAuth;
+            }
 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(msg), backgroundColor: Colors.red),
@@ -46,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
         },
         builder: (context, state) {
           if (state is AuthLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const LoadingIndicator();
           }
 
           return Padding(
@@ -56,20 +63,29 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 TextField(
                   controller: _emailController,
-                  decoration: InputDecoration(labelText: l10n.email, border: const OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    labelText: l10n.email,
+                    border: const OutlineInputBorder(),
+                  ),
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _passwordController,
-                  decoration: InputDecoration(labelText: l10n.password, border: const OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    labelText: l10n.password,
+                    border: const OutlineInputBorder(),
+                  ),
                   obscureText: true,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () {
                     context.read<AuthBloc>().add(
-                      AuthSignInRequested(_emailController.text, _passwordController.text),
+                      AuthSignInRequested(
+                        _emailController.text,
+                        _passwordController.text,
+                      ),
                     );
                   },
                   child: Text(l10n.logIn),
@@ -78,7 +94,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const RegisterScreen(),
+                      ),
                     );
                   },
                   child: Text(l10n.noAccount, textAlign: TextAlign.center),

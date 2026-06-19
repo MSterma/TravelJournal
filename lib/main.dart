@@ -9,7 +9,7 @@ import 'bloc/country_bloc.dart';
 import 'bloc/country_event.dart';
 import 'bloc/auth_bloc.dart';
 import 'bloc/auth_event.dart';
-import 'views/auth_wrapper.dart';
+import 'views/auth/auth_wrapper.dart';
 import 'theme.dart';
 import 'repositories/auth_repo.dart';
 import 'services/sync_service.dart';

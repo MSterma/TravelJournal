@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../locator.dart';
-import '../repositories/local_repo.dart';
-import '../services/sync_service.dart';
-import '../bloc/auth_bloc.dart';
-import '../bloc/auth_event.dart';
-import '../bloc/auth_state.dart';
-import '../l10n/app_localizations.dart';
-import '../database/app_database.dart';
+import '../../locator.dart';
+import '../../repositories/local_repo.dart';
+import '../../services/sync_service.dart';
+import '../../bloc/auth_bloc.dart';
+import '../../bloc/auth_event.dart';
+import '../../bloc/auth_state.dart';
+import '../../l10n/app_localizations.dart';
+import '../../database/app_database.dart';
+import '../widgets/loading_indicator.dart';
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -29,12 +30,14 @@ class AccountScreen extends StatelessWidget {
             return ListView(
               padding: const EdgeInsets.all(16.0),
               children: [
-                Text('${l10n.loggedAs}\n$email', textAlign: TextAlign.center, style: const TextStyle(fontSize: 18)),
+                Text(
+                  '${l10n.loggedAs}\n$email',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 18),
+                ),
                 const SizedBox(height: 32),
-
                 _buildChart(state.userId),
                 const SizedBox(height: 32),
-
                 ElevatedButton.icon(
                   icon: const Icon(Icons.lock),
                   label: Text(l10n.changePassword),
@@ -57,7 +60,8 @@ class AccountScreen extends StatelessWidget {
                 ElevatedButton.icon(
                   icon: const Icon(Icons.logout),
                   label: Text(l10n.logOut),
-                  onPressed: () => context.read<AuthBloc>().add(AuthSignOutRequested()),
+                  onPressed: () =>
+                      context.read<AuthBloc>().add(AuthSignOutRequested()),
                 ),
               ],
             );
@@ -72,7 +76,12 @@ class AccountScreen extends StatelessWidget {
     return FutureBuilder<List<VisitedCountry>>(
       future: locator<LocalRepo>().getVisitedWithCoords(userId),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const SizedBox(height: 150, child: Center(child: CircularProgressIndicator()));
+        if (!snapshot.hasData) {
+          return const SizedBox(
+            height: 150,
+            child: LoadingIndicator(),
+          );
+        }
 
         final visits = snapshot.data!;
         if (visits.isEmpty) return const SizedBox.shrink();
@@ -89,7 +98,10 @@ class AccountScreen extends StatelessWidget {
 
         return Column(
           children: [
-            const Text('Wizyty (miesiące)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text(
+              'Wizyty (miesiące)',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
             const SizedBox(height: 16),
             SizedBox(
               height: 200,
@@ -102,19 +114,36 @@ class AccountScreen extends StatelessWidget {
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        getTitlesWidget: (value, meta) => Text('${value.toInt()}'),
+                        getTitlesWidget: (value, meta) =>
+                            Text('${value.toInt()}'),
                       ),
                     ),
-                    leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    leftTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
                   borderData: FlBorderData(show: false),
                   gridData: const FlGridData(show: false),
-                  barGroups: monthly.entries.map((e) => BarChartGroupData(
-                    x: e.key,
-                    barRods: [BarChartRodData(toY: e.value.toDouble(), color: Colors.blue, width: 16)],
-                  )).toList(),
+                  barGroups: monthly.entries
+                      .map(
+                        (e) => BarChartGroupData(
+                          x: e.key,
+                          barRods: [
+                            BarChartRodData(
+                              toY: e.value.toDouble(),
+                              color: Colors.blue,
+                              width: 16,
+                            )
+                          ],
+                        ),
+                      )
+                      .toList(),
                 ),
               ),
             ),
@@ -140,7 +169,13 @@ class AccountScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (errorMsg != null) ...[
-                  Text(errorMsg!, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                  Text(
+                    errorMsg!,
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                 ],
                 TextField(
@@ -150,7 +185,9 @@ class AccountScreen extends StatelessWidget {
                     labelText: l10n.newPassword,
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
-                      icon: Icon(obscure ? Icons.visibility : Icons.visibility_off),
+                      icon: Icon(
+                        obscure ? Icons.visibility : Icons.visibility_off,
+                      ),
                       onPressed: () => setState(() => obscure = !obscure),
                     ),
                   ),
@@ -163,7 +200,9 @@ class AccountScreen extends StatelessWidget {
                     labelText: l10n.confirmPassword,
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
-                      icon: Icon(obscure ? Icons.visibility : Icons.visibility_off),
+                      icon: Icon(
+                        obscure ? Icons.visibility : Icons.visibility_off,
+                      ),
                       onPressed: () => setState(() => obscure = !obscure),
                     ),
                   ),
@@ -171,7 +210,10 @@ class AccountScreen extends StatelessWidget {
               ],
             ),
             actions: [
-              TextButton(onPressed: () => Navigator.pop(c), child: Text(l10n.cancel)),
+              TextButton(
+                onPressed: () => Navigator.pop(c),
+                child: Text(l10n.cancel),
+              ),
               ElevatedButton(
                 onPressed: () async {
                   if (newCtrl.text.length < 6) {
@@ -186,11 +228,16 @@ class AccountScreen extends StatelessWidget {
                   setState(() => errorMsg = null);
 
                   try {
-                    await locator<FirebaseAuth>().setLanguageCode(l10n.localeName);
-                    await locator<FirebaseAuth>().currentUser?.updatePassword(newCtrl.text);
+                    await locator<FirebaseAuth>()
+                        .setLanguageCode(l10n.localeName);
+                    await locator<FirebaseAuth>()
+                        .currentUser
+                        ?.updatePassword(newCtrl.text);
                     if (context.mounted) {
                       Navigator.pop(c);
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.passwordChanged)));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.passwordChanged)),
+                      );
                     }
                   } on FirebaseAuthException catch (e) {
                     if (e.code == 'requires-recent-login') {
@@ -211,15 +258,25 @@ class AccountScreen extends StatelessWidget {
     );
   }
 
-  void _clearDb(BuildContext context, String userId, AppLocalizations l10n) async {
+  void _clearDb(
+    BuildContext context,
+    String userId,
+    AppLocalizations l10n,
+  ) async {
     await locator<LocalRepo>().clearUserData(userId);
     await locator<SyncService>().clearCloudData(userId);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.databaseFlushed)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.databaseFlushed)),
+      );
     }
   }
 
-  void _deleteAccount(BuildContext context, String userId, AppLocalizations l10n) async {
+  void _deleteAccount(
+    BuildContext context,
+    String userId,
+    AppLocalizations l10n,
+  ) async {
     try {
       await locator<FirebaseAuth>().setLanguageCode(l10n.localeName);
       await locator<LocalRepo>().clearUserData(userId);
@@ -231,11 +288,17 @@ class AccountScreen extends StatelessWidget {
       if (context.mounted) {
         if (e.code == 'requires-recent-login') {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.requiresRecentLogin), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text(l10n.requiresRecentLogin),
+              backgroundColor: Colors.red,
+            ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.cloudError), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text(l10n.cloudError),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       }

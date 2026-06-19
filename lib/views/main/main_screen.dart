@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../l10n/app_localizations.dart';
-import 'countries_tab.dart';
-import 'map_screen.dart';
+import '../../l10n/app_localizations.dart';
+import '../countries/countries_tab.dart';
+import '../map/map_screen.dart';
 import 'account_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -34,18 +34,18 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
-        items:  [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.public),
-            label: l10n?.navCountries??'Countries',
+            icon: const Icon(Icons.public),
+            label: l10n?.navCountries ?? 'Countries',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.map),
-            label: l10n?.navMap??'Map',
+            icon: const Icon(Icons.map),
+            label: l10n?.navMap ?? 'Map',
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.person),
-            label: l10n?.navAccount??'Account',
+            label: l10n?.navAccount ?? 'Account',
           ),
         ],
       ),
