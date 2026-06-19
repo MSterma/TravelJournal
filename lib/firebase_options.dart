@@ -3,6 +3,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -40,8 +41,8 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAxMqRvmvWTr1nn2W9RSo2IvdvMDRFASCk',
+  static FirebaseOptions get web => FirebaseOptions(
+    apiKey: dotenv.get('FIREBASE_WEB_API_KEY'),
     appId: '1:71383646504:web:a5dedaf6b739e576c8901d',
     messagingSenderId: '71383646504',
     projectId: 'traveljournal-de051',
@@ -50,16 +51,16 @@ class DefaultFirebaseOptions {
     measurementId: 'G-FDEVSEE7X4',
   );
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCjBJzcAc-4M5MwLcuE6kvT-T6avIozJqE',
+  static FirebaseOptions get android => FirebaseOptions(
+    apiKey: dotenv.get('FIREBASE_ANDROID_API_KEY'),
     appId: '1:71383646504:android:709831462c1d0389c8901d',
     messagingSenderId: '71383646504',
     projectId: 'traveljournal-de051',
     storageBucket: 'traveljournal-de051.firebasestorage.app',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDmdInCR71OgeW_AeGnB1qNVgFU9GvT_fE',
+  static FirebaseOptions get ios => FirebaseOptions(
+    apiKey: dotenv.get('FIREBASE_IOS_API_KEY'),
     appId: '1:71383646504:ios:5853e2b1d7e3a1b9c8901d',
     messagingSenderId: '71383646504',
     projectId: 'traveljournal-de051',
@@ -67,8 +68,8 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.example.travelJournal',
   );
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDmdInCR71OgeW_AeGnB1qNVgFU9GvT_fE',
+  static FirebaseOptions get macos => FirebaseOptions(
+    apiKey: dotenv.get('FIREBASE_MACOS_API_KEY'),
     appId: '1:71383646504:ios:5853e2b1d7e3a1b9c8901d',
     messagingSenderId: '71383646504',
     projectId: 'traveljournal-de051',
@@ -76,8 +77,8 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.example.travelJournal',
   );
 
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAxMqRvmvWTr1nn2W9RSo2IvdvMDRFASCk',
+  static FirebaseOptions get windows => FirebaseOptions(
+    apiKey: dotenv.get('FIREBASE_WINDOWS_API_KEY'),
     appId: '1:71383646504:web:c122ae10c7848550c8901d',
     messagingSenderId: '71383646504',
     projectId: 'traveljournal-de051',
