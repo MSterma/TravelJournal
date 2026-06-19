@@ -1,12 +1,9 @@
-abstract class Failure {
-  Failure(this.message);
-  final String message;
-}
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class DatabaseFailure extends Failure {
-  DatabaseFailure([super.message = "Database Error"]);
-}
+part 'failures.freezed.dart';
 
-class NetworkFailure extends Failure {
-  NetworkFailure([super.message = "Network Error"]);
+@freezed
+abstract class Failure with _$Failure {
+  const factory Failure.database([@Default("Database Error") String message]) = DatabaseFailure;
+  const factory Failure.network([@Default("Network Error") String message]) = NetworkFailure;
 }

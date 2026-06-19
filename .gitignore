@@ -60,3 +60,9 @@ app_localizations_pl.dart
 .symlinks/
 
 .plugin_symlinks/
+
+# Freezed
+*.freezed.dart
+
+# Firebase
+lib/firebase_options.dart

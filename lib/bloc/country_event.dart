@@ -1,27 +1,15 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import '../models/country.dart';
 
-abstract class CountryEvent {}
+part 'country_event.freezed.dart';
 
-class LoadCountries extends CountryEvent {}
-
-class LoadMoreCountries extends CountryEvent {}
-
-class SearchCountries extends CountryEvent {
-  SearchCountries(this.query);
-  final String query;
-}
-
-class SelectCountry extends CountryEvent {
-  SelectCountry(this.country);
-  final Country country;
-}
-class MarkVisited extends CountryEvent {
-  MarkVisited(this.countryName);
-  final String countryName;
-}
-class ClearSelection extends CountryEvent {}
-class AddPhoto extends CountryEvent {
-  AddPhoto(this.countryName, this.imagePath);
-  final String countryName;
-  final String imagePath;
+@freezed
+abstract class CountryEvent with _$CountryEvent {
+  const factory CountryEvent.loadCountries() = LoadCountries;
+  const factory CountryEvent.loadMoreCountries() = LoadMoreCountries;
+  const factory CountryEvent.searchCountries(String query) = SearchCountries;
+  const factory CountryEvent.selectCountry(Country country) = SelectCountry;
+  const factory CountryEvent.markVisited(String countryName) = MarkVisited;
+  const factory CountryEvent.clearSelection() = ClearSelection;
+  const factory CountryEvent.addPhoto(String countryName, String imagePath) = AddPhoto;
 }

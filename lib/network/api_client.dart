@@ -1,20 +1,24 @@
 import 'package:dio/dio.dart';
-import 'package:travel_journal/network/app_urls.dart';
+import 'package:retrofit/retrofit.dart';
+import 'country_response.dart';
+import 'app_urls.dart';
 
-class ApiClient {
-  final Dio dio;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-  ApiClient(this.dio) {
-    dio.options.baseUrl = AppUrls.countriesBaseUrl;
-    dio.options.headers = {'Authorization': 'Bearer '};
+part 'api_client.g.dart';
+
+@RestApi()
+abstract class ApiClient {
+  factory ApiClient(Dio dio, {String? baseUrl}) {
+    final token = dotenv.env['API_AUTH_TOKEN'] ?? '';
+    dio.options.headers['Authorization'] = 'Bearer $token';
+    return _ApiClient(dio, baseUrl: baseUrl ?? AppUrls.countriesBaseUrl);
   }
 
-  Future<dynamic> get(String path) async {
-    try {
-      final response = await dio.get(path);
-      return response.data;
-    } catch (e) {
-      throw Exception('ApiClient error: $e');
-    }
-  }
+  @GET(AppUrls.countriesEndpoint)
+  Future<CountryResponse> getCountries(
+      @Query('limit') int limit,
+      @Query('offset') int offset,
+      @Query('q') String? query,
+      );
 }
