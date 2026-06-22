@@ -3,6 +3,7 @@ import 'Travels.dart';
 
 class Notes extends Table {
   IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
   TextColumn get userId => text()();
   DateTimeColumn get date => dateTime()();
   RealColumn get lat => real()();

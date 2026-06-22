@@ -52,7 +52,26 @@
          "errorUserNotFound": "Nie znaleziono użytkownika",
          "errorEmailInUse": "Adres email jest zajęty",
          "errorWeakPassword": "Hasło jest zbyt słabe",
-         "errorFetchCountries": "Błąd pobierania państw"
+         "errorFetchCountries": "Błąd pobierania państw",
+         "navTravels": "Podróże",
+           "travelTimeline": "Oś czasu podróży",
+           "currentLocation": "Obecna lokalizacja",
+           "newTravel": "Nowa podróż",
+             "name": "Nazwa",
+             "newNote": "Nowa notatka",
+             "content": "Treść",
+             "travel": "Podróż",
+             "noTravelGeneralNote": "Brak (Ogólna notatka)",
+             "nameRequired": "Nazwa (wymagane)",
+             "contentOptional": "Treść (opcjonalne)",
+             "addPhotos": "Dodaj zdjęcia",
+             "all": "Wszystkie",
+             "selectTravelPrompt": "Wybierz podróż na mapie lub z listy, aby zobaczyć oś czasu.",
+             "noEntriesInTravel": "Brak wpisów w tej podróży.",
+             "travelLabel": "Podróż: ",
+             "noNoteContent": "Brak treści notatki.",
+             "details": "Szczegóły",
+             "none": "Brak"
 
 
 }

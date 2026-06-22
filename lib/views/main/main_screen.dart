@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../countries/countries_tab.dart';
 import '../map/map_screen.dart';
+import '../travels/travels_screen.dart';
 import 'account_screen.dart';
+
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -17,6 +19,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const CountriesTab(),
     const MapScreen(),
+    const TravelsScreen(),
     const AccountScreen(),
   ];
 
@@ -32,6 +35,7 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
         items: [
@@ -42,6 +46,10 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: const Icon(Icons.map),
             label: l10n?.navMap ?? 'Map',
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.timeline),
+            label: l10n?.navTravels ?? 'Travels',
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.person),

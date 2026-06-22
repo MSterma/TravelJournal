@@ -102,4 +102,69 @@ class LocalRepo {
     await (db.delete(db.visitedCountries)..where((tbl) => tbl.userId.equals(userId))).go();
     await (db.delete(db.countryPhotos)..where((tbl) => tbl.userId.equals(userId))).go();
   }
+  Future<int> addTravel(String name, String userId) async {
+    return await db.into(db.travels).insert(
+      TravelsCompanion.insert(travelName: name, userId: userId),
+    );
+  }
+
+  Future<List<Travel>> getTravels(String userId) async {
+    final query = db.select(db.travels)..where((tbl) => tbl.userId.equals(userId));
+    return await query.get();
+  }
+  Future<int> addNote(String userId, double lat, double lng, String name, String? userNote, int? travelId) async {
+    return await db.into(db.notes).insert(
+      NotesCompanion.insert(
+        userId: userId,
+        name: name,
+        date: DateTime.now(),
+        lat: lat,
+        lng: lng,
+        userNote: Value(userNote),
+        travelId: Value(travelId),
+      ),
+    );
+  }
+
+  Future<List<Note>> getNotes(String userId, int? travelId) async {
+    final query = db.select(db.notes)..where((tbl) => tbl.userId.equals(userId));
+    if (travelId != null) {
+      query.where((tbl) => tbl.travelId.equals(travelId));
+    } else {
+      query.where((tbl) => tbl.travelId.isNull());
+    }
+    return await query.get();
+  }
+  Future<List<Note>> getAllNotes(String userId) async {
+    final query = db.select(db.notes)..where((tbl) => tbl.userId.equals(userId));
+    query.orderBy([(t) => OrderingTerm(expression: t.date)]);
+    return await query.get();
+  }
+  Future<List<String>> getNotePhotos(int noteId) async {
+    final query = db.select(db.notePhotos)..where((tbl) => tbl.noteId.equals(noteId));
+    final result = await query.get();
+    return result.map((e) => e.photoPath).toList();
+  }
+  Future<void> addNoteWithPhotos(String userId, double lat, double lng, String name, String? userNote, int? travelId, List<String> photoPaths) async {
+    final noteId = await db.into(db.notes).insert(
+      NotesCompanion.insert(
+        userId: userId,
+        name: name,
+        date: DateTime.now(),
+        lat: lat,
+        lng: lng,
+        userNote: Value(userNote),
+        travelId: Value(travelId),
+      ),
+    );
+
+    for (final path in photoPaths) {
+      await db.into(db.notePhotos).insert(
+        NotePhotosCompanion.insert(
+          noteId: noteId,
+          photoPath: path,
+        ),
+      );
+    }
+  }
 }

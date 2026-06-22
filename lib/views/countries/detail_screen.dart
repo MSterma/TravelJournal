@@ -7,6 +7,7 @@ import '../../bloc/country_details/country_details_bloc.dart';
 import '../../bloc/country_details/country_details_event.dart';
 import '../../bloc/country_details/country_details_state.dart';
 import '../../l10n/app_localizations.dart';
+import '../widgets/photo_viewer.dart';
 
 class DetailScreen extends StatelessWidget {
   const DetailScreen({super.key, required this.country});
@@ -52,11 +53,18 @@ class DetailScreen extends StatelessWidget {
             const SizedBox(height: 16),
             if (country.flagUrl != null && country.flagUrl!.isNotEmpty)
               Center(
-                child: Image.network(
-                  country.flagUrl!,
-                  height: 100,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.error, size: 50),
+                child: GestureDetector(
+                  onTap: () => PhotoViewer.show(
+                    context,
+                    photos: [country.flagUrl!],
+                    source: PhotoSource.network,
+                  ),
+                  child: Image.network(
+                    country.flagUrl!,
+                    height: 100,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.error, size: 50),
+                  ),
                 ),
               ),
             const SizedBox(height: 24),
@@ -150,11 +158,19 @@ class DetailScreen extends StatelessWidget {
                             ),
                             itemCount: state.photos.length,
                             itemBuilder: (context, index) {
-                              return ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0),
-                                child: Image.file(
-                                  File(state.photos[index]),
-                                  fit: BoxFit.cover,
+                              return GestureDetector(
+                                onTap: () => PhotoViewer.show(
+                                  context,
+                                  photos: state.photos,
+                                  initialIndex: index,
+                                  source: PhotoSource.file,
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  child: Image.file(
+                                    File(state.photos[index]),
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               );
                             },
