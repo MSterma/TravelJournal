@@ -96,7 +96,15 @@
                      "type": "int"
                    }
                  }
-               }
+               },
+               "chartPhotos": "Oś czasu zdjęć",
+               "chartNotes": "Dodane notatki",
+               "chartCountries": "Odwiedzone kraje",
+               "chartPhotosDesc": "Śledź swoją przygodę z fotografią w ostatnim miesiącu.",
+               "chartNotesDesc": "Twoja dzienna aktywność w tworzeniu notatek.",
+               "chartCountriesDesc": "Kiedy odkrywałeś i odwiedzałeś nowe horyzonty.",
+               "chartAxisDays": "Dni (ostatnie 30)",
+               "chartAxisCount": "Ilość"
 
 
 }

@@ -22,30 +22,36 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (Migrator m) => m.createAll(),
-    onUpgrade: (Migrator m, int from, int to) async {
-      if (from == 1) {
-        await m.alterTable(TableMigration(visitedCountries));
-        await m.alterTable(TableMigration(countryPhotos));
-      }
-      if (from < 3) {
-        await m.addColumn(visitedCountries, visitedCountries.lat);
-        await m.addColumn(visitedCountries, visitedCountries.lng);
-      }
-      if (from < 4) {
-        await m.createTable(travels);
-        await m.createTable(notes);
-        await m.createTable(notePhotos);
-      }
-      if (from < 5) {
-        await m.addColumn(notes, notes.name);
-      }
-    },
-  );
+        onCreate: (Migrator m) => m.createAll(),
+        onUpgrade: (Migrator m, int from, int to) async {
+          if (from == 1) {
+            await m.alterTable(TableMigration(visitedCountries));
+            await m.alterTable(TableMigration(countryPhotos));
+          }
+          if (from < 3) {
+            await m.addColumn(visitedCountries, visitedCountries.lat);
+            await m.addColumn(visitedCountries, visitedCountries.lng);
+          }
+          if (from < 4) {
+            await m.createTable(travels);
+            await m.createTable(notes);
+            await m.createTable(notePhotos);
+          }
+          if (from < 5) {
+            await m.addColumn(notes, notes.name);
+          }
+          if (from < 6) {
+            await m.addColumn(travels, travels.isSynced);
+            await m.addColumn(travels, travels.updatedAt);
+            await m.addColumn(notes, notes.isSynced);
+            await m.addColumn(notes, notes.updatedAt);
+          }
+        },
+      );
 }
 
 LazyDatabase _openConnection() {

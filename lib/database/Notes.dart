@@ -10,4 +10,7 @@ class Notes extends Table {
   RealColumn get lng => real()();
   TextColumn get userNote => text().nullable()();
   IntColumn get travelId => integer().nullable().references(Travels, #id)();
+
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get updatedAt => dateTime().nullable()();
 }

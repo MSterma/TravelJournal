@@ -17,6 +17,8 @@ import '../widgets/photo_viewer.dart';
 import '../widgets/loading_indicator.dart';
 import '../widgets/error_view.dart';
 
+import '../widgets/image_placeholder.dart';
+
 class TravelsScreen extends StatefulWidget {
   const TravelsScreen({super.key});
 
@@ -125,20 +127,29 @@ class _TravelsScreenState extends State<TravelsScreen> {
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: photos.length,
-                    itemBuilder: (ctx, i) => Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: InkWell(
-                        onTap: () => PhotoViewer.show(context,
-                            photos: photos,
-                            initialIndex: i,
-                            source: PhotoSource.file),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.file(File(photos[i]),
-                              width: 100, height: 100, fit: BoxFit.cover),
+                    itemBuilder: (ctx, i) {
+                      final path = photos[i];
+                      final isPlaceholder = path == '__PLACEHOLDER__';
+                      final exists = !isPlaceholder && File(path).existsSync();
+
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: InkWell(
+                          onTap: () => PhotoViewer.show(context,
+                              photos: photos,
+                              initialIndex: i,
+                              source: PhotoSource.file),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: exists
+                                ? Image.file(File(path),
+                                    width: 100, height: 100, fit: BoxFit.cover)
+                                : const ImagePlaceholder(
+                                    width: 100, height: 100),
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                 ),
               const SizedBox(height: 16),
@@ -427,12 +438,16 @@ class _TravelsScreenState extends State<TravelsScreen> {
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: photos.length,
-                      itemBuilder: (ctx, i) => Padding(
+                      itemBuilder: (ctx, i) {
+                      final path = photos[i];
+                      final isPlaceholder = path == '__PLACEHOLDER__';
+                      final exists = !isPlaceholder && File(path).existsSync();
+
+                      return Padding(
                         padding: const EdgeInsets.only(right: 8.0),
                         child: InkWell(
                           onTap: () {
-                            final globalIndex =
-                                allTimelinePhotos.indexOf(photos[i]);
+                            final globalIndex = allTimelinePhotos.indexOf(path);
                             PhotoViewer.show(context,
                                 photos: allTimelinePhotos,
                                 initialIndex:
@@ -441,11 +456,15 @@ class _TravelsScreenState extends State<TravelsScreen> {
                           },
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.file(File(photos[i]),
-                                width: 60, height: 60, fit: BoxFit.cover),
+                            child: exists
+                                ? Image.file(File(path),
+                                    width: 60, height: 60, fit: BoxFit.cover)
+                                : const ImagePlaceholder(
+                                    width: 60, height: 60),
                           ),
                         ),
-                      ),
+                      );
+                    },
                     ),
                   ),
                 const SizedBox(height: 8),

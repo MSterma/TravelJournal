@@ -95,5 +95,13 @@
                            "type": "int"
                          }
                        }
-                     }
+                     },
+                     "chartPhotos": "Photos Timeline",
+                     "chartNotes": "Notes Added",
+                     "chartCountries": "Countries Visited",
+                     "chartPhotosDesc": "Track your photography journey over the last month.",
+                     "chartNotesDesc": "Your daily journaling and note-taking activity.",
+                     "chartCountriesDesc": "When you discovered and visited new horizons.",
+                     "chartAxisDays": "Days (last 30)",
+                     "chartAxisCount": "Count"
 }

@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 
+import 'image_placeholder.dart';
+
 enum PhotoSource { file, network }
 
 class PhotoViewer extends StatefulWidget {
@@ -76,24 +78,32 @@ class _PhotoViewerState extends State<PhotoViewer> {
           });
         },
         itemBuilder: (context, index) {
+          final path = widget.photos[index];
+          final isPlaceholder = path == '__PLACEHOLDER__';
+          final exists = widget.source == PhotoSource.network ||
+              (!isPlaceholder && File(path).existsSync());
+
           return InteractiveViewer(
             minScale: 0.5,
             maxScale: 4.0,
             child: Center(
-              child: widget.source == PhotoSource.file
-                  ? Image.file(
-                      File(widget.photos[index]),
-                      fit: BoxFit.contain,
-                    )
-                  : Image.network(
-                      widget.photos[index],
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
-                        Icons.error,
-                        color: Colors.white,
-                        size: 50,
-                      ),
-                    ),
+              child: exists
+                  ? (widget.source == PhotoSource.file
+                      ? Image.file(
+                          File(path),
+                          fit: BoxFit.contain,
+                        )
+                      : Image.network(
+                          path,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(
+                            Icons.error,
+                            color: Colors.white,
+                            size: 50,
+                          ),
+                        ))
+                  : const ImagePlaceholder(width: 300, height: 300),
             ),
           );
         },

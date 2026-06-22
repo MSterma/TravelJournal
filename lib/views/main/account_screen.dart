@@ -14,8 +14,17 @@ import '../../l10n/app_localizations.dart';
 import '../widgets/stat_item.dart';
 import '../widgets/achievement_badge.dart';
 
-class AccountScreen extends StatelessWidget {
+enum ChartType { photos, notes, countries }
+
+class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
+
+  @override
+  State<AccountScreen> createState() => _AccountScreenState();
+}
+
+class _AccountScreenState extends State<AccountScreen> {
+  ChartType _selectedChart = ChartType.photos;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +48,6 @@ class AccountScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
                 _buildStatsContent(context, state.userId, l10n, email),
-
                 const SizedBox(height: 32),
                 ElevatedButton.icon(
                   icon: const Icon(Icons.lock),
@@ -75,8 +83,8 @@ class AccountScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsContent(BuildContext context, String userId,
-      AppLocalizations l10n, String email) {
+  Widget _buildStatsContent(
+      BuildContext context, String userId, AppLocalizations l10n, String email) {
     return FutureBuilder<UserStats>(
       future: locator<LocalRepo>().getUserStats(userId),
       builder: (context, snapshot) {
@@ -96,7 +104,7 @@ class AccountScreen extends StatelessWidget {
           children: [
             _buildTopStatsGrid(context, stats, l10n),
             const SizedBox(height: 24),
-            _buildActivityChart(stats, l10n),
+            _buildChartSegment(stats, l10n),
             const SizedBox(height: 24),
             _buildCountriesThisMonth(stats.countriesThisMonth, l10n),
             const SizedBox(height: 32),
@@ -157,73 +165,194 @@ class AccountScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActivityChart(UserStats stats, AppLocalizations l10n) {
+  Widget _buildChartSegment(UserStats stats, AppLocalizations l10n) {
+    List<int> data;
+    String title;
+    String description;
+    Color color;
+
+    switch (_selectedChart) {
+      case ChartType.photos:
+        data = stats.photosActivity;
+        title = l10n.chartPhotos;
+        description = l10n.chartPhotosDesc;
+        color = Colors.blue;
+        break;
+      case ChartType.notes:
+        data = stats.notesActivity;
+        title = l10n.chartNotes;
+        description = l10n.chartNotesDesc;
+        color = Colors.green;
+        break;
+      case ChartType.countries:
+        data = stats.countriesActivity;
+        title = l10n.chartCountries;
+        description = l10n.chartCountriesDesc;
+        color = Colors.orange;
+        break;
+    }
+
+    final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 8,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(l10n.statsDailyActivity,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            Text(
-                '- ${l10n.statsDailyAverage} (${stats.dailyAverage.toStringAsFixed(1)})',
-                style: const TextStyle(
-                    color: Colors.red,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold)),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant
+                          .withValues(alpha: 0.7),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            DropdownButton<ChartType>(
+              value: _selectedChart,
+              underline: const SizedBox(),
+              icon: const Icon(Icons.insights),
+              onChanged: (ChartType? newValue) {
+                if (newValue != null) {
+                  setState(() {
+                    _selectedChart = newValue;
+                  });
+                }
+              },
+              items: [
+                DropdownMenuItem(
+                    value: ChartType.photos, child: Text(l10n.chartPhotos)),
+                DropdownMenuItem(
+                    value: ChartType.notes, child: Text(l10n.chartNotes)),
+                DropdownMenuItem(
+                    value: ChartType.countries,
+                    child: Text(l10n.chartCountries)),
+              ],
+            ),
           ],
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 150,
-          child: BarChart(
-            BarChartData(
-              alignment: BarChartAlignment.spaceAround,
-              maxY: stats.last30DaysActivity.isEmpty
-                  ? 10
-                  : (stats.last30DaysActivity.reduce((a, b) => a > b ? a : b) +
-                          2)
-                      .toDouble(),
-              titlesData: const FlTitlesData(
-                show: true,
-                bottomTitles:
-                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                leftTitles:
-                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                topTitles:
-                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                rightTitles:
-                    AxisTitles(sideTitles: SideTitles(showTitles: false)),
-              ),
-              borderData: FlBorderData(show: false),
-              gridData: const FlGridData(show: false),
-              extraLinesData: ExtraLinesData(
-                horizontalLines: [
-                  HorizontalLine(
-                      y: stats.dailyAverage,
-                      color: Colors.red.withValues(alpha: 0.5),
-                      strokeWidth: 1.5),
+          height: 240,
+          child: Padding(
+            padding: const EdgeInsets.only(right: 24.0, top: 12.0),
+            child: LineChart(
+              LineChartData(
+                minY: 0,
+                clipData: const FlClipData.all(),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: theme.dividerColor.withValues(alpha: 0.1),
+                    strokeWidth: 1,
+                  ),
+                ),
+                titlesData: FlTitlesData(
+                  show: true,
+                  bottomTitles: AxisTitles(
+                    axisNameWidget: Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Text(
+                        l10n.chartAxisDays,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                    axisNameSize: 20,
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 22,
+                      interval: 5,
+                      getTitlesWidget: (value, meta) {
+                        if (value % 5 != 0) return const SizedBox.shrink();
+                        return Text(
+                          value.toInt().toString(),
+                          style: theme.textTheme.labelSmall,
+                        );
+                      },
+                    ),
+                  ),
+                  leftTitles: AxisTitles(
+                    axisNameWidget: Padding(
+                      padding: const EdgeInsets.only(bottom: 4.0),
+                      child: Text(
+                        l10n.chartAxisCount,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                    axisNameSize: 20,
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 35,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          value.toInt().toString(),
+                          style: theme.textTheme.labelSmall,
+                        );
+                      },
+                    ),
+                  ),
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                ),
+                borderData: FlBorderData(
+                  show: true,
+                  border: Border(
+                    bottom: BorderSide(
+                        color: theme.dividerColor.withValues(alpha: 0.2)),
+                    left: BorderSide(
+                        color: theme.dividerColor.withValues(alpha: 0.2)),
+                  ),
+                ),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: data.asMap().entries.map((e) {
+                      return FlSpot(e.key.toDouble(), e.value.toDouble());
+                    }).toList(),
+                    isCurved: false,
+                    color: color,
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    dotData: const FlDotData(show: false),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      color: color.withValues(alpha: 0.2),
+                    ),
+                  ),
                 ],
+                lineTouchData: LineTouchData(
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipColor: (spot) => color.withValues(alpha: 0.8),
+                    getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+                      return touchedBarSpots.map((barSpot) {
+                        return LineTooltipItem(
+                          barSpot.y.toInt().toString(),
+                          const TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        );
+                      }).toList();
+                    },
+                  ),
+                ),
               ),
-              barGroups: stats.last30DaysActivity.asMap().entries.map((e) {
-                final val = e.value.toDouble();
-                final isAboveAvg = val > stats.dailyAverage;
-                return BarChartGroupData(
-                  x: e.key,
-                  barRods: [
-                    BarChartRodData(
-                      toY: val,
-                      color: isAboveAvg ? Colors.green : Colors.blue,
-                      width: 8,
-                      borderRadius: BorderRadius.circular(2),
-                    )
-                  ],
-                );
-              }).toList(),
             ),
           ),
         ),

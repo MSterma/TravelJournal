@@ -9,6 +9,8 @@ import '../../bloc/country_details/country_details_state.dart';
 import '../../l10n/app_localizations.dart';
 import '../widgets/photo_viewer.dart';
 
+import '../widgets/image_placeholder.dart';
+
 class DetailScreen extends StatelessWidget {
   const DetailScreen({super.key, required this.country});
   final Country country;
@@ -158,6 +160,10 @@ class DetailScreen extends StatelessWidget {
                             ),
                             itemCount: state.photos.length,
                             itemBuilder: (context, index) {
+                              final path = state.photos[index];
+                              final isPlaceholder = path == '__PLACEHOLDER__';
+                              final exists = !isPlaceholder && File(path).existsSync();
+
                               return GestureDetector(
                                 onTap: () => PhotoViewer.show(
                                   context,
@@ -167,10 +173,15 @@ class DetailScreen extends StatelessWidget {
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(8.0),
-                                  child: Image.file(
-                                    File(state.photos[index]),
-                                    fit: BoxFit.cover,
-                                  ),
+                                  child: exists
+                                      ? Image.file(
+                                          File(path),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : const ImagePlaceholder(
+                                          width: 100,
+                                          height: 100,
+                                        ),
                                 ),
                               );
                             },
