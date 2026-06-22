@@ -18,11 +18,14 @@ class AchievementBadge extends StatelessWidget {
   final int target;
   final bool showProgressBar;
 
+  bool get _isUnlocked => progress >= target;
+
   @override
   Widget build(BuildContext context) {
-    final isUnlocked = progress >= target;
+    final theme = Theme.of(context);
+
     return Opacity(
-      opacity: isUnlocked ? 1.0 : 0.4,
+      opacity: _isUnlocked ? 1.0 : 0.4,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -30,22 +33,26 @@ class AchievementBadge extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+            style: theme.textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
             textAlign: TextAlign.center,
           ),
-          if (showProgressBar && !isUnlocked)
+          if (showProgressBar && !_isUnlocked)
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
               child: Column(
                 children: [
                   LinearProgressIndicator(
-                    value: progress / target,
+                    value: (progress / target).clamp(0.0, 1.0),
                     minHeight: 4,
                   ),
                   const SizedBox(height: 2),
-                  Text('$progress/$target',
-                      style: const TextStyle(fontSize: 8)),
+                  Text(
+                    '$progress/$target',
+                    style: theme.textTheme.labelSmall?.copyWith(fontSize: 8),
+                  ),
                 ],
               ),
             ),

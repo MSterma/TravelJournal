@@ -6,9 +6,6 @@ import 'travels_event.dart';
 import 'travels_state.dart';
 
 class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
-  final LocalRepo localRepo;
-  final AuthRepo authRepo;
-
   TravelsBloc({required this.localRepo, required this.authRepo})
       : super(const TravelsState.loading()) {
     on<LoadTravelsData>(_onLoadData);
@@ -16,6 +13,9 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
     on<SelectTravel>(_onSelectTravel);
     on<AddNoteRequested>(_onAddNote);
   }
+
+  final LocalRepo localRepo;
+  final AuthRepo authRepo;
 
   Future<void> _onLoadData(
     LoadTravelsData event,
@@ -92,7 +92,7 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
       final allNotes = await localRepo.getAllNotes(userId);
 
       final timelineNotes = selectedTravelId == null
-          ? <dynamic>[] // No notes if no travel selected according to existing UI logic
+          ? <dynamic>[]
           : allNotes.where((n) => n.travelId == selectedTravelId).toList();
 
       final photosMap = <int, List<String>>{};

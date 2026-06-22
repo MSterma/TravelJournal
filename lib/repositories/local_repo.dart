@@ -1,6 +1,7 @@
 import 'package:uuid/uuid.dart';
 import 'package:drift/drift.dart';
 import '../database/app_database.dart';
+import '../models/user_stats.dart';
 
 class LocalRepo {
   LocalRepo(this.db);
@@ -166,5 +167,86 @@ class LocalRepo {
         ),
       );
     }
+  }
+
+  Future<UserStats> getUserStats(String userId) async {
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final monthStart = DateTime(now.year, now.month, 1);
+
+    final travels = await getTravels(userId);
+    final totalTrips = travels.length;
+
+    final notes = await getAllNotes(userId);
+    final totalNotes = notes.length;
+    final todayNotes = notes.where((n) => !n.date.isBefore(todayStart)).length;
+
+    final visits = await getVisitedWithCoords(userId);
+    final totalCountries = visits.length;
+    final todayCountries = visits.where((v) => !v.visitedAt.isBefore(todayStart)).length;
+
+    final countriesThisMonth = visits
+        .where((v) => !v.visitedAt.isBefore(monthStart))
+        .map((v) => v.countryCode)
+        .toSet()
+        .toList();
+
+    final countryPhotos = await (db.select(db.countryPhotos)..where((t) => t.userId.equals(userId))).get();
+    final noteIds = notes.map((n) => n.id).toList();
+    List<NotePhoto> notePhotosList = [];
+    if (noteIds.isNotEmpty) {
+      notePhotosList = await (db.select(db.notePhotos)..where((t) => t.noteId.isIn(noteIds))).get();
+    }
+    final totalPhotos = countryPhotos.length + notePhotosList.length;
+
+    final todayNoteIds = notes.where((n) => !n.date.isBefore(todayStart)).map((n) => n.id).toList();
+    final todayPhotos = notePhotosList.where((p) => todayNoteIds.contains(p.noteId)).length;
+
+    List<int> activity = List.filled(30, 0);
+    for (var n in notes) {
+      final diff = todayStart.difference(DateTime(n.date.year, n.date.month, n.date.day)).inDays;
+      if (diff >= 0 && diff < 30) activity[29 - diff]++;
+    }
+    for (var v in visits) {
+      final diff = todayStart.difference(DateTime(v.visitedAt.year, v.visitedAt.month, v.visitedAt.day)).inDays;
+      if (diff >= 0 && diff < 30) activity[29 - diff]++;
+    }
+    final double dailyAvg = activity.reduce((a, b) => a + b) / 30.0;
+
+    final dates = <DateTime>{};
+    for (var n in notes) dates.add(DateTime(n.date.year, n.date.month, n.date.day));
+    for (var v in visits) dates.add(DateTime(v.visitedAt.year, v.visitedAt.month, v.visitedAt.day));
+    final sortedDates = dates.toList()..sort((a, b) => b.compareTo(a));
+
+    int streak = 0;
+    if (sortedDates.isNotEmpty) {
+      DateTime checkDate = todayStart;
+      if (!sortedDates.contains(todayStart)) {
+        checkDate = todayStart.subtract(const Duration(days: 1));
+      }
+      if (sortedDates.contains(checkDate)) {
+        for (int i = 0; i < sortedDates.length; i++) {
+          if (sortedDates.contains(checkDate.subtract(Duration(days: i)))) {
+            streak++;
+          } else {
+            break;
+          }
+        }
+      }
+    }
+
+    return UserStats(
+      totalPhotos: totalPhotos,
+      todayPhotos: todayPhotos,
+      totalNotes: totalNotes,
+      todayNotes: todayNotes,
+      totalCountries: totalCountries,
+      todayCountries: todayCountries,
+      last30DaysActivity: activity,
+      dailyAverage: dailyAvg,
+      countriesThisMonth: countriesThisMonth,
+      totalTrips: totalTrips,
+      currentStreak: streak,
+    );
   }
 }

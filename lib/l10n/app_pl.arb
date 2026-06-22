@@ -71,7 +71,32 @@
              "travelLabel": "Podróż: ",
              "noNoteContent": "Brak treści notatki.",
              "details": "Szczegóły",
-             "none": "Brak"
+             "none": "Brak",
+             "statsToday": "Dzisiaj",
+               "statsTotal": "Łącznie",
+               "statsPhotos": "Zdjęcia",
+               "statsNotes": "Notatki",
+               "statsCountries": "Kraje",
+               "statsDailyActivity": "Aktywność dzienna (30 Dni)",
+               "statsDailyAverage": "Średnia dzienna",
+               "statsCountriesThisMonth": "Kraje odwiedzone w tym miesiącu",
+               "statsAchievements": "Osiągnięcia: {name}",
+               "@statsAchievements": {
+                 "placeholders": {
+                   "name": {
+                     "type": "String"
+                   }
+                 }
+               },
+               "statsTrips": "Podróże",
+               "statsStreak": "{days} dni z rzędu",
+               "@statsStreak": {
+                 "placeholders": {
+                   "days": {
+                     "type": "int"
+                   }
+                 }
+               }
 
 
 }

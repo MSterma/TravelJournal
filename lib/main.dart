@@ -9,11 +9,15 @@ import 'bloc/countries/country_bloc.dart';
 import 'bloc/countries/country_event.dart';
 import 'bloc/auth/auth_bloc.dart';
 import 'bloc/auth/auth_event.dart';
+import 'bloc/travels/travels_bloc.dart';
+import 'bloc/travels/travels_event.dart';
 import 'views/auth/auth_wrapper.dart';
 import 'theme.dart';
 import 'repositories/country_repo.dart';
+import 'repositories/local_repo.dart';
 import 'repositories/auth_repo.dart';
 import 'services/sync_service.dart';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
@@ -45,6 +49,12 @@ class MyApp extends StatelessWidget {
             locator<AuthRepo>(),
             locator<SyncService>(),
           )..add(LoadCountries()),
+        ),
+        BlocProvider<TravelsBloc>(
+          create: (context) => TravelsBloc(
+            localRepo: locator<LocalRepo>(),
+            authRepo: locator<AuthRepo>(),
+          )..add(const TravelsEvent.loadData()),
         ),
       ],
       child: MaterialApp(

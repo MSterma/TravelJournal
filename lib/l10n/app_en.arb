@@ -70,5 +70,30 @@
                    "travelLabel": "Travel: ",
                    "noNoteContent": "No note content.",
                    "details": "Details",
-                   "none": "None"
+                   "none": "None",
+                   "statsToday": "Today",
+                     "statsTotal": "Total",
+                     "statsPhotos": "Photos",
+                     "statsNotes": "Notes",
+                     "statsCountries": "Countries",
+                     "statsDailyActivity": "Daily Activity (Last 30 Days)",
+                     "statsDailyAverage": "Daily Average",
+                     "statsCountriesThisMonth": "Countries visited this month",
+                     "statsAchievements": "{name}''s Achievements",
+                     "@statsAchievements": {
+                       "placeholders": {
+                         "name": {
+                           "type": "String"
+                         }
+                       }
+                     },
+                     "statsTrips": "Trips",
+                     "statsStreak": "{days}-day streak",
+                     "@statsStreak": {
+                       "placeholders": {
+                         "days": {
+                           "type": "int"
+                         }
+                       }
+                     }
 }

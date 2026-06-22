@@ -1,16 +1,21 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../l10n/app_localizations.dart';
 import '../../locator.dart';
-import '../../repositories/local_repo.dart';
 import '../../repositories/auth_repo.dart';
 import '../../database/app_database.dart';
+import '../../bloc/travels/travels_bloc.dart';
+import '../../bloc/travels/travels_event.dart';
+import '../../bloc/travels/travels_state.dart';
 import '../widgets/universal_form_modal.dart';
 import '../widgets/note_form_modal.dart';
 import '../widgets/photo_viewer.dart';
+import '../widgets/loading_indicator.dart';
+import '../widgets/error_view.dart';
 
 class TravelsScreen extends StatefulWidget {
   const TravelsScreen({super.key});
@@ -21,53 +26,8 @@ class TravelsScreen extends StatefulWidget {
 
 class _TravelsScreenState extends State<TravelsScreen> {
   final MapController _mapController = MapController();
-  final DraggableScrollableController _sheetController = DraggableScrollableController();
-  int? _selectedTravelId;
-
-  List<Travel> _travels = [];
-  List<Note> _allNotes = [];
-  List<Note> _timelineNotes = [];
-  Map<int, List<String>> _notePhotos = {};
-  List<String> _allTimelinePhotos = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    final userId = await locator<AuthRepo>().getCurrentUserId();
-    if (userId == null) return;
-
-    final travels = await locator<LocalRepo>().getTravels(userId);
-    final allNotes = await locator<LocalRepo>().getAllNotes(userId);
-
-    final timelineNotes = _selectedTravelId == null
-        ? <Note>[]
-        : allNotes.where((n) => n.travelId == _selectedTravelId).toList();
-
-    final photosMap = <int, List<String>>{};
-    final allPhotos = <String>[];
-
-    for (final n in timelineNotes) {
-      final p = await locator<LocalRepo>().getNotePhotos(n.id);
-      photosMap[n.id] = p;
-      allPhotos.addAll(p);
-    }
-
-    if (mounted) {
-      setState(() {
-        _travels = travels;
-        _allNotes = allNotes;
-        _timelineNotes = timelineNotes;
-        _notePhotos = photosMap;
-        _allTimelinePhotos = allPhotos;
-        _isLoading = false;
-      });
-    }
-  }
+  final DraggableScrollableController _sheetController =
+      DraggableScrollableController();
 
   Future<void> _getCurrentLocation() async {
     bool serviceEnabled;
@@ -93,19 +53,16 @@ class _TravelsScreenState extends State<TravelsScreen> {
       context,
       title: l10n.newTravel,
       label: l10n.name,
-      onSubmit: (val) async {
-        final userId = await locator<AuthRepo>().getCurrentUserId();
-        if (userId != null) {
-          await locator<LocalRepo>().addTravel(val, userId);
-          _loadData();
-        }
+      onSubmit: (val) {
+        context.read<TravelsBloc>().add(TravelsEvent.addTravel(val));
       },
     );
   }
 
-  void _showAddNote() async {
-    final userId = await locator<AuthRepo>().getCurrentUserId();
-    if (userId != null && context.mounted) {
+  void _showAddNote(int? selectedTravelId) async {
+    final authRepo = locator<AuthRepo>();
+    final userId = await authRepo.getCurrentUserId();
+    if (userId != null && mounted) {
       final center = _mapController.camera.center;
 
       NoteFormModal.show(
@@ -113,13 +70,18 @@ class _TravelsScreenState extends State<TravelsScreen> {
         userId: userId,
         lat: center.latitude,
         lng: center.longitude,
-        initialTravelId: _selectedTravelId,
-        onSuccess: _loadData,
+        initialTravelId: selectedTravelId,
+        onSuccess: () {
+          if (mounted) {
+            context.read<TravelsBloc>().add(const TravelsEvent.loadData());
+          }
+        },
       );
     }
   }
 
-  void _showNoteDetails(Note note, String travelName, List<String> photos, AppLocalizations l10n) {
+  void _showNoteDetails(Note note, String travelName, List<String> photos,
+      AppLocalizations l10n) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -140,13 +102,20 @@ class _TravelsScreenState extends State<TravelsScreen> {
             children: [
               Center(
                 child: Container(
-                  width: 40, height: 4, margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(color: Colors.grey[500], borderRadius: BorderRadius.circular(10)),
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                      color: Colors.grey[500],
+                      borderRadius: BorderRadius.circular(10)),
                 ),
               ),
-              Text(note.name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              Text(note.name,
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              Text('${l10n.travelLabel}$travelName', style: const TextStyle(color: Colors.grey)),
+              Text('${l10n.travelLabel}$travelName',
+                  style: const TextStyle(color: Colors.grey)),
               const SizedBox(height: 16),
               Text(note.userNote ?? l10n.noNoteContent),
               const SizedBox(height: 16),
@@ -159,10 +128,14 @@ class _TravelsScreenState extends State<TravelsScreen> {
                     itemBuilder: (ctx, i) => Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: InkWell(
-                        onTap: () => PhotoViewer.show(context, photos: photos, initialIndex: i, source: PhotoSource.file),
+                        onTap: () => PhotoViewer.show(context,
+                            photos: photos,
+                            initialIndex: i,
+                            source: PhotoSource.file),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.file(File(photos[i]), width: 100, height: 100, fit: BoxFit.cover),
+                          child: Image.file(File(photos[i]),
+                              width: 100, height: 100, fit: BoxFit.cover),
                         ),
                       ),
                     ),
@@ -180,191 +153,241 @@ class _TravelsScreenState extends State<TravelsScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
     return Scaffold(
-      body: Stack(
-        children: [
-          FlutterMap(
-            mapController: _mapController,
-            options: const MapOptions(
-              initialCenter: LatLng(52.4064, 16.9252),
-              initialZoom: 13.0,
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.example.travelJournal',
-              ),
-              PolylineLayer(
-                polylines: [
-                  if (_selectedTravelId != null && _allNotes.where((n) => n.travelId == _selectedTravelId).length > 1)
-                    Polyline(
-                      points: _allNotes
-                          .where((n) => n.travelId == _selectedTravelId)
-                          .map((n) => LatLng(n.lat, n.lng))
-                          .toList(),
-                      color: Colors.red,
-                      strokeWidth: 3.0,
-                    ),
-                ],
-              ),
-              MarkerLayer(
-                markers: _allNotes.map((n) {
-                  final isSelectedGroup = _selectedTravelId != null && n.travelId == _selectedTravelId;
-                  return Marker(
-                    point: LatLng(n.lat, n.lng),
-                    width: 40,
-                    height: 40,
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedTravelId = n.travelId;
-                          _isLoading = true;
-                        });
-                        _loadData();
-                        if (_sheetController.isAttached) {
-                          _sheetController.animateTo(0.6, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                        }
-                      },
-                      child: Icon(
-                        Icons.location_on,
-                        color: isSelectedGroup ? Colors.red : Colors.blue,
-                        size: 40,
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
+      body: BlocConsumer<TravelsBloc, TravelsState>(
+        listener: (context, state) {
+          if (state is TravelsError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content: Text(state.failure.message),
+                  backgroundColor: Colors.red),
+            );
+          }
+        },
+        builder: (context, state) {
+          if (state is TravelsLoading) {
+            return const LoadingIndicator();
+          }
 
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 48.0),
-              child: Icon(Icons.add_location_alt, color: Colors.green, size: 48),
-            ),
-          ),
+          if (state is TravelsError) {
+            return ErrorView(
+              message: state.failure.message,
+              onRetry: () =>
+                  context.read<TravelsBloc>().add(const TravelsEvent.loadData()),
+            );
+          }
 
-          Positioned(
-            top: 60,
-            left: 16,
-            child: Container(
-              decoration: BoxDecoration(color: Colors.blue[700], borderRadius: BorderRadius.circular(25)),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(icon: const Icon(Icons.add, color: Colors.white), onPressed: _showAddNote),
-                ],
-              ),
-            ),
-          ),
-
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.45,
-            right: 16,
-            child: FloatingActionButton(
-              backgroundColor: Colors.blue[700],
-              foregroundColor: Colors.white,
-              mini: true,
-              onPressed: _getCurrentLocation,
-              child: const Icon(Icons.my_location),
-            ),
-          ),
-
-          DraggableScrollableSheet(
-            controller: _sheetController,
-            initialChildSize: 0.4,
-            minChildSize: 0.1,
-            maxChildSize: 0.85,
-            builder: (context, scrollController) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, -2))],
+          if (state is TravelsLoaded) {
+            return Stack(
+              children: [
+                _buildMap(state),
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 48.0),
+                    child: Icon(Icons.add_location_alt,
+                        color: Colors.green, size: 48),
+                  ),
                 ),
-                child: ListView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  children: [
-                    Center(
-                      child: Container(
-                        width: 40, height: 4, margin: const EdgeInsets.only(bottom: 16),
-                        decoration: BoxDecoration(color: Colors.grey[500], borderRadius: BorderRadius.circular(10)),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Positioned(
+                  top: 60,
+                  left: 16,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.blue[700],
+                        borderRadius: BorderRadius.circular(25)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(l10n.travelTimeline, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                        const Icon(Icons.more_vert),
+                        IconButton(
+                            icon: const Icon(Icons.add, color: Colors.white),
+                            onPressed: () => _showAddNote(state.selectedTravelId)),
                       ],
                     ),
-                    const SizedBox(height: 16),
-
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          _buildChip(l10n.all, null),
-                          ..._travels.map((t) => _buildChip(t.travelName, t.id)),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: ActionChip(label: const Text('+'), onPressed: () => _showAddTravel(l10n)),
-                          )
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    if (_selectedTravelId == null)
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(l10n.selectTravelPrompt, textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
-                      )
-                    else if (_timelineNotes.isEmpty)
-                      Padding(padding: const EdgeInsets.all(16.0), child: Text(l10n.noEntriesInTravel))
-                    else
-                      Column(
-                        children: _timelineNotes.map((n) {
-                          return _buildTimelineItem(n, _notePhotos[n.id] ?? [], l10n);
-                        }).toList(),
-                      ),
-                  ],
+                  ),
                 ),
-              );
-            },
-          ),
-        ],
+                Positioned(
+                  bottom: MediaQuery.of(context).size.height * 0.45,
+                  right: 16,
+                  child: FloatingActionButton(
+                    backgroundColor: Colors.blue[700],
+                    foregroundColor: Colors.white,
+                    mini: true,
+                    onPressed: _getCurrentLocation,
+                    child: const Icon(Icons.my_location),
+                  ),
+                ),
+                _buildDraggableSheet(state, l10n),
+              ],
+            );
+          }
+
+          return const SizedBox.shrink();
+        },
       ),
     );
   }
 
-  Widget _buildChip(String label, int? travelId) {
-    final isSelected = _selectedTravelId == travelId;
+  Widget _buildMap(TravelsLoaded state) {
+    final selectedTravelNotes = state.allNotes
+        .where((n) => n.travelId == state.selectedTravelId)
+        .toList();
+
+    return FlutterMap(
+      mapController: _mapController,
+      options: const MapOptions(
+        initialCenter: LatLng(52.4064, 16.9252),
+        initialZoom: 13.0,
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'com.example.travelJournal',
+        ),
+        PolylineLayer(
+          polylines: [
+            if (state.selectedTravelId != null && selectedTravelNotes.length > 1)
+              Polyline(
+                points: selectedTravelNotes
+                    .map((n) => LatLng(n.lat, n.lng))
+                    .toList(),
+                color: Colors.red,
+                strokeWidth: 3.0,
+              ),
+          ],
+        ),
+        MarkerLayer(
+          markers: state.allNotes.map((n) {
+            final isSelectedGroup =
+                state.selectedTravelId != null && n.travelId == state.selectedTravelId;
+            return Marker(
+              point: LatLng(n.lat, n.lng),
+              width: 40,
+              height: 40,
+              child: GestureDetector(
+                onTap: () {
+                  context
+                      .read<TravelsBloc>()
+                      .add(TravelsEvent.selectTravel(n.travelId));
+                  if (_sheetController.isAttached) {
+                    _sheetController.animateTo(0.6,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut);
+                  }
+                },
+                child: Icon(
+                  Icons.location_on,
+                  color: isSelectedGroup ? Colors.red : Colors.blue,
+                  size: 40,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDraggableSheet(TravelsLoaded state, AppLocalizations l10n) {
+    return DraggableScrollableSheet(
+      controller: _sheetController,
+      initialChildSize: 0.4,
+      minChildSize: 0.1,
+      maxChildSize: 0.85,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            boxShadow: const [
+              BoxShadow(
+                  color: Colors.black26, blurRadius: 10, offset: Offset(0, -2))
+            ],
+          ),
+          child: ListView(
+            controller: scrollController,
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                      color: Colors.grey[500],
+                      borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(l10n.travelTimeline,
+                      style: const TextStyle(
+                          fontSize: 22, fontWeight: FontWeight.bold)),
+                  const Icon(Icons.more_vert),
+                ],
+              ),
+              const SizedBox(height: 16),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildChip(l10n.all, null, state.selectedTravelId),
+                    ...state.travels.map(
+                        (t) => _buildChip(t.travelName, t.id, state.selectedTravelId)),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: ActionChip(
+                          label: const Text('+'),
+                          onPressed: () => _showAddTravel(l10n)),
+                    )
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              if (state.selectedTravelId == null)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(l10n.selectTravelPrompt,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.grey)),
+                )
+              else if (state.timelineNotes.isEmpty)
+                Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(l10n.noEntriesInTravel))
+              else
+                Column(
+                  children: state.timelineNotes.map((n) {
+                    return _buildTimelineItem(
+                        n, state.notePhotos[n.id] ?? [], state.allTimelinePhotos, state.travels, l10n);
+                  }).toList(),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildChip(String label, int? travelId, int? selectedTravelId) {
+    final isSelected = selectedTravelId == travelId;
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
       child: ChoiceChip(
         label: Text(label),
         selected: isSelected,
         onSelected: (selected) {
-          setState(() {
-            _selectedTravelId = travelId;
-            _isLoading = true;
-          });
-          _loadData();
+          context.read<TravelsBloc>().add(TravelsEvent.selectTravel(travelId));
         },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
     );
   }
 
-  Widget _buildTimelineItem(Note note, List<String> photos, AppLocalizations l10n) {
+  Widget _buildTimelineItem(Note note, List<String> photos, List<String> allTimelinePhotos, List<Travel> travels, AppLocalizations l10n) {
     final dateStr = "${note.date.day}-${note.date.month}-${note.date.year}";
-    final travelName = _travels.where((t) => t.id == note.travelId).firstOrNull?.travelName ?? l10n.none;
+    final travelName = travels.where((t) => t.id == note.travelId).firstOrNull?.travelName ?? l10n.none;
 
     return Padding(
       padding: const EdgeInsets.only(left: 8.0, bottom: 16.0),
@@ -374,8 +397,13 @@ class _TravelsScreenState extends State<TravelsScreen> {
           Column(
             children: [
               Container(width: 2, height: 16, color: Colors.blue),
-              Container(width: 8, height: 8, decoration: const BoxDecoration(color: Colors.blue, shape: BoxShape.circle)),
-              Container(width: 2, height: photos.isNotEmpty ? 130 : 90, color: Colors.blue),
+              Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                      color: Colors.blue, shape: BoxShape.circle)),
+              Container(
+                  width: 2, height: photos.isNotEmpty ? 130 : 90, color: Colors.blue),
             ],
           ),
           const SizedBox(width: 16),
@@ -385,9 +413,11 @@ class _TravelsScreenState extends State<TravelsScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
+                    const Icon(Icons.calendar_today,
+                        size: 14, color: Colors.grey),
                     const SizedBox(width: 4),
-                    Text("$dateStr: ${note.name}", style: const TextStyle(fontWeight: FontWeight.w600)),
+                    Text("$dateStr: ${note.name}",
+                        style: const TextStyle(fontWeight: FontWeight.w600)),
                   ],
                 ),
                 if (photos.isNotEmpty)
@@ -401,12 +431,18 @@ class _TravelsScreenState extends State<TravelsScreen> {
                         padding: const EdgeInsets.only(right: 8.0),
                         child: InkWell(
                           onTap: () {
-                            final globalIndex = _allTimelinePhotos.indexOf(photos[i]);
-                            PhotoViewer.show(context, photos: _allTimelinePhotos, initialIndex: globalIndex != -1 ? globalIndex : 0, source: PhotoSource.file);
+                            final globalIndex =
+                                allTimelinePhotos.indexOf(photos[i]);
+                            PhotoViewer.show(context,
+                                photos: allTimelinePhotos,
+                                initialIndex:
+                                    globalIndex != -1 ? globalIndex : 0,
+                                source: PhotoSource.file);
                           },
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.file(File(photos[i]), width: 60, height: 60, fit: BoxFit.cover),
+                            child: Image.file(File(photos[i]),
+                                width: 60, height: 60, fit: BoxFit.cover),
                           ),
                         ),
                       ),
@@ -416,8 +452,10 @@ class _TravelsScreenState extends State<TravelsScreen> {
                 SizedBox(
                   height: 30,
                   child: TextButton(
-                    style: TextButton.styleFrom(padding: EdgeInsets.zero, alignment: Alignment.centerLeft),
-                    onPressed: () => _showNoteDetails(note, travelName, photos, l10n),
+                    style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero, alignment: Alignment.centerLeft),
+                    onPressed: () =>
+                        _showNoteDetails(note, travelName, photos, l10n),
                     child: Text(l10n.details),
                   ),
                 )

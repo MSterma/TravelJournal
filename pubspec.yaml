@@ -54,6 +54,7 @@ dependencies:
   json_annotation: ^4.12.0
   retrofit: ^4.9.2
   geolocator: ^14.0.3
+  flag: ^7.0.2
 
 dev_dependencies:
   flutter_test:
