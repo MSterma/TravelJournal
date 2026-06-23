@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:travel_journal/services/notification_service.dart';
+import 'package:travel_journal/services/location_service.dart';
 import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
 import 'locator.dart';
@@ -27,6 +29,8 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   setupLocator();
+  await locator<NotificationService>().init();
+  await locator<LocationService>().init();
   runApp(const MyApp());
 }
 

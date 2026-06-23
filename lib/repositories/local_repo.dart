@@ -215,6 +215,37 @@ class LocalRepo {
     await query.write(const NotesCompanion(isSynced: Value(true)));
   }
 
+  Future<int> addWantToGoPlace(
+      String name, double lat, double lng, String userId) async {
+    return await db.into(db.wantToGoPlaces).insert(
+          WantToGoPlacesCompanion.insert(
+            name: name,
+            lat: lat,
+            lng: lng,
+            userId: userId,
+          ),
+        );
+  }
+
+  Future<List<WantToGoPlace>> getWantToGoPlaces(String userId) async {
+    final now = DateTime.now();
+    final cutoff = now.subtract(const Duration(hours: 24));
+
+    final query = db.select(db.wantToGoPlaces)
+      ..where((tbl) =>
+          tbl.userId.equals(userId) &
+          (tbl.isVisited.equals(false) | tbl.visitedAt.isBiggerThanValue(cutoff)));
+    return await query.get();
+  }
+
+  Future<void> togglePlaceVisited(int id, bool isVisited) async {
+    final query = db.update(db.wantToGoPlaces)..where((tbl) => tbl.id.equals(id));
+    await query.write(WantToGoPlacesCompanion(
+      isVisited: Value(isVisited),
+      visitedAt: Value(isVisited ? DateTime.now() : null),
+    ));
+  }
+
   Future<void> insertTravelFromCloud(
       int id, String name, String userId) async {
     final exists = await (db.select(db.travels)..where((t) => t.id.equals(id))).getSingleOrNull();

@@ -15,4 +15,13 @@ abstract class TravelsEvent with _$TravelsEvent {
     int? travelId,
     required List<String> photoPaths,
   }) = AddNoteRequested;
+  const factory TravelsEvent.addWantToGoPlace({
+    required String name,
+    required double lat,
+    required double lng,
+  }) = AddWantToGoPlaceRequested;
+  const factory TravelsEvent.togglePlaceVisited({
+    required int id,
+    required bool isVisited,
+  }) = TogglePlaceVisitedRequested;
 }

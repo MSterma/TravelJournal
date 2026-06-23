@@ -104,7 +104,9 @@
                "chartNotesDesc": "Twoja dzienna aktywność w tworzeniu notatek.",
                "chartCountriesDesc": "Kiedy odkrywałeś i odwiedzałeś nowe horyzonty.",
                "chartAxisDays": "Dni (ostatnie 30)",
-               "chartAxisCount": "Ilość"
-
-
+               "chartAxisCount": "Ilość",
+               "wantToGo": "Chcę tam pojechać",
+               "placeName": "Nazwa miejsca",
+               "markAsVisited": "Oznacz jako odwiedzone",
+               "unmarkAsVisited": "Odznacz jako odwiedzone"
 }

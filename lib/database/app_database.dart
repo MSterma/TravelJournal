@@ -8,6 +8,7 @@ import 'VisitedCountries.dart';
 import 'Travels.dart';
 import 'Notes.dart';
 import 'NotePhotos.dart';
+import 'WantToGoPlaces.dart';
 
 part 'app_database.g.dart';
 
@@ -17,12 +18,13 @@ part 'app_database.g.dart';
   Travels,
   Notes,
   NotePhotos,
+  WantToGoPlaces,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -49,6 +51,15 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(travels, travels.updatedAt);
             await m.addColumn(notes, notes.isSynced);
             await m.addColumn(notes, notes.updatedAt);
+          }
+          if (from < 7) {
+            await m.createTable(wantToGoPlaces);
+          } else if (from < 8) {
+            try {
+              await m.addColumn(wantToGoPlaces, wantToGoPlaces.visitedAt);
+            } catch (e) {
+              // ignore
+            }
           }
         },
       );

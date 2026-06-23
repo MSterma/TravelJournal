@@ -103,5 +103,9 @@
                      "chartNotesDesc": "Your daily journaling and note-taking activity.",
                      "chartCountriesDesc": "When you discovered and visited new horizons.",
                      "chartAxisDays": "Days (last 30)",
-                     "chartAxisCount": "Count"
+                     "chartAxisCount": "Count",
+                     "wantToGo": "Want to go",
+                     "placeName": "Place name",
+                     "markAsVisited": "Mark as visited",
+                     "unmarkAsVisited": "Unmark as visited"
 }

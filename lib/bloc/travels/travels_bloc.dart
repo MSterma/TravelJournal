@@ -12,6 +12,8 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
     on<AddTravelRequested>(_onAddTravel);
     on<SelectTravel>(_onSelectTravel);
     on<AddNoteRequested>(_onAddNote);
+    on<AddWantToGoPlaceRequested>(_onAddWantToGoPlace);
+    on<TogglePlaceVisitedRequested>(_onTogglePlaceVisited);
   }
 
   final LocalRepo localRepo;
@@ -77,6 +79,33 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
     }
   }
 
+  Future<void> _onAddWantToGoPlace(
+    AddWantToGoPlaceRequested event,
+    Emitter<TravelsState> emit,
+  ) async {
+    try {
+      final userId = await authRepo.getCurrentUserId();
+      if (userId == null) return;
+
+      await localRepo.addWantToGoPlace(event.name, event.lat, event.lng, userId);
+      add(const TravelsEvent.loadData());
+    } catch (e) {
+      emit(TravelsState.error(Failure.database(e.toString())));
+    }
+  }
+
+  Future<void> _onTogglePlaceVisited(
+    TogglePlaceVisitedRequested event,
+    Emitter<TravelsState> emit,
+  ) async {
+    try {
+      await localRepo.togglePlaceVisited(event.id, event.isVisited);
+      add(const TravelsEvent.loadData());
+    } catch (e) {
+      emit(TravelsState.error(Failure.database(e.toString())));
+    }
+  }
+
   Future<void> _fetchAndEmitData(
     Emitter<TravelsState> emit,
     int? selectedTravelId,
@@ -90,6 +119,7 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
 
       final travels = await localRepo.getTravels(userId);
       final allNotes = await localRepo.getAllNotes(userId);
+      final wantToGoPlaces = await localRepo.getWantToGoPlaces(userId);
 
       final timelineNotes = selectedTravelId == null
           ? <dynamic>[]
@@ -112,6 +142,7 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
         timelineNotes: timelineNotes.cast(),
         notePhotos: photosMap,
         allTimelinePhotos: allPhotos,
+        wantToGoPlaces: wantToGoPlaces,
         selectedTravelId: selectedTravelId,
       ));
     } catch (e) {

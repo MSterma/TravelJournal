@@ -14,6 +14,7 @@ abstract class TravelsState with _$TravelsState {
     required List<Note> timelineNotes,
     required Map<int, List<String>> notePhotos,
     required List<String> allTimelinePhotos,
+    required List<WantToGoPlace> wantToGoPlaces,
     int? selectedTravelId,
   }) = TravelsLoaded;
 }

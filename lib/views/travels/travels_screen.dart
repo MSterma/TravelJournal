@@ -8,6 +8,8 @@ import '../../l10n/app_localizations.dart';
 import '../../locator.dart';
 import '../../repositories/auth_repo.dart';
 import '../../database/app_database.dart';
+import '../../services/location_service.dart';
+import '../../services/notification_service.dart';
 import '../../bloc/travels/travels_bloc.dart';
 import '../../bloc/travels/travels_event.dart';
 import '../../bloc/travels/travels_state.dart';
@@ -30,6 +32,26 @@ class _TravelsScreenState extends State<TravelsScreen> {
   final MapController _mapController = MapController();
   final DraggableScrollableController _sheetController =
       DraggableScrollableController();
+  
+  Position? _currentPosition;
+
+  @override
+  void initState() {
+    super.initState();
+    _initLocationTracking();
+  }
+
+  Future<void> _initLocationTracking() async {
+    final locationService = locator<LocationService>();
+    // Tracking is now started in MainScreen, we just listen here for UI updates
+    locationService.positionStream.listen((position) {
+      if (mounted) {
+        setState(() {
+          _currentPosition = position;
+        });
+      }
+    });
+  }
 
   Future<void> _getCurrentLocation() async {
     bool serviceEnabled;
@@ -48,6 +70,67 @@ class _TravelsScreenState extends State<TravelsScreen> {
 
     final position = await Geolocator.getCurrentPosition();
     _mapController.move(LatLng(position.latitude, position.longitude), 15.0);
+    
+    setState(() {
+      _currentPosition = position;
+    });
+  }
+
+  void _showPlaceDetails(WantToGoPlace place, AppLocalizations l10n) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(ctx).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(place.name,
+                style: const TextStyle(
+                    fontSize: 22, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  context.read<TravelsBloc>().add(
+                        TravelsEvent.togglePlaceVisited(
+                          id: place.id,
+                          isVisited: !place.isVisited,
+                        ),
+                      );
+                  Navigator.pop(ctx);
+                },
+                icon: Icon(place.isVisited ? Icons.undo : Icons.check_circle),
+                label: Text(place.isVisited
+                    ? l10n.unmarkAsVisited
+                    : l10n.markAsVisited),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: place.isVisited ? Colors.grey : Colors.green,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _testNotification() {
+    locator<NotificationService>().showProximityNotification(
+      id: 999,
+      placeName: "Test Place",
+      lat: _mapController.camera.center.latitude,
+      lng: _mapController.camera.center.longitude,
+    );
   }
 
   void _showAddTravel(AppLocalizations l10n) {
@@ -80,6 +163,22 @@ class _TravelsScreenState extends State<TravelsScreen> {
         },
       );
     }
+  }
+
+  void _showAddWantToGo(AppLocalizations l10n) {
+    final center = _mapController.camera.center;
+    UniversalFormModal.show(
+      context,
+      title: l10n.wantToGo,
+      label: l10n.placeName,
+      onSubmit: (val) {
+        context.read<TravelsBloc>().add(TravelsEvent.addWantToGoPlace(
+              name: val,
+              lat: center.latitude,
+              lng: center.longitude,
+            ));
+      },
+    );
   }
 
   void _showNoteDetails(Note note, String travelName, List<String> photos,
@@ -212,6 +311,14 @@ class _TravelsScreenState extends State<TravelsScreen> {
                         IconButton(
                             icon: const Icon(Icons.add, color: Colors.white),
                             onPressed: () => _showAddNote(state.selectedTravelId)),
+                        const VerticalDivider(width: 1, color: Colors.white24),
+                        IconButton(
+                            icon: const Icon(Icons.explore, color: Colors.white),
+                            onPressed: () => _showAddWantToGo(l10n)),
+                        const VerticalDivider(width: 1, color: Colors.white24),
+                        IconButton(
+                            icon: const Icon(Icons.notifications_active, color: Colors.white),
+                            onPressed: _testNotification),
                       ],
                     ),
                   ),
@@ -239,6 +346,7 @@ class _TravelsScreenState extends State<TravelsScreen> {
   }
 
   Widget _buildMap(TravelsLoaded state) {
+    final l10n = AppLocalizations.of(context)!;
     final selectedTravelNotes = state.allNotes
         .where((n) => n.travelId == state.selectedTravelId)
         .toList();
@@ -267,32 +375,60 @@ class _TravelsScreenState extends State<TravelsScreen> {
           ],
         ),
         MarkerLayer(
-          markers: state.allNotes.map((n) {
-            final isSelectedGroup =
-                state.selectedTravelId != null && n.travelId == state.selectedTravelId;
-            return Marker(
-              point: LatLng(n.lat, n.lng),
-              width: 40,
-              height: 40,
-              child: GestureDetector(
-                onTap: () {
-                  context
-                      .read<TravelsBloc>()
-                      .add(TravelsEvent.selectTravel(n.travelId));
-                  if (_sheetController.isAttached) {
-                    _sheetController.animateTo(0.6,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut);
-                  }
-                },
-                child: Icon(
-                  Icons.location_on,
-                  color: isSelectedGroup ? Colors.red : Colors.blue,
-                  size: 40,
+          markers: [
+            ...state.allNotes.map((n) {
+              final isSelectedGroup =
+                  state.selectedTravelId != null && n.travelId == state.selectedTravelId;
+              return Marker(
+                point: LatLng(n.lat, n.lng),
+                width: 40,
+                height: 40,
+                child: GestureDetector(
+                  onTap: () {
+                    context
+                        .read<TravelsBloc>()
+                        .add(TravelsEvent.selectTravel(n.travelId));
+                    if (_sheetController.isAttached) {
+                      _sheetController.animateTo(0.6,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut);
+                    }
+                  },
+                  child: Icon(
+                    Icons.location_on,
+                    color: isSelectedGroup ? Colors.red : Colors.blue,
+                    size: 40,
+                  ),
+                ),
+              );
+            }),
+            ...state.wantToGoPlaces.map((p) {
+              return Marker(
+                point: LatLng(p.lat, p.lng),
+                width: 40,
+                height: 40,
+                child: GestureDetector(
+                  onTap: () => _showPlaceDetails(p, l10n),
+                  child: Icon(
+                    p.isVisited ? Icons.check_circle : Icons.explore,
+                    color: p.isVisited ? Colors.grey : Colors.orange,
+                    size: 30,
+                  ),
+                ),
+              );
+            }),
+            if (_currentPosition != null)
+              Marker(
+                point: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+                width: 40,
+                height: 40,
+                child: const Icon(
+                  Icons.my_location,
+                  color: Colors.green,
+                  size: 30,
                 ),
               ),
-            );
-          }).toList(),
+          ],
         ),
       ],
     );
