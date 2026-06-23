@@ -1,13 +1,17 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../repositories/local_repo.dart';
 import '../../repositories/auth_repo.dart';
+import '../../services/sync_service.dart';
 import '../common/failures.dart';
 import 'travels_event.dart';
 import 'travels_state.dart';
 
 class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
-  TravelsBloc({required this.localRepo, required this.authRepo})
-      : super(const TravelsState.loading()) {
+  TravelsBloc({
+    required this.localRepo,
+    required this.authRepo,
+    required this.syncService,
+  }) : super(const TravelsState.loading()) {
     on<LoadTravelsData>(_onLoadData);
     on<AddTravelRequested>(_onAddTravel);
     on<SelectTravel>(_onSelectTravel);
@@ -18,6 +22,7 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
 
   final LocalRepo localRepo;
   final AuthRepo authRepo;
+  final SyncService syncService;
 
   Future<void> _onLoadData(
     LoadTravelsData event,
@@ -26,6 +31,11 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
     final int? currentSelectedId = state is TravelsLoaded
         ? (state as TravelsLoaded).selectedTravelId
         : null;
+
+    final userId = await authRepo.getCurrentUserId();
+    if (userId != null) {
+      await syncService.performFullSync(userId);
+    }
 
     emit(const TravelsState.loading());
     await _fetchAndEmitData(emit, currentSelectedId);
@@ -40,6 +50,7 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
       if (userId == null) return;
 
       await localRepo.addTravel(event.name, userId);
+      syncService.syncLocalToCloud(userId);
       add(const TravelsEvent.loadData());
     } catch (e) {
       emit(TravelsState.error(Failure.database(e.toString())));
@@ -73,6 +84,7 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
         event.travelId,
         event.photoPaths,
       );
+      syncService.syncLocalToCloud(userId);
       add(const TravelsEvent.loadData());
     } catch (e) {
       emit(TravelsState.error(Failure.database(e.toString())));
@@ -88,6 +100,7 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
       if (userId == null) return;
 
       await localRepo.addWantToGoPlace(event.name, event.lat, event.lng, userId);
+      syncService.syncLocalToCloud(userId);
       add(const TravelsEvent.loadData());
     } catch (e) {
       emit(TravelsState.error(Failure.database(e.toString())));
@@ -99,7 +112,11 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
     Emitter<TravelsState> emit,
   ) async {
     try {
+      final userId = await authRepo.getCurrentUserId();
       await localRepo.togglePlaceVisited(event.id, event.isVisited);
+      if (userId != null) {
+        syncService.syncLocalToCloud(userId);
+      }
       add(const TravelsEvent.loadData());
     } catch (e) {
       emit(TravelsState.error(Failure.database(e.toString())));

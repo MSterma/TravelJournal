@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../l10n/app_localizations.dart';
 import '../countries/countries_tab.dart';
 import '../map/map_screen.dart';
@@ -53,16 +54,25 @@ class _MainScreenState extends State<MainScreen> {
   void _handleNotificationPayload(Map<String, dynamic> data) async {
     if (data['type'] == 'proximity_note') {
       setState(() {
-        _currentIndex = 2; // Travels tab
+        _currentIndex = 2;
       });
+
+      final position = await locator<LocationService>().handlePermission().then((hasPerm) async {
+        if (hasPerm) return await Geolocator.getCurrentPosition();
+        return null;
+      });
+
+      if (position != null) {
+        locator<LocationService>().mapCenterController.add(position);
+      }
 
       final userId = await locator<AuthRepo>().getCurrentUserId();
       if (userId != null && mounted) {
         NoteFormModal.show(
           context,
           userId: userId,
-          lat: data['lat'],
-          lng: data['lng'],
+          lat: position?.latitude ?? data['lat'],
+          lng: position?.longitude ?? data['lng'],
           onSuccess: () {
             if (mounted) {
               context.read<TravelsBloc>().add(const TravelsEvent.loadData());
@@ -72,7 +82,6 @@ class _MainScreenState extends State<MainScreen> {
       }
     }
   }
-
   final List<Widget> _screens = [
     const CountriesTab(),
     const MapScreen(),

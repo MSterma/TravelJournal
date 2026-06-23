@@ -7,8 +7,6 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-apply(from = "${project(":flutter_background_geolocation").projectDir}/background_geolocation.gradle")
-
 android {
     namespace = "com.example.travel_journal"
     compileSdk = flutter.compileSdkVersion
@@ -36,7 +34,6 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
-            isShrinkResources = false
         }
     }
 }

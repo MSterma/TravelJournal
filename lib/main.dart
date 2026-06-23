@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:travel_journal/services/notification_service.dart';
 import 'package:travel_journal/services/location_service.dart';
+import 'package:travel_journal/services/background_service.dart';
 import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
 import 'locator.dart';
@@ -29,7 +30,12 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   setupLocator();
-  await locator<NotificationService>().init();
+  final l10n = lookupAppLocalizations(WidgetsBinding.instance.platformDispatcher.locale);
+  await locator<NotificationService>().init(
+    channelName: l10n.proximityAlertsChannelName,
+    channelDescription: l10n.proximityAlertsChannelDesc,
+  );
+  await initializeBackgroundService(l10n);
   await locator<LocationService>().init();
   runApp(const MyApp());
 }
@@ -58,6 +64,7 @@ class MyApp extends StatelessWidget {
           create: (context) => TravelsBloc(
             localRepo: locator<LocalRepo>(),
             authRepo: locator<AuthRepo>(),
+            syncService: locator<SyncService>(),
           )..add(const TravelsEvent.loadData()),
         ),
       ],

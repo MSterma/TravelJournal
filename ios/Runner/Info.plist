@@ -70,17 +70,9 @@
 	<string>This app needs access to location when open.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This app needs access to location when in the background.</string>
-	<key>NSMotionUsageDescription</key>
-	<string>Motion detection is used to save battery by stopping tracking when stationary.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>
-		<string>fetch</string>
-		<string>processing</string>
-	</array>
-	<key>BGTaskSchedulerPermittedIdentifiers</key>
-	<array>
-		<string>com.transistorsoft.fetch</string>
 	</array>
 </dict>
 </plist>

@@ -24,7 +24,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -60,6 +60,10 @@ class AppDatabase extends _$AppDatabase {
             } catch (e) {
               // ignore
             }
+          }
+          if (from < 9) {
+            await m.addColumn(wantToGoPlaces, wantToGoPlaces.isSynced);
+            await m.addColumn(wantToGoPlaces, wantToGoPlaces.updatedAt);
           }
         },
       );

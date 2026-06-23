@@ -10,7 +10,7 @@ class NotificationService {
   final StreamController<Map<String, dynamic>> _onNotificationClick = StreamController<Map<String, dynamic>>.broadcast();
   Stream<Map<String, dynamic>> get onNotificationClick => _onNotificationClick.stream;
 
-  Future<void> init() async {
+  Future<void> init({String? channelName, String? channelDescription}) async {
     debugPrint('Initializing NotificationService...');
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -46,10 +46,10 @@ class NotificationService {
       await _notificationsPlugin
           .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(const AndroidNotificationChannel(
+          ?.createNotificationChannel(AndroidNotificationChannel(
             'proximity_channel',
-            'Proximity Alerts',
-            description: 'Notifications when you are near a saved place',
+            channelName ?? 'Proximity Alerts',
+            description: channelDescription ?? 'Notifications when you are near a saved place',
             importance: Importance.max,
             playSound: true,
             enableVibration: true,
@@ -86,9 +86,11 @@ class NotificationService {
     required String placeName,
     required double lat,
     required double lng,
+    String? title,
+    String? body,
   }) async {
     debugPrint('Showing proximity notification for $placeName (ID: $id)');
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+    final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       'proximity_channel',
       'Proximity Alerts',
       channelDescription: 'Notifications when you are near a saved place',
@@ -107,7 +109,7 @@ class NotificationService {
       presentSound: true,
     );
 
-    const NotificationDetails notificationDetails = NotificationDetails(
+    final NotificationDetails notificationDetails = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );
@@ -122,8 +124,8 @@ class NotificationService {
     try {
       await _notificationsPlugin.show(
         id + 1000, // Use offset to avoid ID 0 or clashes
-        'Nearby Place!',
-        'You are close to $placeName. Do you want to take note?',
+        title ?? 'Nearby Place!',
+        body ?? 'You are close to $placeName. Do you want to take note?',
         notificationDetails,
         payload: payload,
       );

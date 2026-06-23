@@ -39,16 +39,25 @@ class _TravelsScreenState extends State<TravelsScreen> {
   void initState() {
     super.initState();
     _initLocationTracking();
+    _getCurrentLocation();
   }
-
   Future<void> _initLocationTracking() async {
     final locationService = locator<LocationService>();
-    // Tracking is now started in MainScreen, we just listen here for UI updates
+
     locationService.positionStream.listen((position) {
       if (mounted) {
         setState(() {
           _currentPosition = position;
         });
+      }
+    });
+
+    locationService.mapCenterController.stream.listen((position) {
+      if (mounted) {
+        setState(() {
+          _currentPosition = position;
+        });
+        _mapController.move(LatLng(position.latitude, position.longitude), 15.0);
       }
     });
   }
@@ -125,11 +134,14 @@ class _TravelsScreenState extends State<TravelsScreen> {
   }
 
   void _testNotification() {
+    final l10n = AppLocalizations.of(context)!;
     locator<NotificationService>().showProximityNotification(
       id: 999,
       placeName: "Test Place",
       lat: _mapController.camera.center.latitude,
       lng: _mapController.camera.center.longitude,
+      title: l10n.proximityNotificationTitle,
+      body: l10n.proximityNotificationBody("Test Place"),
     );
   }
 

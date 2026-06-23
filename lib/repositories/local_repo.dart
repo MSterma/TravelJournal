@@ -121,7 +121,12 @@ class LocalRepo {
 
   Future<int> addTravel(String name, String userId) async {
     return await db.into(db.travels).insert(
-          TravelsCompanion.insert(travelName: name, userId: userId),
+          TravelsCompanion.insert(
+            travelName: name,
+            userId: userId,
+            isSynced: const Value(false),
+            updatedAt: Value(DateTime.now()),
+          ),
         );
   }
 
@@ -142,6 +147,8 @@ class LocalRepo {
             lng: lng,
             userNote: Value(userNote),
             travelId: Value(travelId),
+            isSynced: const Value(false),
+            updatedAt: Value(DateTime.now()),
           ),
         );
   }
@@ -180,6 +187,8 @@ class LocalRepo {
             lng: lng,
             userNote: Value(userNote),
             travelId: Value(travelId),
+            isSynced: const Value(false),
+            updatedAt: Value(DateTime.now()),
           ),
         );
 
@@ -223,6 +232,8 @@ class LocalRepo {
             lat: lat,
             lng: lng,
             userId: userId,
+            isSynced: const Value(false),
+            updatedAt: Value(DateTime.now()),
           ),
         );
   }
@@ -243,7 +254,48 @@ class LocalRepo {
     await query.write(WantToGoPlacesCompanion(
       isVisited: Value(isVisited),
       visitedAt: Value(isVisited ? DateTime.now() : null),
+      isSynced: const Value(false),
+      updatedAt: Value(DateTime.now()),
     ));
+  }
+
+  Future<List<WantToGoPlace>> getUnsyncedWantToGoPlaces(String userId) async {
+    final query = db.select(db.wantToGoPlaces)
+      ..where((tbl) => tbl.isSynced.equals(false) & tbl.userId.equals(userId));
+    return await query.get();
+  }
+
+  Future<void> markWantToGoPlacesSynced(List<int> ids) async {
+    final query = db.update(db.wantToGoPlaces)..where((tbl) => tbl.id.isIn(ids));
+    await query.write(const WantToGoPlacesCompanion(isSynced: Value(true)));
+  }
+
+  Future<void> insertWantToGoPlaceFromCloud(
+    int id,
+    String name,
+    double lat,
+    double lng,
+    String userId,
+    bool isVisited,
+    DateTime? visitedAt,
+  ) async {
+    final exists = await (db.select(db.wantToGoPlaces)..where((t) => t.id.equals(id)))
+        .getSingleOrNull();
+    if (exists != null) return;
+
+    await db.into(db.wantToGoPlaces).insert(
+          WantToGoPlacesCompanion.insert(
+            id: Value(id),
+            name: name,
+            lat: lat,
+            lng: lng,
+            userId: userId,
+            isVisited: Value(isVisited),
+            visitedAt: Value(visitedAt),
+            isSynced: const Value(true),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
   }
 
   Future<void> insertTravelFromCloud(

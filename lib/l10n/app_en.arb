@@ -107,5 +107,18 @@
                      "wantToGo": "Want to go",
                      "placeName": "Place name",
                      "markAsVisited": "Mark as visited",
-                     "unmarkAsVisited": "Unmark as visited"
+                     "unmarkAsVisited": "Unmark as visited",
+                     "proximityAlertsChannelName": "Proximity Alerts",
+                     "proximityAlertsChannelDesc": "Notifications when you are near a saved place",
+                     "proximityNotificationTitle": "Nearby Place!",
+                     "proximityNotificationBody": "You are close to {placeName}. Do you want to take note?",
+                     "@proximityNotificationBody": {
+                       "placeholders": {
+                         "placeName": {
+                           "type": "String"
+                         }
+                       }
+                     },
+                     "bgTrackingTitle": "Travel Journal Tracking",
+                     "bgTrackingContent": "Monitoring proximity to places"
 }

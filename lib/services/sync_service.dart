@@ -54,6 +54,27 @@ class SyncService {
           photoCount: data['photoCount'] as int? ?? 0,
         );
       }
+
+      final wantToGoSnapshot = await userDoc.collection('want_to_go').get();
+      for (final doc in wantToGoSnapshot.docs) {
+        final data = doc.data();
+        final id = int.tryParse(doc.id);
+        if (id == null) continue;
+
+        final visitedAtStr = data['visitedAt'] as String?;
+        final visitedAt =
+            visitedAtStr != null ? DateTime.parse(visitedAtStr) : null;
+
+        await localRepo.insertWantToGoPlaceFromCloud(
+          id,
+          data['name'] ?? 'Unnamed',
+          (data['lat'] as num?)?.toDouble() ?? 0.0,
+          (data['lng'] as num?)?.toDouble() ?? 0.0,
+          userId,
+          data['isVisited'] as bool? ?? false,
+          visitedAt,
+        );
+      }
     } catch (e) {
     }
   }
@@ -97,6 +118,23 @@ class SyncService {
         });
       }
 
+      if (unsyncedNotes.isNotEmpty) {
+        await localRepo.markNotesSynced(unsyncedNotes.map((e) => e.id).toList());
+      }
+
+      final unsyncedWantToGo = await localRepo.getUnsyncedWantToGoPlaces(userId);
+      for (final place in unsyncedWantToGo) {
+        final docRef = userDoc.collection('want_to_go').doc(place.id.toString());
+        batch.set(docRef, {
+          'name': place.name,
+          'lat': place.lat,
+          'lng': place.lng,
+          'userId': place.userId,
+          'isVisited': place.isVisited,
+          'visitedAt': place.visitedAt?.toIso8601String(),
+        });
+      }
+
       await batch.commit();
       if (unsyncedCountries.isNotEmpty) {
         await localRepo.markCountriesSynced(unsyncedCountries.map((e) => e.id).toList());
@@ -106,6 +144,9 @@ class SyncService {
       }
       if (unsyncedNotes.isNotEmpty) {
         await localRepo.markNotesSynced(unsyncedNotes.map((e) => e.id).toList());
+      }
+      if (unsyncedWantToGo.isNotEmpty) {
+        await localRepo.markWantToGoPlacesSynced(unsyncedWantToGo.map((e) => e.id).toList());
       }
     } catch (e) {
 
@@ -122,7 +163,7 @@ class SyncService {
       final userDoc = firestore.collection('users').doc(userId);
       final batch = firestore.batch();
 
-      final collections = ['visited', 'travels', 'notes'];
+      final collections = ['visited', 'travels', 'notes', 'want_to_go'];
       for (final col in collections) {
         final snapshot = await userDoc.collection(col).get();
         for (final doc in snapshot.docs) {

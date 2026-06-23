@@ -108,5 +108,18 @@
                "wantToGo": "Chcę tam pojechać",
                "placeName": "Nazwa miejsca",
                "markAsVisited": "Oznacz jako odwiedzone",
-               "unmarkAsVisited": "Odznacz jako odwiedzone"
+               "unmarkAsVisited": "Odznacz jako odwiedzone",
+               "proximityAlertsChannelName": "Alerty bliskości",
+               "proximityAlertsChannelDesc": "Powiadomienia o miejscach w pobliżu",
+               "proximityNotificationTitle": "Miejsce w pobliżu!",
+               "proximityNotificationBody": "Jesteś blisko {placeName}. Czy chcesz dodać notatkę?",
+               "@proximityNotificationBody": {
+                 "placeholders": {
+                   "placeName": {
+                     "type": "String"
+                   }
+                 }
+               },
+               "bgTrackingTitle": "Śledzenie Dziennika Podróży",
+               "bgTrackingContent": "Monitorowanie odległości do miejsc"
 }

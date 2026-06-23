@@ -8,4 +8,7 @@ class WantToGoPlaces extends Table {
   BoolColumn get isVisited => boolean().withDefault(const Constant(false))();
   DateTimeColumn get visitedAt => dateTime().nullable()();
   TextColumn get userId => text()();
+
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get updatedAt => dateTime().nullable()();
 }
