@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
-import '../repositories/auth_repo.dart';
-import '../services/sync_service.dart';
+import '../common/failures.dart';
+import '../../repositories/auth_repo.dart';
+import '../../services/sync_service.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc(this.authRepo, this.syncService) : super(const AuthState.initial()) {
@@ -15,49 +17,57 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepo authRepo;
   final SyncService syncService;
 
-  void _runSync(String userId) {
-    syncService.syncCloudToLocal(userId).then((_) {
-      syncService.syncLocalToCloud(userId);
-    });
-  }
-
-  Future<void> _onAuthCheckRequested(AuthCheckRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onAuthCheckRequested(
+    AuthCheckRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     final userId = await authRepo.getCurrentUserId();
     if (userId != null) {
       emit(AuthState.authenticated(userId));
-      _runSync(userId);
+      syncService.performFullSync(userId);
     } else {
       emit(const AuthState.unauthenticated());
     }
   }
 
-  Future<void> _onAuthSignInRequested(AuthSignInRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onAuthSignInRequested(
+    AuthSignInRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthState.loading());
     try {
       await authRepo.signIn(event.email, event.password);
       final userId = await authRepo.getCurrentUserId();
       emit(AuthState.authenticated(userId!));
-      _runSync(userId);
+      syncService.performFullSync(userId);
+    } on FirebaseAuthException catch (e) {
+      emit(AuthState.error(Failure.auth(e.code)));
     } catch (e) {
-      emit(AuthState.error(e.toString()));
-      emit(const AuthState.unauthenticated());
+      emit(AuthState.error(Failure.auth(e.toString())));
     }
   }
 
-  Future<void> _onAuthSignUpRequested(AuthSignUpRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onAuthSignUpRequested(
+    AuthSignUpRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthState.loading());
     try {
       await authRepo.signUp(event.email, event.password);
       final userId = await authRepo.getCurrentUserId();
       emit(AuthState.authenticated(userId!));
-      _runSync(userId);
+      syncService.performFullSync(userId);
+    } on FirebaseAuthException catch (e) {
+      emit(AuthState.error(Failure.auth(e.code)));
     } catch (e) {
-      emit(AuthState.error(e.toString()));
-      emit(const AuthState.unauthenticated());
+      emit(AuthState.error(Failure.auth(e.toString())));
     }
   }
 
-  Future<void> _onAuthSignOutRequested(AuthSignOutRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onAuthSignOutRequested(
+    AuthSignOutRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthState.loading());
     await authRepo.signOut();
     emit(const AuthState.unauthenticated());

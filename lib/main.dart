@@ -5,15 +5,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'l10n/app_localizations.dart';
 import 'locator.dart';
-import 'bloc/country_bloc.dart';
-import 'bloc/country_event.dart';
-import 'bloc/auth_bloc.dart';
-import 'bloc/auth_event.dart';
-import 'views/auth_wrapper.dart';
+import 'bloc/countries/country_bloc.dart';
+import 'bloc/countries/country_event.dart';
+import 'bloc/auth/auth_bloc.dart';
+import 'bloc/auth/auth_event.dart';
+import 'views/auth/auth_wrapper.dart';
 import 'theme.dart';
+import 'repositories/country_repo.dart';
 import 'repositories/auth_repo.dart';
 import 'services/sync_service.dart';
-
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
@@ -40,7 +40,11 @@ class MyApp extends StatelessWidget {
           )..add(AuthCheckRequested()),
         ),
         BlocProvider<CountryBloc>(
-          create: (context) => CountryBloc(locator())..add(LoadCountries()),
+          create: (context) => CountryBloc(
+            locator<CountryRepo>(),
+            locator<AuthRepo>(),
+            locator<SyncService>(),
+          )..add(LoadCountries()),
         ),
       ],
       child: MaterialApp(

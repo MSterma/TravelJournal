@@ -50,6 +50,11 @@ class SyncService {
     }
   }
 
+  Future<void> performFullSync(String userId) async {
+    await syncCloudToLocal(userId);
+    await syncLocalToCloud(userId);
+  }
+
   Future<void> clearCloudData(String userId) async {
     try {
       final collection = firestore.collection('users').doc(userId).collection('visited');

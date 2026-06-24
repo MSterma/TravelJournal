@@ -46,7 +46,7 @@
        "errorLoadDetails": "Nie udało się załadować danych",
          "errorMarkVisited": "Nie udało się zapisać",
          "errorAddPhoto": "Nie udało się dodać zdjęcia",
-         "errorAuth": "Błąd logowanie/rejestracja",
+         "errorAuth": "Błąd logowania/rejestracji",
          "errorInvalidEmail": "Nieprawidłowy adres email",
          "errorWrongPassword": "Błędne hasło",
          "errorUserNotFound": "Nie znaleziono użytkownika",

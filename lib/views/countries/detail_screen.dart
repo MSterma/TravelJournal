@@ -2,11 +2,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import '../models/country.dart';
-import '../bloc/country_details_bloc.dart';
-import '../bloc/country_details_event.dart';
-import '../bloc/country_details_state.dart';
-import '../l10n/app_localizations.dart';
+import '../../models/country.dart';
+import '../../bloc/country_details/country_details_bloc.dart';
+import '../../bloc/country_details/country_details_event.dart';
+import '../../bloc/country_details/country_details_state.dart';
+import '../../l10n/app_localizations.dart';
 
 class DetailScreen extends StatelessWidget {
   const DetailScreen({super.key, required this.country});
@@ -22,7 +22,12 @@ class DetailScreen extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0, top: 8.0),
+        padding: const EdgeInsets.only(
+          left: 16.0,
+          right: 16.0,
+          bottom: 16.0,
+          top: 8.0,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -32,11 +37,17 @@ class DetailScreen extends StatelessWidget {
                 width: 40,
                 height: 5,
                 margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(color: Colors.grey[600], borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(
+                  color: Colors.grey[600],
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
             Center(
-              child: Text(country.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              child: Text(
+                country.name,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
             ),
             const SizedBox(height: 16),
             if (country.flagUrl != null && country.flagUrl!.isNotEmpty)
@@ -44,25 +55,42 @@ class DetailScreen extends StatelessWidget {
                 child: Image.network(
                   country.flagUrl!,
                   height: 100,
-                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.error, size: 50),
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.error, size: 50),
                 ),
               ),
             const SizedBox(height: 24),
-            Text('${l10n.capital}: ${country.capital ?? l10n.noCapital}', style: const TextStyle(fontSize: 18)),
+            Text(
+              '${l10n.capital}: ${country.capital ?? l10n.noCapital}',
+              style: const TextStyle(fontSize: 18),
+            ),
             const SizedBox(height: 8),
-            Text('${l10n.population}: ${country.population}', style: const TextStyle(fontSize: 18)),
+            Text(
+              '${l10n.population}: ${country.population}',
+              style: const TextStyle(fontSize: 18),
+            ),
             const SizedBox(height: 8),
-            Text('${l10n.region}: ${country.region ?? l10n.noRegion}', style: const TextStyle(fontSize: 18)),
+            Text(
+              '${l10n.region}: ${country.region ?? l10n.noRegion}',
+              style: const TextStyle(fontSize: 18),
+            ),
             const SizedBox(height: 8),
-            Text('${l10n.coordinates}: ${country.lat}, ${country.lng}', style: const TextStyle(fontSize: 18)),
+            Text(
+              '${l10n.coordinates}: ${country.lat}, ${country.lng}',
+              style: const TextStyle(fontSize: 18),
+            ),
             const SizedBox(height: 32),
             BlocConsumer<CountryDetailsBloc, CountryDetailsState>(
               listener: (context, state) {
                 if (state is DetailsLoaded && state.failure != null) {
                   String msg = state.failure!.message;
-                  if (msg == "Failed to load details") msg = l10n.errorLoadDetails;
-                  else if (msg == "Failed to mark as visited") msg = l10n.errorMarkVisited;
-                  else if (msg == "Failed to add photo") msg = l10n.errorAddPhoto;
+                  if (msg == "Failed to load details") {
+                    msg = l10n.errorLoadDetails;
+                  } else if (msg == "Failed to mark as visited") {
+                    msg = l10n.errorMarkVisited;
+                  } else if (msg == "Failed to add photo") {
+                    msg = l10n.errorAddPhoto;
+                  }
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(msg), backgroundColor: Colors.red),
@@ -77,9 +105,20 @@ class DetailScreen extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.check_circle, color: Colors.green, size: 28),
+                            const Icon(
+                              Icons.check_circle,
+                              color: Colors.green,
+                              size: 28,
+                            ),
                             const SizedBox(width: 8),
-                            Text(l10n.countryVisited, style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 18)),
+                            Text(
+                              l10n.countryVisited,
+                              style: const TextStyle(
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -87,9 +126,13 @@ class DetailScreen extends StatelessWidget {
                           icon: const Icon(Icons.add_a_photo),
                           onPressed: () async {
                             final picker = ImagePicker();
-                            final image = await picker.pickImage(source: ImageSource.gallery);
+                            final image = await picker.pickImage(
+                              source: ImageSource.gallery,
+                            );
                             if (image != null && context.mounted) {
-                              context.read<CountryDetailsBloc>().add(AddCountryPhoto(country.name, image.path));
+                              context.read<CountryDetailsBloc>().add(
+                                    AddCountryPhoto(country.name, image.path),
+                                  );
                             }
                           },
                           label: Text(l10n.addPhoto),
@@ -99,13 +142,20 @@ class DetailScreen extends StatelessWidget {
                           GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3, crossAxisSpacing: 8, mainAxisSpacing: 8),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 3,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                            ),
                             itemCount: state.photos.length,
                             itemBuilder: (context, index) {
                               return ClipRRect(
                                 borderRadius: BorderRadius.circular(8.0),
-                                child: Image.file(File(state.photos[index]), fit: BoxFit.cover),
+                                child: Image.file(
+                                  File(state.photos[index]),
+                                  fit: BoxFit.cover,
+                                ),
                               );
                             },
                           )
@@ -115,7 +165,13 @@ class DetailScreen extends StatelessWidget {
                     return Center(
                       child: ElevatedButton.icon(
                         icon: const Icon(Icons.add_location),
-                        onPressed: () => context.read<CountryDetailsBloc>().add(MarkCountryVisited(country.name, country.lat, country.lng)),
+                        onPressed: () => context.read<CountryDetailsBloc>().add(
+                              MarkCountryVisited(
+                                country.name,
+                                country.lat,
+                                country.lng,
+                              ),
+                            ),
                         label: Text(l10n.markVisited),
                       ),
                     );

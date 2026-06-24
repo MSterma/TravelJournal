@@ -46,7 +46,6 @@ class LocalRepo {
   Future<String?> _getCountryId(String countryName, String userId) async {
     final query = db.select(db.visitedCountries)
       ..where((tbl) => tbl.countryCode.equals(countryName) & tbl.userId.equals(userId));
-    // Gojmini pobierać wszystkie i brać pierwszy element. Unikać StateError przy duplikaty.
     final results = await query.get();
     if (results.isEmpty) return null;
     return results.first.id;

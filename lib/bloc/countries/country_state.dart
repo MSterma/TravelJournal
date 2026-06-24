@@ -1,12 +1,13 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../models/country.dart';
+import '../../models/country.dart';
+import '../common/failures.dart';
 
 part 'country_state.freezed.dart';
 
 @freezed
 abstract class CountryState with _$CountryState {
   const factory CountryState.loading() = CountryLoading;
-  const factory CountryState.error(String message) = CountryError;
+  const factory CountryState.error(Failure failure) = CountryError;
   const factory CountryState.loaded({
     required List<Country> countries,
     Country? selectedCountry,
