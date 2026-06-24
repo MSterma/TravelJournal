@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -13,6 +14,7 @@ import '../../services/notification_service.dart';
 import '../../bloc/travels/travels_bloc.dart';
 import '../../bloc/travels/travels_event.dart';
 import '../../bloc/travels/travels_state.dart';
+import '../../utils/constants.dart';
 import '../widgets/universal_form_modal.dart';
 import '../widgets/note_form_modal.dart';
 import '../widgets/photo_viewer.dart';
@@ -34,6 +36,8 @@ class _TravelsScreenState extends State<TravelsScreen> {
       DraggableScrollableController();
   
   Position? _currentPosition;
+  StreamSubscription<Position>? _positionSubscription;
+  StreamSubscription<Position>? _mapCenterSubscription;
 
   @override
   void initState() {
@@ -41,10 +45,18 @@ class _TravelsScreenState extends State<TravelsScreen> {
     _initLocationTracking();
     _getCurrentLocation();
   }
+
+  @override
+  void dispose() {
+    _positionSubscription?.cancel();
+    _mapCenterSubscription?.cancel();
+    super.dispose();
+  }
+
   Future<void> _initLocationTracking() async {
     final locationService = locator<LocationService>();
 
-    locationService.positionStream.listen((position) {
+    _positionSubscription = locationService.positionStream.listen((position) {
       if (mounted) {
         setState(() {
           _currentPosition = position;
@@ -52,7 +64,7 @@ class _TravelsScreenState extends State<TravelsScreen> {
       }
     });
 
-    locationService.mapCenterController.stream.listen((position) {
+    _mapCenterSubscription = locationService.mapCenterController.stream.listen((position) {
       if (mounted) {
         setState(() {
           _currentPosition = position;
@@ -240,7 +252,7 @@ class _TravelsScreenState extends State<TravelsScreen> {
                     itemCount: photos.length,
                     itemBuilder: (ctx, i) {
                       final path = photos[i];
-                      final isPlaceholder = path == '__PLACEHOLDER__';
+                      final isPlaceholder = path == AppConstants.photoPlaceholder;
                       final exists = !isPlaceholder && File(path).existsSync();
 
                       return Padding(
@@ -588,7 +600,7 @@ class _TravelsScreenState extends State<TravelsScreen> {
                       itemCount: photos.length,
                       itemBuilder: (ctx, i) {
                       final path = photos[i];
-                      final isPlaceholder = path == '__PLACEHOLDER__';
+                      final isPlaceholder = path == AppConstants.photoPlaceholder;
                       final exists = !isPlaceholder && File(path).existsSync();
 
                       return Padding(

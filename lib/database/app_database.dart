@@ -42,8 +42,8 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(travels);
             await m.createTable(notes);
             await m.createTable(notePhotos);
-          }
-          if (from < 5) {
+          } else if (from < 5) {
+
             await m.addColumn(notes, notes.name);
           }
           if (from < 6) {

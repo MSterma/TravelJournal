@@ -121,5 +121,6 @@
                  }
                },
                "bgTrackingTitle": "Śledzenie Dziennika Podróży",
-               "bgTrackingContent": "Monitorowanie odległości do miejsc"
+               "bgTrackingContent": "Monitorowanie odległości do miejsc",
+               "noPhoto": "Brak zdjęcia"
 }

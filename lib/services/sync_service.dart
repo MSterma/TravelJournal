@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../repositories/local_repo.dart';
+import '../utils/constants.dart';
 
 class SyncService {
   SyncService(this.localRepo, this.firestore);
@@ -8,9 +9,9 @@ class SyncService {
 
   Future<void> syncCloudToLocal(String userId) async {
     try {
-      final userDoc = firestore.collection('users').doc(userId);
+      final userDoc = firestore.collection(AppConstants.colUsers).doc(userId);
 
-      final visitedSnapshot = await userDoc.collection('visited').get();
+      final visitedSnapshot = await userDoc.collection(AppConstants.colVisited).get();
       for (final doc in visitedSnapshot.docs) {
         final data = doc.data();
         if (data['countryCode'] == null) continue;
@@ -24,7 +25,7 @@ class SyncService {
             doc.id, data['countryCode'], userId, lat, lng, visitedAt);
       }
 
-      final travelsSnapshot = await userDoc.collection('travels').get();
+      final travelsSnapshot = await userDoc.collection(AppConstants.colTravels).get();
       for (final doc in travelsSnapshot.docs) {
         final data = doc.data();
         final id = int.tryParse(doc.id);
@@ -33,7 +34,7 @@ class SyncService {
             id, data['travelName'] ?? 'Unnamed', userId);
       }
 
-      final notesSnapshot = await userDoc.collection('notes').get();
+      final notesSnapshot = await userDoc.collection(AppConstants.colNotes).get();
       for (final doc in notesSnapshot.docs) {
         final data = doc.data();
         final id = int.tryParse(doc.id);
@@ -55,7 +56,7 @@ class SyncService {
         );
       }
 
-      final wantToGoSnapshot = await userDoc.collection('want_to_go').get();
+      final wantToGoSnapshot = await userDoc.collection(AppConstants.colWantToGo).get();
       for (final doc in wantToGoSnapshot.docs) {
         final data = doc.data();
         final id = int.tryParse(doc.id);
@@ -81,12 +82,12 @@ class SyncService {
 
   Future<void> syncLocalToCloud(String userId) async {
     try {
-      final userDoc = firestore.collection('users').doc(userId);
+      final userDoc = firestore.collection(AppConstants.colUsers).doc(userId);
       final batch = firestore.batch();
 
       final unsyncedCountries = await localRepo.getUnsyncedCountries(userId);
       for (final country in unsyncedCountries) {
-        final docRef = userDoc.collection('visited').doc(country.id);
+        final docRef = userDoc.collection(AppConstants.colVisited).doc(country.id);
         batch.set(docRef, {
           'countryCode': country.countryCode,
           'visitedAt': country.visitedAt.toIso8601String(),
@@ -96,7 +97,7 @@ class SyncService {
       }
       final unsyncedTravels = await localRepo.getUnsyncedTravels(userId);
       for (final travel in unsyncedTravels) {
-        final docRef = userDoc.collection('travels').doc(travel.id.toString());
+        final docRef = userDoc.collection(AppConstants.colTravels).doc(travel.id.toString());
         batch.set(docRef, {
           'travelName': travel.travelName,
           'userId': travel.userId,
@@ -105,7 +106,7 @@ class SyncService {
       final unsyncedNotes = await localRepo.getUnsyncedNotes(userId);
       for (final note in unsyncedNotes) {
         final photos = await localRepo.getNotePhotos(note.id);
-        final docRef = userDoc.collection('notes').doc(note.id.toString());
+        final docRef = userDoc.collection(AppConstants.colNotes).doc(note.id.toString());
         batch.set(docRef, {
           'name': note.name,
           'userId': note.userId,
@@ -124,7 +125,7 @@ class SyncService {
 
       final unsyncedWantToGo = await localRepo.getUnsyncedWantToGoPlaces(userId);
       for (final place in unsyncedWantToGo) {
-        final docRef = userDoc.collection('want_to_go').doc(place.id.toString());
+        final docRef = userDoc.collection(AppConstants.colWantToGo).doc(place.id.toString());
         batch.set(docRef, {
           'name': place.name,
           'lat': place.lat,
@@ -160,10 +161,15 @@ class SyncService {
 
   Future<void> clearCloudData(String userId) async {
     try {
-      final userDoc = firestore.collection('users').doc(userId);
+      final userDoc = firestore.collection(AppConstants.colUsers).doc(userId);
       final batch = firestore.batch();
 
-      final collections = ['visited', 'travels', 'notes', 'want_to_go'];
+      final collections = [
+        AppConstants.colVisited,
+        AppConstants.colTravels,
+        AppConstants.colNotes,
+        AppConstants.colWantToGo
+      ];
       for (final col in collections) {
         final snapshot = await userDoc.collection(col).get();
         for (final doc in snapshot.docs) {

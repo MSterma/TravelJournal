@@ -41,7 +41,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthState.authenticated(userId!));
       syncService.performFullSync(userId);
     } on FirebaseAuthException catch (e) {
-      emit(AuthState.error(Failure.auth(e.code)));
+      emit(AuthState.error(Failure.auth(_mapFirebaseError(e.code))));
     } catch (e) {
       emit(AuthState.error(Failure.auth(e.toString())));
     }
@@ -58,9 +58,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthState.authenticated(userId!));
       syncService.performFullSync(userId);
     } on FirebaseAuthException catch (e) {
-      emit(AuthState.error(Failure.auth(e.code)));
+      emit(AuthState.error(Failure.auth(_mapFirebaseError(e.code))));
     } catch (e) {
       emit(AuthState.error(Failure.auth(e.toString())));
+    }
+  }
+
+  String _mapFirebaseError(String code) {
+    switch (code) {
+      case 'wrong-password':
+        return 'errorWrongPassword';
+      case 'user-not-found':
+        return 'errorUserNotFound';
+      case 'email-already-in-use':
+        return 'errorEmailInUse';
+      case 'invalid-email':
+        return 'errorInvalidEmail';
+      case 'weak-password':
+        return 'errorWeakPassword';
+      default:
+        return code;
     }
   }
 

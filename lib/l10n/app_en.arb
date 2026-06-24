@@ -120,5 +120,6 @@
                        }
                      },
                      "bgTrackingTitle": "Travel Journal Tracking",
-                     "bgTrackingContent": "Monitoring proximity to places"
+                     "bgTrackingContent": "Monitoring proximity to places",
+                     "noPhoto": "No photo"
 }

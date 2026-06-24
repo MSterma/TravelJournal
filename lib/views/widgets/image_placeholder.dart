@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 class ImagePlaceholder extends StatelessWidget {
   const ImagePlaceholder({
@@ -12,6 +13,8 @@ class ImagePlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Container(
       width: width,
       height: height,
@@ -26,7 +29,7 @@ class ImagePlaceholder extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Brak zdjęcia',
+            l10n.noPhoto,
             style: TextStyle(
               color: Colors.grey[500],
               fontSize: 10,

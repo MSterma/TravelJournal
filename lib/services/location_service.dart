@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import '../repositories/local_repo.dart';
 import '../repositories/auth_repo.dart';
+import '../utils/constants.dart';
 import 'notification_service.dart';
 import '../l10n/app_localizations.dart';
 
@@ -58,7 +59,7 @@ class LocationService {
 
     final LocationSettings locationSettings = const LocationSettings(
       accuracy: LocationAccuracy.high,
-      distanceFilter: 10, // Zmienić 100 na 10 metrów
+      distanceFilter: AppConstants.locationDistanceFilter,
     );
 
     _positionSubscription = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
@@ -90,9 +91,9 @@ class LocationService {
         position.latitude, position.longitude, place.lat, place.lng,
       );
 
-      if (distance < 200) {
+      if (distance < AppConstants.proximityDistanceThreshold) {
         final lastNotified = _notifiedPlaces[place.id];
-        if (lastNotified == null || now.difference(lastNotified).inHours >= 1) {
+        if (lastNotified == null || now.difference(lastNotified).inHours >= AppConstants.notificationIntervalHours) {
           _notifiedPlaces[place.id] = now;
           final l10n = lookupAppLocalizations(PlatformDispatcher.instance.locale);
           await notificationService.showProximityNotification(

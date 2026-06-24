@@ -12,6 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../repositories/auth_repo.dart';
 import '../firebase_options.dart';
 import '../l10n/app_localizations.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> initializeBackgroundService(AppLocalizations l10n) async {
   final service = FlutterBackgroundService();
@@ -48,12 +49,17 @@ void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase in background isolate
+  // Initialize dotenv in background isolate as well, because FirebaseOptions depends on it
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint('BG Isolate: Failed to load .env: $e');
+  }
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Re-initialize dependencies for this isolate
   final db = AppDatabase();
   final localRepo = LocalRepo(db);
   final authRepo = AuthRepo(FirebaseAuth.instance);
@@ -63,6 +69,7 @@ void onStart(ServiceInstance service) async {
   await notificationService.init(
     channelName: l10n.proximityAlertsChannelName,
     channelDescription: l10n.proximityAlertsChannelDesc,
+    requestPermissionsOnId: false,
   );
 
   final Map<int, DateTime> notifiedPlaces = {};
@@ -81,7 +88,6 @@ void onStart(ServiceInstance service) async {
     service.stopSelf();
   });
 
-  // Start Location Polling
   Geolocator.getPositionStream(
     locationSettings: const LocationSettings(
       accuracy: LocationAccuracy.high,
@@ -90,13 +96,11 @@ void onStart(ServiceInstance service) async {
   ).listen((Position position) async {
     debugPrint('BG Isolate: Location Update: ${position.latitude}, ${position.longitude}');
 
-    // Update UI if app is open
     service.invoke('update', {
       'latitude': position.latitude,
       'longitude': position.longitude,
     });
 
-    // Proximity Check
     final userId = await authRepo.getCurrentUserId();
     if (userId == null) return;
 

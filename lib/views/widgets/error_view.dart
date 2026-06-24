@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 class ErrorView extends StatelessWidget {
   const ErrorView({
@@ -14,22 +15,22 @@ class ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 16.0,
           children: [
             const Icon(Icons.error_outline, color: Colors.red, size: 48),
-            const SizedBox(height: 16),
             Text(message, textAlign: TextAlign.center),
-            if (onRetry != null) ...[
-              const SizedBox(height: 16),
+            if (onRetry != null)
               ElevatedButton(
                 onPressed: onRetry,
-                child: Text(retryLabel ?? 'Try again'),
+                child: Text(retryLabel ?? l10n.tryAgain),
               ),
-            ],
           ],
         ),
       ),

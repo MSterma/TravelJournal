@@ -25,19 +25,39 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  setupLocator();
-  final l10n = lookupAppLocalizations(WidgetsBinding.instance.platformDispatcher.locale);
-  await locator<NotificationService>().init(
-    channelName: l10n.proximityAlertsChannelName,
-    channelDescription: l10n.proximityAlertsChannelDesc,
-  );
-  await initializeBackgroundService(l10n);
-  await locator<LocationService>().init();
-  runApp(const MyApp());
+  
+  try {
+    await dotenv.load(fileName: ".env");
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    setupLocator();
+    
+    runApp(const MyApp());
+    
+    // Non-blocking initialization of services
+    _initializeServices();
+  } catch (e) {
+    debugPrint("Critical initialization error: $e");
+    // Attempt to run the app anyway
+    runApp(const MyApp());
+  }
+}
+
+Future<void> _initializeServices() async {
+  try {
+    final l10n = lookupAppLocalizations(WidgetsBinding.instance.platformDispatcher.locale);
+    
+    await locator<NotificationService>().init(
+      channelName: l10n.proximityAlertsChannelName,
+      channelDescription: l10n.proximityAlertsChannelDesc,
+    );
+    
+    await initializeBackgroundService(l10n);
+    await locator<LocationService>().init();
+  } catch (e) {
+    debugPrint("Service initialization error: $e");
+  }
 }
 
 class MyApp extends StatelessWidget {

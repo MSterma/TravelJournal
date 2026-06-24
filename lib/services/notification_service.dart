@@ -10,7 +10,7 @@ class NotificationService {
   final StreamController<Map<String, dynamic>> _onNotificationClick = StreamController<Map<String, dynamic>>.broadcast();
   Stream<Map<String, dynamic>> get onNotificationClick => _onNotificationClick.stream;
 
-  Future<void> init({String? channelName, String? channelDescription}) async {
+  Future<void> init({String? channelName, String? channelDescription, bool requestPermissionsOnId = true}) async {
     debugPrint('Initializing NotificationService...');
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -57,7 +57,9 @@ class NotificationService {
           ));
     }
 
-    await requestPermissions();
+    if (requestPermissionsOnId) {
+      await requestPermissions();
+    }
   }
 
   Future<void> requestPermissions() async {
@@ -123,7 +125,7 @@ class NotificationService {
 
     try {
       await _notificationsPlugin.show(
-        id + 1000, // Use offset to avoid ID 0 or clashes
+        id + 1000,
         title ?? 'Nearby Place!',
         body ?? 'You are close to $placeName. Do you want to take note?',
         notificationDetails,

@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../services/sync_service.dart';
+import '../../repositories/country_repo.dart';
+import '../../models/country.dart';
 import 'country_details_event.dart';
 import 'country_details_state.dart';
 import '../common/failures.dart';
@@ -7,7 +9,7 @@ import '../../repositories/local_repo.dart';
 import '../../repositories/auth_repo.dart';
 
 class CountryDetailsBloc extends Bloc<CountryDetailsEvent, CountryDetailsState> {
-  CountryDetailsBloc(this.localRepo, this.authRepo, this.syncService)
+  CountryDetailsBloc(this.localRepo, this.authRepo, this.syncService, this.countryRepo)
       : super(const CountryDetailsState.loading()) {
     on<LoadDetails>(_onLoadDetails);
     on<MarkCountryVisited>(_onMarkVisited);
@@ -17,6 +19,7 @@ class CountryDetailsBloc extends Bloc<CountryDetailsEvent, CountryDetailsState> 
   final LocalRepo localRepo;
   final AuthRepo authRepo;
   final SyncService syncService;
+  final CountryRepo countryRepo;
 
   Future<void> _onLoadDetails(
     LoadDetails event,
@@ -27,9 +30,21 @@ class CountryDetailsBloc extends Bloc<CountryDetailsEvent, CountryDetailsState> 
       final userId = await authRepo.getCurrentUserId();
       if (userId == null) return;
 
+      Country? country = event.country;
+      if (country == null) {
+        final countries = await countryRepo.getCountries(query: event.countryName);
+        if (countries.isNotEmpty) {
+          country = countries.first;
+        }
+      }
+
       final isVisited = await localRepo.checkVisited(event.countryName, userId);
       final photos = await localRepo.getPhotos(event.countryName, userId);
-      emit(CountryDetailsState.loaded(isVisited: isVisited, photos: photos));
+      emit(CountryDetailsState.loaded(
+        isVisited: isVisited,
+        photos: photos,
+        country: country,
+      ));
     } catch (e) {
       emit(CountryDetailsState.loaded(
           isVisited: false,
@@ -37,6 +52,7 @@ class CountryDetailsBloc extends Bloc<CountryDetailsEvent, CountryDetailsState> 
           failure: const DatabaseFailure("Failed to load details")));
     }
   }
+
 
   Future<void> _onMarkVisited(
     MarkCountryVisited event,

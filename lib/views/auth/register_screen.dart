@@ -25,6 +25,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
+  String _getErrorMessage(String code, AppLocalizations l10n) {
+    switch (code) {
+      case 'errorEmailInUse':
+        return l10n.errorEmailInUse;
+      case 'errorWeakPassword':
+        return l10n.errorWeakPassword;
+      case 'errorInvalidEmail':
+        return l10n.errorInvalidEmail;
+      default:
+        return l10n.errorAuth;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -36,22 +49,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           if (state is AuthError) {
             final failure = state.failure;
             if (failure is AuthFailure) {
-              final String code = failure.message;
-              String msg;
-
-              if (code == 'email-already-in-use' || code.contains('email-already-in-use')) {
-                msg = l10n.errorEmailInUse;
-              } else if (code == 'weak-password' || code.contains('weak-password')) {
-                msg = l10n.errorWeakPassword;
-              } else if (code == 'invalid-email' || code.contains('invalid-email')) {
-                msg = l10n.errorInvalidEmail;
-              } else {
-                msg = l10n.errorAuth;
-              }
-
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(msg),
+                  content: Text(_getErrorMessage(failure.message, l10n)),
                   backgroundColor: Colors.red,
                 ),
               );
