@@ -37,7 +37,10 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
       await syncService.performFullSync(userId);
     }
 
-    emit(const TravelsState.loading());
+    if (state is! TravelsLoaded) {
+      emit(const TravelsState.loading());
+    }
+    
     await _fetchAndEmitData(emit, currentSelectedId);
   }
 
@@ -51,7 +54,9 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
 
       await localRepo.addTravel(event.name, userId);
       syncService.syncLocalToCloud(userId);
-      add(const TravelsEvent.loadData());
+      
+      final currentSelectedId = state is TravelsLoaded ? (state as TravelsLoaded).selectedTravelId : null;
+      await _fetchAndEmitData(emit, currentSelectedId);
     } catch (e) {
       emit(TravelsState.error(Failure.database(e.toString())));
     }
@@ -62,7 +67,8 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
     Emitter<TravelsState> emit,
   ) async {
     if (state is TravelsLoaded) {
-      emit(const TravelsState.loading());
+      // For selection, we might want a quick UI update, but not a full blink
+      // Maybe we don't even need a loading state here if we can compute timeline quickly
       await _fetchAndEmitData(emit, event.travelId);
     }
   }
@@ -85,7 +91,9 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
         event.photoPaths,
       );
       syncService.syncLocalToCloud(userId);
-      add(const TravelsEvent.loadData());
+      
+      final currentSelectedId = state is TravelsLoaded ? (state as TravelsLoaded).selectedTravelId : null;
+      await _fetchAndEmitData(emit, currentSelectedId);
     } catch (e) {
       emit(TravelsState.error(Failure.database(e.toString())));
     }
@@ -101,7 +109,9 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
 
       await localRepo.addWantToGoPlace(event.name, event.lat, event.lng, userId);
       syncService.syncLocalToCloud(userId);
-      add(const TravelsEvent.loadData());
+      
+      final currentSelectedId = state is TravelsLoaded ? (state as TravelsLoaded).selectedTravelId : null;
+      await _fetchAndEmitData(emit, currentSelectedId);
     } catch (e) {
       emit(TravelsState.error(Failure.database(e.toString())));
     }
@@ -117,7 +127,9 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
       if (userId != null) {
         syncService.syncLocalToCloud(userId);
       }
-      add(const TravelsEvent.loadData());
+      
+      final currentSelectedId = state is TravelsLoaded ? (state as TravelsLoaded).selectedTravelId : null;
+      await _fetchAndEmitData(emit, currentSelectedId);
     } catch (e) {
       emit(TravelsState.error(Failure.database(e.toString())));
     }
