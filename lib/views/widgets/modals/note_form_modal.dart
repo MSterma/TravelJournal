@@ -1,11 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:drift/drift.dart' as drift;
-import '../../database/app_database.dart';
-import '../../l10n/app_localizations.dart';
-import '../../locator.dart';
-import '../../repositories/local_repo.dart';
+import '../../../database/app_database.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../locator.dart';
+import '../../../repositories/local_repo.dart';
 
 
 class NoteFormModal extends StatefulWidget {

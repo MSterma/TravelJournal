@@ -7,9 +7,9 @@ import '../../bloc/country_details/country_details_bloc.dart';
 import '../../bloc/country_details/country_details_event.dart';
 import '../../bloc/country_details/country_details_state.dart';
 import '../../l10n/app_localizations.dart';
-import '../widgets/photo_viewer.dart';
-import '../widgets/loading_indicator.dart';
-import '../widgets/image_placeholder.dart';
+import '../widgets/common/photo_viewer.dart';
+import '../widgets/common/loading_indicator.dart';
+import '../widgets/common/image_placeholder.dart';
 
 class DetailScreen extends StatelessWidget {
   const DetailScreen({super.key, this.country});

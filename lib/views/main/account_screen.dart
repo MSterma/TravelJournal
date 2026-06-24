@@ -11,8 +11,8 @@ import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/auth/auth_event.dart';
 import '../../bloc/auth/auth_state.dart';
 import '../../l10n/app_localizations.dart';
-import '../widgets/stat_item.dart';
-import '../widgets/achievement_badge.dart';
+import '../widgets/countries/stat_item.dart';
+import '../widgets/countries/achievement_badge.dart';
 
 enum ChartType { photos, notes, countries }
 

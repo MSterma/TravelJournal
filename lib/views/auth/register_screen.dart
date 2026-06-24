@@ -5,7 +5,7 @@ import '../../bloc/auth/auth_event.dart';
 import '../../bloc/auth/auth_state.dart';
 import '../../bloc/common/failures.dart';
 import '../../l10n/app_localizations.dart';
-import '../widgets/loading_indicator.dart';
+import '../widgets/common/loading_indicator.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

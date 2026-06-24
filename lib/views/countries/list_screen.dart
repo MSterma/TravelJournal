@@ -4,8 +4,8 @@ import '../../models/country.dart';
 import '../../bloc/countries/country_bloc.dart';
 import '../../bloc/countries/country_event.dart';
 import '../../l10n/app_localizations.dart';
-import '../widgets/loading_indicator.dart';
-import '../widgets/country_list_item.dart';
+import '../widgets/common/loading_indicator.dart';
+import '../widgets/countries/country_list_item.dart';
 
 class ListScreen extends StatefulWidget {
   const ListScreen({

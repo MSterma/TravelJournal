@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../../bloc/auth/auth_state.dart';
 import '../main/main_screen.dart';
-import '../widgets/loading_indicator.dart';
+import '../widgets/common/loading_indicator.dart';
 import 'login_screen.dart';
 
 class AuthWrapper extends StatelessWidget {

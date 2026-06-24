@@ -14,7 +14,7 @@ import '../../bloc/map/map_state.dart';
 import '../../l10n/app_localizations.dart';
 import '../../services/sync_service.dart';
 import '../countries/detail_screen.dart';
-import '../widgets/loading_indicator.dart';
+import '../widgets/common/loading_indicator.dart';
 
 class MapScreen extends StatelessWidget {
   const MapScreen({super.key});

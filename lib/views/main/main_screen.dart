@@ -9,7 +9,7 @@ import 'account_screen.dart';
 import '../../locator.dart';
 import '../../services/notification_service.dart';
 import '../../repositories/auth_repo.dart';
-import '../widgets/note_form_modal.dart';
+import '../widgets/modals/note_form_modal.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../bloc/travels/travels_bloc.dart';
 import '../../bloc/travels/travels_event.dart';
