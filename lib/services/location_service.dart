@@ -64,12 +64,20 @@ class LocationService {
 
     _positionSubscription = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
             (Position position) {
-          _positionController.add(position);
-          _checkProximity(position);
+          processPosition(position);
         }
     );
 
     _isTracking = true;
+  }
+
+  Future<void> processPosition(Position position) async {
+    _positionController.add(position);
+    await _checkProximity(position);
+  }
+
+  Future<Position> getCurrentPosition() async {
+    return await Geolocator.getCurrentPosition();
   }
 
   void stopTracking() {

@@ -57,13 +57,14 @@ class _MainScreenState extends State<MainScreen> {
         _currentIndex = 2;
       });
 
-      final position = await locator<LocationService>().handlePermission().then((hasPerm) async {
-        if (hasPerm) return await Geolocator.getCurrentPosition();
+      final locationService = locator<LocationService>();
+      final position = await locationService.handlePermission().then((hasPerm) async {
+        if (hasPerm) return await locationService.getCurrentPosition();
         return null;
       });
 
       if (position != null) {
-        locator<LocationService>().mapCenterController.add(position);
+        locationService.mapCenterController.add(position);
       }
 
       final userId = await locator<AuthRepo>().getCurrentUserId();
