@@ -52,7 +52,75 @@
          "errorUserNotFound": "Nie znaleziono użytkownika",
          "errorEmailInUse": "Adres email jest zajęty",
          "errorWeakPassword": "Hasło jest zbyt słabe",
-         "errorFetchCountries": "Błąd pobierania państw"
-
-
+         "errorFetchCountries": "Błąd pobierania państw",
+         "navTravels": "Podróże",
+           "travelTimeline": "Oś czasu podróży",
+           "currentLocation": "Obecna lokalizacja",
+           "newTravel": "Nowa podróż",
+             "name": "Nazwa",
+             "newNote": "Nowa notatka",
+             "content": "Treść",
+             "travel": "Podróż",
+             "noTravelGeneralNote": "Brak (Ogólna notatka)",
+             "nameRequired": "Nazwa (wymagane)",
+             "contentOptional": "Treść (opcjonalne)",
+             "addPhotos": "Dodaj zdjęcia",
+             "all": "Wszystkie",
+             "selectTravelPrompt": "Wybierz podróż na mapie lub z listy, aby zobaczyć oś czasu.",
+             "noEntriesInTravel": "Brak wpisów w tej podróży.",
+             "travelLabel": "Podróż: ",
+             "noNoteContent": "Brak treści notatki.",
+             "details": "Szczegóły",
+             "none": "Brak",
+             "statsToday": "Dzisiaj",
+               "statsTotal": "Łącznie",
+               "statsPhotos": "Zdjęcia",
+               "statsNotes": "Notatki",
+               "statsCountries": "Kraje",
+               "statsDailyActivity": "Aktywność dzienna (30 Dni)",
+               "statsDailyAverage": "Średnia dzienna",
+               "statsCountriesThisMonth": "Kraje odwiedzone w tym miesiącu",
+               "statsAchievements": "Osiągnięcia: {name}",
+               "@statsAchievements": {
+                 "placeholders": {
+                   "name": {
+                     "type": "String"
+                   }
+                 }
+               },
+               "statsTrips": "Podróże",
+               "statsStreak": "{days} dni z rzędu",
+               "@statsStreak": {
+                 "placeholders": {
+                   "days": {
+                     "type": "int"
+                   }
+                 }
+               },
+               "chartPhotos": "Oś czasu zdjęć",
+               "chartNotes": "Dodane notatki",
+               "chartCountries": "Odwiedzone kraje",
+               "chartPhotosDesc": "Śledź swoją przygodę z fotografią w ostatnim miesiącu.",
+               "chartNotesDesc": "Twoja dzienna aktywność w tworzeniu notatek.",
+               "chartCountriesDesc": "Kiedy odkrywałeś i odwiedzałeś nowe horyzonty.",
+               "chartAxisDays": "Dni (ostatnie 30)",
+               "chartAxisCount": "Ilość",
+               "wantToGo": "Chcę tam pojechać",
+               "placeName": "Nazwa miejsca",
+               "markAsVisited": "Oznacz jako odwiedzone",
+               "unmarkAsVisited": "Odznacz jako odwiedzone",
+               "proximityAlertsChannelName": "Alerty bliskości",
+               "proximityAlertsChannelDesc": "Powiadomienia o miejscach w pobliżu",
+               "proximityNotificationTitle": "Miejsce w pobliżu!",
+               "proximityNotificationBody": "Jesteś blisko {placeName}. Czy chcesz dodać notatkę?",
+               "@proximityNotificationBody": {
+                 "placeholders": {
+                   "placeName": {
+                     "type": "String"
+                   }
+                 }
+               },
+               "bgTrackingTitle": "Śledzenie Dziennika Podróży",
+               "bgTrackingContent": "Monitorowanie odległości do miejsc",
+               "noPhoto": "Brak zdjęcia"
 }

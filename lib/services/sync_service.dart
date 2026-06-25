@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../repositories/local_repo.dart';
+import '../utils/constants.dart';
 
 class SyncService {
   SyncService(this.localRepo, this.firestore);
@@ -8,18 +9,72 @@ class SyncService {
 
   Future<void> syncCloudToLocal(String userId) async {
     try {
-      final userDoc = firestore.collection('users').doc(userId);
-      final snapshot = await userDoc.collection('visited').get();
+      final userDoc = firestore.collection(AppConstants.colUsers).doc(userId);
 
-      for (final doc in snapshot.docs) {
+      final visitedSnapshot = await userDoc.collection(AppConstants.colVisited).get();
+      for (final doc in visitedSnapshot.docs) {
         final data = doc.data();
-
         if (data['countryCode'] == null) continue;
-
         final lat = (data['lat'] as num?)?.toDouble() ?? 0.0;
         final lng = (data['lng'] as num?)?.toDouble() ?? 0.0;
+        final dateStr = data['visitedAt'] as String?;
+        final visitedAt =
+            dateStr != null ? DateTime.parse(dateStr) : DateTime.now();
 
-        await localRepo.insertFromCloud(data['countryCode'], userId, lat, lng);
+        await localRepo.insertFromCloud(
+            doc.id, data['countryCode'], userId, lat, lng, visitedAt);
+      }
+
+      final travelsSnapshot = await userDoc.collection(AppConstants.colTravels).get();
+      for (final doc in travelsSnapshot.docs) {
+        final data = doc.data();
+        final id = int.tryParse(doc.id);
+        if (id == null) continue;
+        await localRepo.insertTravelFromCloud(
+            id, data['travelName'] ?? 'Unnamed', userId);
+      }
+
+      final notesSnapshot = await userDoc.collection(AppConstants.colNotes).get();
+      for (final doc in notesSnapshot.docs) {
+        final data = doc.data();
+        final id = int.tryParse(doc.id);
+        if (id == null) continue;
+
+        final dateStr = data['date'] as String?;
+        final date = dateStr != null ? DateTime.parse(dateStr) : DateTime.now();
+
+        await localRepo.insertNoteFromCloud(
+          id,
+          userId,
+          data['name'] ?? 'Unnamed',
+          date,
+          (data['lat'] as num?)?.toDouble() ?? 0.0,
+          (data['lng'] as num?)?.toDouble() ?? 0.0,
+          data['userNote'],
+          data['travelId'] as int?,
+          photoCount: data['photoCount'] as int? ?? 0,
+        );
+      }
+
+      final wantToGoSnapshot = await userDoc.collection(AppConstants.colWantToGo).get();
+      for (final doc in wantToGoSnapshot.docs) {
+        final data = doc.data();
+        final id = int.tryParse(doc.id);
+        if (id == null) continue;
+
+        final visitedAtStr = data['visitedAt'] as String?;
+        final visitedAt =
+            visitedAtStr != null ? DateTime.parse(visitedAtStr) : null;
+
+        await localRepo.insertWantToGoPlaceFromCloud(
+          id,
+          data['name'] ?? 'Unnamed',
+          (data['lat'] as num?)?.toDouble() ?? 0.0,
+          (data['lng'] as num?)?.toDouble() ?? 0.0,
+          userId,
+          data['isVisited'] as bool? ?? false,
+          visitedAt,
+        );
       }
     } catch (e) {
     }
@@ -27,14 +82,12 @@ class SyncService {
 
   Future<void> syncLocalToCloud(String userId) async {
     try {
-      final unsynced = await localRepo.getUnsyncedCountries(userId);
-      if (unsynced.isEmpty) return;
-
+      final userDoc = firestore.collection(AppConstants.colUsers).doc(userId);
       final batch = firestore.batch();
-      final userDoc = firestore.collection('users').doc(userId);
 
-      for (final country in unsynced) {
-        final docRef = userDoc.collection('visited').doc(country.id);
+      final unsyncedCountries = await localRepo.getUnsyncedCountries(userId);
+      for (final country in unsyncedCountries) {
+        final docRef = userDoc.collection(AppConstants.colVisited).doc(country.id);
         batch.set(docRef, {
           'countryCode': country.countryCode,
           'visitedAt': country.visitedAt.toIso8601String(),
@@ -42,11 +95,62 @@ class SyncService {
           'lng': country.lng,
         });
       }
-      await batch.commit();
+      final unsyncedTravels = await localRepo.getUnsyncedTravels(userId);
+      for (final travel in unsyncedTravels) {
+        final docRef = userDoc.collection(AppConstants.colTravels).doc(travel.id.toString());
+        batch.set(docRef, {
+          'travelName': travel.travelName,
+          'userId': travel.userId,
+        });
+      }
+      final unsyncedNotes = await localRepo.getUnsyncedNotes(userId);
+      for (final note in unsyncedNotes) {
+        final photos = await localRepo.getNotePhotos(note.id);
+        final docRef = userDoc.collection(AppConstants.colNotes).doc(note.id.toString());
+        batch.set(docRef, {
+          'name': note.name,
+          'userId': note.userId,
+          'date': note.date.toIso8601String(),
+          'lat': note.lat,
+          'lng': note.lng,
+          'userNote': note.userNote,
+          'travelId': note.travelId,
+          'photoCount': photos.length, // MOCKING PHOTOS
+        });
+      }
 
-      final ids = unsynced.map((e) => e.id).toList();
-      await localRepo.markCountriesSynced(ids);
+      if (unsyncedNotes.isNotEmpty) {
+        await localRepo.markNotesSynced(unsyncedNotes.map((e) => e.id).toList());
+      }
+
+      final unsyncedWantToGo = await localRepo.getUnsyncedWantToGoPlaces(userId);
+      for (final place in unsyncedWantToGo) {
+        final docRef = userDoc.collection(AppConstants.colWantToGo).doc(place.id.toString());
+        batch.set(docRef, {
+          'name': place.name,
+          'lat': place.lat,
+          'lng': place.lng,
+          'userId': place.userId,
+          'isVisited': place.isVisited,
+          'visitedAt': place.visitedAt?.toIso8601String(),
+        });
+      }
+
+      await batch.commit();
+      if (unsyncedCountries.isNotEmpty) {
+        await localRepo.markCountriesSynced(unsyncedCountries.map((e) => e.id).toList());
+      }
+      if (unsyncedTravels.isNotEmpty) {
+        await localRepo.markTravelsSynced(unsyncedTravels.map((e) => e.id).toList());
+      }
+      if (unsyncedNotes.isNotEmpty) {
+        await localRepo.markNotesSynced(unsyncedNotes.map((e) => e.id).toList());
+      }
+      if (unsyncedWantToGo.isNotEmpty) {
+        await localRepo.markWantToGoPlacesSynced(unsyncedWantToGo.map((e) => e.id).toList());
+      }
     } catch (e) {
+
     }
   }
 
@@ -57,13 +161,22 @@ class SyncService {
 
   Future<void> clearCloudData(String userId) async {
     try {
-      final collection = firestore.collection('users').doc(userId).collection('visited');
-      final snapshots = await collection.get();
-
+      final userDoc = firestore.collection(AppConstants.colUsers).doc(userId);
       final batch = firestore.batch();
-      for (final doc in snapshots.docs) {
-        batch.delete(doc.reference);
+
+      final collections = [
+        AppConstants.colVisited,
+        AppConstants.colTravels,
+        AppConstants.colNotes,
+        AppConstants.colWantToGo
+      ];
+      for (final col in collections) {
+        final snapshot = await userDoc.collection(col).get();
+        for (final doc in snapshot.docs) {
+          batch.delete(doc.reference);
+        }
       }
+
       await batch.commit();
     } catch (e) {
     }

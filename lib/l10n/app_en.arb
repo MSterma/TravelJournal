@@ -51,5 +51,75 @@
                "errorUserNotFound": "User not found",
                "errorEmailInUse": "Email is already in use",
                "errorWeakPassword": "Password is too weak",
-               "errorFetchCountries": "Failed to fetch countries"
+               "errorFetchCountries": "Failed to fetch countries",
+               "navTravels": "Travels",
+                 "travelTimeline": "Travel Timeline",
+                 "currentLocation": "Current Location",
+                 "newTravel": "New travel",
+                   "name": "Name",
+                   "newNote": "New note",
+                   "content": "Content",
+                   "travel": "Travel",
+                   "noTravelGeneralNote": "None (General note)",
+                   "nameRequired": "Name (required)",
+                   "contentOptional": "Content (optional)",
+                   "addPhotos": "Add photos",
+                   "all": "All",
+                   "selectTravelPrompt": "Select a travel on the map or from the list to see the timeline.",
+                   "noEntriesInTravel": "No entries in this travel.",
+                   "travelLabel": "Travel: ",
+                   "noNoteContent": "No note content.",
+                   "details": "Details",
+                   "none": "None",
+                   "statsToday": "Today",
+                     "statsTotal": "Total",
+                     "statsPhotos": "Photos",
+                     "statsNotes": "Notes",
+                     "statsCountries": "Countries",
+                     "statsDailyActivity": "Daily Activity (Last 30 Days)",
+                     "statsDailyAverage": "Daily Average",
+                     "statsCountriesThisMonth": "Countries visited this month",
+                     "statsAchievements": "{name}''s Achievements",
+                     "@statsAchievements": {
+                       "placeholders": {
+                         "name": {
+                           "type": "String"
+                         }
+                       }
+                     },
+                     "statsTrips": "Trips",
+                     "statsStreak": "{days}-day streak",
+                     "@statsStreak": {
+                       "placeholders": {
+                         "days": {
+                           "type": "int"
+                         }
+                       }
+                     },
+                     "chartPhotos": "Photos Timeline",
+                     "chartNotes": "Notes Added",
+                     "chartCountries": "Countries Visited",
+                     "chartPhotosDesc": "Track your photography journey over the last month.",
+                     "chartNotesDesc": "Your daily journaling and note-taking activity.",
+                     "chartCountriesDesc": "When you discovered and visited new horizons.",
+                     "chartAxisDays": "Days (last 30)",
+                     "chartAxisCount": "Count",
+                     "wantToGo": "Want to go",
+                     "placeName": "Place name",
+                     "markAsVisited": "Mark as visited",
+                     "unmarkAsVisited": "Unmark as visited",
+                     "proximityAlertsChannelName": "Proximity Alerts",
+                     "proximityAlertsChannelDesc": "Notifications when you are near a saved place",
+                     "proximityNotificationTitle": "Nearby Place!",
+                     "proximityNotificationBody": "You are close to {placeName}. Do you want to take note?",
+                     "@proximityNotificationBody": {
+                       "placeholders": {
+                         "placeName": {
+                           "type": "String"
+                         }
+                       }
+                     },
+                     "bgTrackingTitle": "Travel Journal Tracking",
+                     "bgTrackingContent": "Monitoring proximity to places",
+                     "noPhoto": "No photo"
 }

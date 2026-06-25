@@ -5,7 +5,7 @@ import '../../bloc/auth/auth_event.dart';
 import '../../bloc/auth/auth_state.dart';
 import '../../bloc/common/failures.dart';
 import '../../l10n/app_localizations.dart';
-import '../widgets/loading_indicator.dart';
+import '../widgets/common/loading_indicator.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -26,6 +26,21 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  String _getErrorMessage(String code, AppLocalizations l10n) {
+    switch (code) {
+      case 'errorWrongPassword':
+        return l10n.errorWrongPassword;
+      case 'errorUserNotFound':
+        return l10n.errorUserNotFound;
+      case 'errorInvalidEmail':
+        return l10n.errorInvalidEmail;
+      case 'errorAuth':
+        return l10n.errorAuth;
+      default:
+        return l10n.errorAuth;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -37,26 +52,9 @@ class _LoginScreenState extends State<LoginScreen> {
           if (state is AuthError) {
             final failure = state.failure;
             if (failure is AuthFailure) {
-              final String code = failure.message;
-              String msg;
-
-              if (code == 'wrong-password' || code.contains('wrong-password')) {
-                msg = l10n.errorWrongPassword;
-              } else if (code == 'invalid-email' || code.contains('invalid-email')) {
-                msg = l10n.errorInvalidEmail;
-              } else if (code == 'user-not-found' || code.contains('user-not-found')) {
-                msg = l10n.errorUserNotFound;
-              } else if (code == 'invalid-credential' || code.contains('invalid-credential')) {
-                msg = l10n.errorAuth;
-              } else if (code == 'user-disabled' || code.contains('user-disabled')) {
-                msg = l10n.errorUserNotFound;
-              } else {
-                msg = l10n.errorAuth;
-              }
-
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(msg),
+                  content: Text(_getErrorMessage(failure.message, l10n)),
                   backgroundColor: Colors.red,
                 ),
               );

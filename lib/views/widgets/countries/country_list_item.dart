@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../bloc/country_details/country_details_bloc.dart';
-import '../../bloc/country_details/country_details_event.dart';
-import '../../locator.dart';
-import '../../models/country.dart';
-import '../../repositories/auth_repo.dart';
-import '../../repositories/local_repo.dart';
-import '../countries/detail_screen.dart';
+import '../../../bloc/country_details/country_details_bloc.dart';
+import '../../../bloc/country_details/country_details_event.dart';
+import '../../../locator.dart';
+import '../../../models/country.dart';
+import '../../../repositories/auth_repo.dart';
+import '../../../repositories/country_repo.dart';
+import '../../../repositories/local_repo.dart';
+import '../../countries/detail_screen.dart';
 
-import '../../services/sync_service.dart';
+import '../../../services/sync_service.dart';
 
 class CountryListItem extends StatelessWidget {
   const CountryListItem({super.key, required this.country});
@@ -35,7 +36,8 @@ class CountryListItem extends StatelessWidget {
                   locator<LocalRepo>(),
                   locator<AuthRepo>(),
                   locator<SyncService>(),
-                )..add(LoadDetails(country.name)),
+                  locator<CountryRepo>(),
+                )..add(LoadDetails(country.name, country: country)),
                 child: DetailScreen(country: country),
               ),
             ),

@@ -4,8 +4,8 @@ import '../../bloc/countries/country_bloc.dart';
 import '../../bloc/countries/country_event.dart';
 import '../../bloc/countries/country_state.dart';
 import '../../l10n/app_localizations.dart';
-import '../widgets/loading_indicator.dart';
-import '../widgets/error_view.dart';
+import '../widgets/common/loading_indicator.dart';
+import '../widgets/common/error_view.dart';
 import 'list_screen.dart';
 
 class CountriesTab extends StatelessWidget {
