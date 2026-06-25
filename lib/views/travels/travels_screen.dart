@@ -103,6 +103,14 @@ class _TravelsScreenState extends State<TravelsScreen> {
   }
 
   void _showPlaceDetails(WantToGoPlace place, AppLocalizations l10n) {
+    final locationService = locator<LocationService>();
+    String? distanceText;
+    if (_currentPosition != null) {
+      final distance =
+          locationService.calculateDistanceToPlace(_currentPosition!, place);
+      distanceText = locationService.formatDistance(distance, l10n);
+    }
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -119,6 +127,11 @@ class _TravelsScreenState extends State<TravelsScreen> {
             Text(place.name,
                 style:
                     const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            if (distanceText != null) ...[
+              const SizedBox(height: 4),
+              Text(distanceText,
+                  style: TextStyle(color: Colors.grey[600], fontSize: 16)),
+            ],
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
@@ -152,13 +165,15 @@ class _TravelsScreenState extends State<TravelsScreen> {
 
   void _testNotification() {
     final l10n = AppLocalizations.of(context)!;
+    final locationService = locator<LocationService>();
     locator<NotificationService>().showProximityNotification(
       id: 999,
       placeName: "Test Place",
       lat: _mapController.camera.center.latitude,
       lng: _mapController.camera.center.longitude,
       title: l10n.proximityNotificationTitle,
-      body: l10n.proximityNotificationBody("Test Place"),
+      body: l10n.proximityNotificationBody(
+          "Test Place", locationService.formatDistance(0, l10n)),
     );
   }
 
@@ -339,6 +354,7 @@ class _TravelsScreenState extends State<TravelsScreen> {
                       }
                     },
                     onPlaceTap: (p) => _showPlaceDetails(p, l10n),
+                    locationService: locator<LocationService>(),
                   ),
                   const Center(
                     child: Padding(

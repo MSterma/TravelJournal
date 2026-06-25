@@ -7,6 +7,8 @@ import 'package:geolocator/geolocator.dart';
 import '../database/app_database.dart';
 import '../repositories/local_repo.dart';
 import 'notification_service.dart';
+import 'location_service.dart';
+import '../utils/constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../repositories/auth_repo.dart';
@@ -64,6 +66,11 @@ void onStart(ServiceInstance service) async {
   final localRepo = LocalRepo(db);
   final authRepo = AuthRepo(FirebaseAuth.instance);
   final notificationService = NotificationService();
+  final locationService = LocationService(
+    localRepo: localRepo,
+    authRepo: authRepo,
+    notificationService: notificationService,
+  );
   
   final l10n = lookupAppLocalizations(PlatformDispatcher.instance.locale);
   await notificationService.init(
@@ -110,16 +117,11 @@ void onStart(ServiceInstance service) async {
     for (final place in places) {
       if (place.isVisited) continue;
 
-      final distance = Geolocator.distanceBetween(
-        position.latitude,
-        position.longitude,
-        place.lat,
-        place.lng,
-      );
+      final distance = locationService.calculateDistanceToPlace(position, place);
 
-      if (distance < 200) {
+      if (distance < AppConstants.proximityDistanceThreshold) {
         final lastNotified = notifiedPlaces[place.id];
-        if (lastNotified == null || now.difference(lastNotified).inHours >= 1) {
+        if (lastNotified == null || now.difference(lastNotified).inHours >= AppConstants.notificationIntervalHours) {
           notifiedPlaces[place.id] = now;
           await notificationService.showProximityNotification(
             id: place.id,
@@ -127,7 +129,7 @@ void onStart(ServiceInstance service) async {
             lat: place.lat,
             lng: place.lng,
             title: l10n.proximityNotificationTitle,
-            body: l10n.proximityNotificationBody(place.name),
+            body: l10n.proximityNotificationBody(place.name, locationService.formatDistance(distance, l10n)),
           );
         }
       }

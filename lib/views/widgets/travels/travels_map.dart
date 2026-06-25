@@ -7,6 +7,9 @@ import '../../../bloc/travels/travels_bloc.dart';
 import '../../../bloc/travels/travels_state.dart';
 import '../../../database/app_database.dart';
 
+import '../../../services/location_service.dart';
+import '../../../l10n/app_localizations.dart';
+
 class TravelsMap extends StatelessWidget {
   const TravelsMap({
     super.key,
@@ -14,15 +17,18 @@ class TravelsMap extends StatelessWidget {
     required this.currentPosition,
     required this.onMarkerTap,
     required this.onPlaceTap,
+    required this.locationService,
   });
 
   final MapController mapController;
   final Position? currentPosition;
   final Function(Note) onMarkerTap;
   final Function(WantToGoPlace) onPlaceTap;
+  final LocationService locationService;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return BlocBuilder<TravelsBloc, TravelsState>(
       buildWhen: (prev, curr) {
         if (prev is! TravelsLoaded || curr is! TravelsLoaded) return true;
@@ -42,6 +48,8 @@ class TravelsMap extends StatelessWidget {
           options: const MapOptions(
             initialCenter: LatLng(52.4064, 16.9252),
             initialZoom: 13.0,
+            minZoom: 2.0,
+            maxZoom: 18.0,
           ),
           children: [
             TileLayer(
@@ -81,16 +89,46 @@ class TravelsMap extends StatelessWidget {
                   );
                 }),
                 ...state.wantToGoPlaces.map((p) {
+                  String? distanceText;
+                  if (currentPosition != null) {
+                    final distance = locationService.calculateDistanceToPlace(
+                        currentPosition!, p);
+                    distanceText = locationService.formatDistance(distance, l10n);
+                  }
+
                   return Marker(
                     point: LatLng(p.lat, p.lng),
-                    width: 40,
-                    height: 40,
+                    width: 100,
+                    height: 70,
                     child: GestureDetector(
                       onTap: () => onPlaceTap(p),
-                      child: Icon(
-                        p.isVisited ? Icons.check_circle : Icons.explore,
-                        color: p.isVisited ? Colors.grey : Colors.orange,
-                        size: 30,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            p.isVisited ? Icons.check_circle : Icons.explore,
+                            color: p.isVisited ? Colors.grey : Colors.orange,
+                            size: 30,
+                          ),
+                          if (distanceText != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 4, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.8),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                distanceText,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   );

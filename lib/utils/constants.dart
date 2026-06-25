@@ -16,4 +16,17 @@ class AppConstants {
   
   // Placeholder Constants
   static const String photoPlaceholder = '__PLACEHOLDER__';
+
+  static String formatDistance(double distanceInMeters) {
+    if (distanceInMeters < 1000) {
+      return '${distanceInMeters.toStringAsFixed(0)} m';
+    } else {
+      double km = distanceInMeters / 1000;
+      double m = distanceInMeters % 1000;
+      if (m < 1) {
+        return '${km.toStringAsFixed(1)} km';
+      }
+      return '${km.floor()} km ${m.toStringAsFixed(0)} m';
+    }
+  }
 }

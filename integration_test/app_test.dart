@@ -9,6 +9,8 @@ import 'package:travel_journal/services/notification_service.dart';
 import 'package:travel_journal/services/location_service.dart';
 import 'package:travel_journal/l10n/app_localizations.dart';
 import 'package:travel_journal/firebase_options.dart';
+import 'package:travel_journal/bloc/travels/travels_state.dart'; // Just in case, but let's check
+import 'package:travel_journal/utils/constants.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
@@ -219,8 +221,15 @@ void main() {
       };
 
       debugPrint('Simulating movement towards destination...');
-      // Final move into threshold (200m)
-      await locationService.processPosition(FakePosition(latitude: dest.lat + 0.0001, longitude: dest.lng + 0.0001));
+      final testPosition = FakePosition(latitude: dest.lat + 0.0001, longitude: dest.lng + 0.0001);
+      
+      // Verify distance calculation logic explicitly
+      final calculatedDistance = locationService.calculateDistanceToPlace(testPosition, dest);
+      debugPrint('Calculated distance to destination: $calculatedDistance');
+      expect(calculatedDistance, lessThan(AppConstants.proximityDistanceThreshold));
+
+      // Final move into threshold
+      await locationService.processPosition(testPosition);
       await tester.pumpAndSettle();
 
       expect(notificationTriggered, isTrue);
