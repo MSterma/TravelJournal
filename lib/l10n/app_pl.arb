@@ -112,11 +112,33 @@
                "proximityAlertsChannelName": "Alerty bliskości",
                "proximityAlertsChannelDesc": "Powiadomienia o miejscach w pobliżu",
                "proximityNotificationTitle": "Miejsce w pobliżu!",
-               "proximityNotificationBody": "Jesteś blisko {placeName}. Czy chcesz dodać notatkę?",
+               "proximityNotificationBody": "Jesteś blisko {placeName} ({distance}). Czy chcesz dodać notatkę?",
                "@proximityNotificationBody": {
                  "placeholders": {
                    "placeName": {
                      "type": "String"
+                   },
+                   "distance": {
+                     "type": "String"
+                   }
+                 }
+               },
+               "distanceM": "{distance} m",
+               "@distanceM": {
+                 "placeholders": {
+                   "distance": {
+                     "type": "int"
+                   }
+                 }
+               },
+               "distanceKm": "{km} km {m} m",
+               "@distanceKm": {
+                 "placeholders": {
+                   "km": {
+                     "type": "int"
+                   },
+                   "m": {
+                     "type": "int"
                    }
                  }
                },

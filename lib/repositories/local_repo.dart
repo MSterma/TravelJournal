@@ -10,20 +10,22 @@ class LocalRepo {
 
   Future<void> markVisited(
       String countryName, String userId, double lat, double lng) async {
-    final exists = await checkVisited(countryName, userId);
-    if (exists) return;
+    await db.transaction(() async {
+      final exists = await checkVisited(countryName, userId);
+      if (exists) return;
 
-    final id = _uuid.v4();
-    await db.into(db.visitedCountries).insert(
-          VisitedCountriesCompanion.insert(
-            id: id,
-            countryCode: countryName,
-            userId: Value(userId),
-            lat: Value(lat),
-            lng: Value(lng),
-            isSynced: const Value(false),
-          ),
-        );
+      final id = _uuid.v4();
+      await db.into(db.visitedCountries).insert(
+            VisitedCountriesCompanion.insert(
+              id: id,
+              countryCode: countryName,
+              userId: Value(userId),
+              lat: Value(lat),
+              lng: Value(lng),
+              isSynced: const Value(false),
+            ),
+          );
+    });
   }
 
   Future<bool> checkVisited(String countryName, String userId) async {

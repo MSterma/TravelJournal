@@ -111,11 +111,33 @@
                      "proximityAlertsChannelName": "Proximity Alerts",
                      "proximityAlertsChannelDesc": "Notifications when you are near a saved place",
                      "proximityNotificationTitle": "Nearby Place!",
-                     "proximityNotificationBody": "You are close to {placeName}. Do you want to take note?",
+                     "proximityNotificationBody": "You are close to {placeName} ({distance}). Do you want to take note?",
                      "@proximityNotificationBody": {
                        "placeholders": {
                          "placeName": {
                            "type": "String"
+                         },
+                         "distance": {
+                           "type": "String"
+                         }
+                       }
+                     },
+                     "distanceM": "{distance} m",
+                     "@distanceM": {
+                       "placeholders": {
+                         "distance": {
+                           "type": "int"
+                         }
+                       }
+                     },
+                     "distanceKm": "{km} km {m} m",
+                     "@distanceKm": {
+                       "placeholders": {
+                         "km": {
+                           "type": "int"
+                         },
+                         "m": {
+                           "type": "int"
                          }
                        }
                      },
