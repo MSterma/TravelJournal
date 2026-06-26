@@ -7,6 +7,7 @@ import 'package:travel_journal/repositories/local_repo.dart';
 import 'package:travel_journal/repositories/auth_repo.dart';
 import 'package:travel_journal/services/notification_service.dart';
 import 'package:travel_journal/services/location_service.dart';
+import 'package:travel_journal/services/sync_service.dart';
 import 'package:travel_journal/l10n/app_localizations.dart';
 import 'package:travel_journal/firebase_options.dart';
 import 'package:travel_journal/bloc/travels/travels_state.dart'; // Just in case, but let's check
@@ -68,7 +69,6 @@ class TestLocationService extends LocationService {
   @override
   void startTracking() {
     debugPrint('TestLocationService: startTracking (mocked - no real geolocator)');
-    // We don't call super.startTracking() to avoid real geolocator streams
   }
 
   @override
@@ -121,17 +121,14 @@ void main() {
         await locator<AppDatabase>().close();
       }
       await locator.reset();
-      setupLocator(); // Use real setup
+      setupLocator(); 
       
-      // Use clean in-memory database to ensure test repeatability
       locator.unregister<AppDatabase>();
       locator.registerSingleton<AppDatabase>(AppDatabase.memory());
       
-      // Update LocalRepo with the new database instance
       locator.unregister<LocalRepo>();
       locator.registerSingleton<LocalRepo>(LocalRepo(locator<AppDatabase>()));
 
-      // Override only what's necessary for the test to control flow
       final notificationService = MockNotificationService();
       final locationService = TestLocationService(
         localRepo: locator<LocalRepo>(),
@@ -144,6 +141,31 @@ void main() {
       
       locator.unregister<LocationService>();
       locator.registerSingleton<LocationService>(locationService);
+    });
+
+    tearDown(() async {
+      debugPrint('Tear Down: Cleaning up data...');
+      try {
+        final authRepo = locator<AuthRepo>();
+        final userId = await authRepo.getCurrentUserId();
+        if (userId != null) {
+          final localRepo = locator<LocalRepo>();
+          final syncService = locator<SyncService>();
+          
+          await syncService.clearCloudData(userId);
+          await localRepo.clearUserData(userId);
+          
+          await authRepo.firebaseAuth.currentUser?.delete();
+          
+          await authRepo.signOut();
+        }
+      } catch (e) {
+        debugPrint('Error during tearDown: $e');
+      }
+      
+      if (locator.isRegistered<AppDatabase>()) {
+        await locator<AppDatabase>().close();
+      }
     });
 
     testWidgets('Full flow: Register -> Add WantToGo -> Move -> Notify -> Click -> Add Note', (tester) async {
@@ -170,8 +192,7 @@ void main() {
       debugPrint('Creating account: $email');
       await tester.tap(find.text(l10n.createAccount));
       
-      // Wait for registration and navigation to MainScreen
-      // Increased timeout for Firebase
+
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // 2. Navigate to Travels Tab
@@ -196,7 +217,6 @@ void main() {
       await tester.tap(find.text(l10n.save.toUpperCase()));
       await tester.pumpAndSettle();
 
-      // Get the destination coords from DB
       final localRepo = locator<LocalRepo>();
       final authRepo = locator<AuthRepo>();
       final userId = await authRepo.getCurrentUserId();
