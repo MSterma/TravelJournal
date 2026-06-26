@@ -1,0 +1,50 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build_and_test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.12.2' 
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Create .env file from Secrets
+        run: |
+          echo "FIREBASE_WEB_API_KEY=${{ secrets.FIREBASE_WEB_API_KEY }}" >> .env
+          echo "FIREBASE_ANDROID_API_KEY=${{ secrets.FIREBASE_ANDROID_API_KEY }}" >> .env
+          echo "FIREBASE_IOS_API_KEY=${{ secrets.FIREBASE_IOS_API_KEY }}" >> .env
+          echo "FIREBASE_MACOS_API_KEY=${{ secrets.FIREBASE_MACOS_API_KEY }}" >> .env
+          echo "FIREBASE_WINDOWS_API_KEY=${{ secrets.FIREBASE_WINDOWS_API_KEY }}" >> .env
+          echo "API_AUTH_TOKEN=${{ secrets.API_AUTH_TOKEN }}" >> .env
+
+      - name: Run code generation
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Verify formatting
+        run: flutter format --set-exit-if-changed .
+
+      - name: Analyze code
+        run: flutter analyze
+
+      - name: Run Unit and BLoC tests
+        run: flutter test --exclude-tags=integration
+
+      - name: Build Android APK (Debug)
+        run: flutter build apk --debug
