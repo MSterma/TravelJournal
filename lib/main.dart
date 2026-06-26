@@ -27,20 +27,54 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    await dotenv.load(fileName: ".env");
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    // 1. Safe dotenv load
+    try {
+      await dotenv.load(fileName: ".env");
+    } catch (e) {
+      debugPrint("Warning: .env load failed: $e");
+    }
+
+    // 2. Initialize Firebase only if not already ready
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+
+    // 3. ALWAYS setup locator before running the app
     setupLocator();
 
     runApp(const MyApp());
 
-    // Non-blocking initialization of services
+    // Non-blocking services initialization
     _initializeServices();
   } catch (e) {
     debugPrint("Critical initialization error: $e");
-    // Attempt to run the app anyway
-    runApp(const MyApp());
+
+    // Emergency setup: try to setup locator if not already registered
+    try {
+      if (!locator.isRegistered<AuthRepo>()) {
+        setupLocator();
+      }
+    } catch (_) {}
+
+    // Show error on screen instead of grey background to help debugging
+    runApp(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: SelectableText(
+                "Application Start Error:\n$e",
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
