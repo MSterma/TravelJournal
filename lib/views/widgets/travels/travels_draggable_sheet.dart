@@ -21,7 +21,7 @@ class TravelsDraggableSheet extends StatelessWidget {
   final DraggableScrollableController sheetController;
   final VoidCallback onAddTravel;
   final Function(Note, String, List<String>, AppLocalizations)
-      onShowNoteDetails;
+  onShowNoteDetails;
 
   @override
   Widget build(BuildContext context) {
@@ -47,19 +47,23 @@ class TravelsDraggableSheet extends StatelessWidget {
             return Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).scaffoldBackgroundColor,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
                 boxShadow: const [
                   BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 10,
-                      offset: Offset(0, -2))
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: Offset(0, -2),
+                  ),
                 ],
               ),
               child: ListView(
                 controller: scrollController,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
                 children: [
                   Center(
                     child: Container(
@@ -67,16 +71,21 @@ class TravelsDraggableSheet extends StatelessWidget {
                       height: 4,
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                          color: Colors.grey[500],
-                          borderRadius: BorderRadius.circular(10)),
+                        color: Colors.grey[500],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(l10n.travelTimeline,
-                          style: const TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.bold)),
+                      Text(
+                        l10n.travelTimeline,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const Icon(Icons.more_vert),
                     ],
                   ),
@@ -85,15 +94,27 @@ class TravelsDraggableSheet extends StatelessWidget {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
-                        _buildChip(context, l10n.all, null,
-                            state.selectedTravelId),
-                        ...state.travels.map((t) => _buildChip(context,
-                            t.travelName, t.id, state.selectedTravelId)),
+                        _buildChip(
+                          context,
+                          l10n.all,
+                          null,
+                          state.selectedTravelId,
+                        ),
+                        ...state.travels.map(
+                          (t) => _buildChip(
+                            context,
+                            t.travelName,
+                            t.id,
+                            state.selectedTravelId,
+                          ),
+                        ),
                         Padding(
                           padding: const EdgeInsets.only(right: 8.0),
                           child: ActionChip(
-                              label: const Text('+'), onPressed: onAddTravel),
-                        )
+                            label: const Text('+'),
+                            onPressed: onAddTravel,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -101,24 +122,28 @@ class TravelsDraggableSheet extends StatelessWidget {
                   if (state.selectedTravelId == null)
                     Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: Text(l10n.selectTravelPrompt,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.grey)),
+                      child: Text(
+                        l10n.selectTravelPrompt,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.grey),
+                      ),
                     )
                   else if (state.timelineNotes.isEmpty)
                     Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(l10n.noEntriesInTravel))
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(l10n.noEntriesInTravel),
+                    )
                   else
                     Column(
                       children: state.timelineNotes.map((n) {
                         return _buildTimelineItem(
-                            context,
-                            n,
-                            state.notePhotos[n.id] ?? [],
-                            state.allTimelinePhotos,
-                            state.travels,
-                            l10n);
+                          context,
+                          n,
+                          state.notePhotos[n.id] ?? [],
+                          state.allTimelinePhotos,
+                          state.travels,
+                          l10n,
+                        );
                       }).toList(),
                     ),
                 ],
@@ -131,7 +156,11 @@ class TravelsDraggableSheet extends StatelessWidget {
   }
 
   Widget _buildChip(
-      BuildContext context, String label, int? travelId, int? selectedTravelId) {
+    BuildContext context,
+    String label,
+    int? travelId,
+    int? selectedTravelId,
+  ) {
     final isSelected = selectedTravelId == travelId;
     return Padding(
       padding: const EdgeInsets.only(right: 8.0),
@@ -147,17 +176,16 @@ class TravelsDraggableSheet extends StatelessWidget {
   }
 
   Widget _buildTimelineItem(
-      BuildContext context,
-      Note note,
-      List<String> photos,
-      List<String> allTimelinePhotos,
-      List<Travel> travels,
-      AppLocalizations l10n) {
+    BuildContext context,
+    Note note,
+    List<String> photos,
+    List<String> allTimelinePhotos,
+    List<Travel> travels,
+    AppLocalizations l10n,
+  ) {
     final dateStr = "${note.date.day}-${note.date.month}-${note.date.year}";
-    final travelName = travels
-            .where((t) => t.id == note.travelId)
-            .firstOrNull
-            ?.travelName ??
+    final travelName =
+        travels.where((t) => t.id == note.travelId).firstOrNull?.travelName ??
         l10n.none;
 
     return Padding(
@@ -169,14 +197,18 @@ class TravelsDraggableSheet extends StatelessWidget {
             children: [
               Container(width: 2, height: 16, color: Colors.blue),
               Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                      color: Colors.blue, shape: BoxShape.circle)),
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Colors.blue,
+                  shape: BoxShape.circle,
+                ),
+              ),
               Container(
-                  width: 2,
-                  height: photos.isNotEmpty ? 130 : 90,
-                  color: Colors.blue),
+                width: 2,
+                height: photos.isNotEmpty ? 130 : 90,
+                color: Colors.blue,
+              ),
             ],
           ),
           const SizedBox(width: 16),
@@ -186,11 +218,16 @@ class TravelsDraggableSheet extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.calendar_today,
-                        size: 14, color: Colors.grey),
+                    const Icon(
+                      Icons.calendar_today,
+                      size: 14,
+                      color: Colors.grey,
+                    ),
                     const SizedBox(width: 4),
-                    Text("$dateStr: ${note.name}",
-                        style: const TextStyle(fontWeight: FontWeight.w600)),
+                    Text(
+                      "$dateStr: ${note.name}",
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
                   ],
                 ),
                 if (photos.isNotEmpty)
@@ -211,21 +248,31 @@ class TravelsDraggableSheet extends StatelessWidget {
                           padding: const EdgeInsets.only(right: 8.0),
                           child: InkWell(
                             onTap: () {
-                              final globalIndex =
-                                  allTimelinePhotos.indexOf(path);
-                              PhotoViewer.show(context,
-                                  photos: allTimelinePhotos,
-                                  initialIndex:
-                                      globalIndex != -1 ? globalIndex : 0,
-                                  source: PhotoSource.file);
+                              final globalIndex = allTimelinePhotos.indexOf(
+                                path,
+                              );
+                              PhotoViewer.show(
+                                context,
+                                photos: allTimelinePhotos,
+                                initialIndex: globalIndex != -1
+                                    ? globalIndex
+                                    : 0,
+                                source: PhotoSource.file,
+                              );
                             },
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(8),
                               child: exists
-                                  ? Image.file(File(path),
-                                      width: 60, height: 60, fit: BoxFit.cover)
+                                  ? Image.file(
+                                      File(path),
+                                      width: 60,
+                                      height: 60,
+                                      fit: BoxFit.cover,
+                                    )
                                   : const ImagePlaceholder(
-                                      width: 60, height: 60),
+                                      width: 60,
+                                      height: 60,
+                                    ),
                             ),
                           ),
                         );
@@ -237,16 +284,17 @@ class TravelsDraggableSheet extends StatelessWidget {
                   height: 30,
                   child: TextButton(
                     style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        alignment: Alignment.centerLeft),
+                      padding: EdgeInsets.zero,
+                      alignment: Alignment.centerLeft,
+                    ),
                     onPressed: () =>
                         onShowNoteDetails(note, travelName, photos, l10n),
                     child: Text(l10n.details),
                   ),
-                )
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

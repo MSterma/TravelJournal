@@ -16,7 +16,8 @@ abstract class CountryDto with _$CountryDto {
     @JsonKey(name: 'coordinates') CountryCoordinatesDto? coordinates,
   }) = _CountryDto;
 
-  factory CountryDto.fromJson(Map<String, dynamic> json) => _$CountryDtoFromJson(json);
+  factory CountryDto.fromJson(Map<String, dynamic> json) =>
+      _$CountryDtoFromJson(json);
 
   String? get firstCapital {
     if (capitals == null || capitals!.isEmpty) return null;
@@ -32,28 +33,26 @@ abstract class CountryDto with _$CountryDto {
 
 @freezed
 abstract class CountryNamesDto with _$CountryNamesDto {
-  const factory CountryNamesDto({
-    String? common,
-  }) = _CountryNamesDto;
+  const factory CountryNamesDto({String? common}) = _CountryNamesDto;
 
-  factory CountryNamesDto.fromJson(Map<String, dynamic> json) => _$CountryNamesDtoFromJson(json);
+  factory CountryNamesDto.fromJson(Map<String, dynamic> json) =>
+      _$CountryNamesDtoFromJson(json);
 }
 
 @freezed
 abstract class CountryFlagDto with _$CountryFlagDto {
-  const factory CountryFlagDto({
-    @JsonKey(name: 'url_png') String? urlPng,
-  }) = _CountryFlagDto;
+  const factory CountryFlagDto({@JsonKey(name: 'url_png') String? urlPng}) =
+      _CountryFlagDto;
 
-  factory CountryFlagDto.fromJson(Map<String, dynamic> json) => _$CountryFlagDtoFromJson(json);
+  factory CountryFlagDto.fromJson(Map<String, dynamic> json) =>
+      _$CountryFlagDtoFromJson(json);
 }
 
 @freezed
 abstract class CountryCoordinatesDto with _$CountryCoordinatesDto {
-  const factory CountryCoordinatesDto({
-    double? lat,
-    double? lng,
-  }) = _CountryCoordinatesDto;
+  const factory CountryCoordinatesDto({double? lat, double? lng}) =
+      _CountryCoordinatesDto;
 
-  factory CountryCoordinatesDto.fromJson(Map<String, dynamic> json) => _$CountryCoordinatesDtoFromJson(json);
+  factory CountryCoordinatesDto.fromJson(Map<String, dynamic> json) =>
+      _$CountryCoordinatesDtoFromJson(json);
 }

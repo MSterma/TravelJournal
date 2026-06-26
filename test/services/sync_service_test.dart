@@ -7,9 +7,16 @@ import 'package:travel_journal/database/app_database.dart';
 import '../utils/race_detector.dart';
 
 class MockFirebaseFirestore extends Mock implements FirebaseFirestore {}
-class MockCollectionReference extends Mock implements CollectionReference<Map<String, dynamic>> {}
-class MockDocumentReference extends Mock implements DocumentReference<Map<String, dynamic>> {}
-class MockQuerySnapshot extends Mock implements QuerySnapshot<Map<String, dynamic>> {}
+
+class MockCollectionReference extends Mock
+    implements CollectionReference<Map<String, dynamic>> {}
+
+class MockDocumentReference extends Mock
+    implements DocumentReference<Map<String, dynamic>> {}
+
+class MockQuerySnapshot extends Mock
+    implements QuerySnapshot<Map<String, dynamic>> {}
+
 class MockWriteBatch extends Mock implements WriteBatch {}
 
 void main() {
@@ -32,7 +39,7 @@ void main() {
   group('SyncService Race Condition Tests', () {
     test('performFullSync should handle concurrent calls', () async {
       const userId = 'user123';
-      
+
       final mockCollection = MockCollectionReference();
       final mockDoc = MockDocumentReference();
       final mockSubCollection = MockCollectionReference();

@@ -45,7 +45,8 @@ class DetailScreen extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        final displayCountry = state.country ??
+        final displayCountry =
+            state.country ??
             country ??
             Country(
               name: "Unknown",
@@ -88,7 +89,9 @@ class DetailScreen extends StatelessWidget {
                   child: Text(
                     displayCountry.name,
                     style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -162,9 +165,8 @@ class DetailScreen extends StatelessWidget {
                           );
                           if (image != null && context.mounted) {
                             context.read<CountryDetailsBloc>().add(
-                                  AddCountryPhoto(
-                                      displayCountry.name, image.path),
-                                );
+                              AddCountryPhoto(displayCountry.name, image.path),
+                            );
                           }
                         },
                         label: Text(l10n.addPhoto),
@@ -176,10 +178,10 @@ class DetailScreen extends StatelessWidget {
                           physics: const NeverScrollableScrollPhysics(),
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                          ),
+                                crossAxisCount: 3,
+                                crossAxisSpacing: 8,
+                                mainAxisSpacing: 8,
+                              ),
                           itemCount: state.photos.length,
                           itemBuilder: (context, index) {
                             final path = state.photos[index];
@@ -197,10 +199,7 @@ class DetailScreen extends StatelessWidget {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(8.0),
                                 child: exists
-                                    ? Image.file(
-                                        File(path),
-                                        fit: BoxFit.cover,
-                                      )
+                                    ? Image.file(File(path), fit: BoxFit.cover)
                                     : const ImagePlaceholder(
                                         width: 100,
                                         height: 100,
@@ -208,7 +207,7 @@ class DetailScreen extends StatelessWidget {
                               ),
                             );
                           },
-                        )
+                        ),
                     ],
                   )
                 else
@@ -216,12 +215,12 @@ class DetailScreen extends StatelessWidget {
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.add_location),
                       onPressed: () => context.read<CountryDetailsBloc>().add(
-                            MarkCountryVisited(
-                              displayCountry.name,
-                              displayCountry.lat,
-                              displayCountry.lng,
-                            ),
-                          ),
+                        MarkCountryVisited(
+                          displayCountry.name,
+                          displayCountry.lat,
+                          displayCountry.lng,
+                        ),
+                      ),
                       label: Text(l10n.markVisited),
                     ),
                   ),
@@ -233,4 +232,3 @@ class DetailScreen extends StatelessWidget {
     );
   }
 }
-

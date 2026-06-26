@@ -35,12 +35,11 @@ class StatItem extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             value.toString(),
-            style: (isTotal
-                    ? theme.textTheme.headlineSmall
-                    : theme.textTheme.titleLarge)
-                ?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style:
+                (isTotal
+                        ? theme.textTheme.headlineSmall
+                        : theme.textTheme.titleLarge)
+                    ?.copyWith(fontWeight: FontWeight.bold),
           ),
         ],
       ),

@@ -40,7 +40,7 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
     if (state is! TravelsLoaded) {
       emit(const TravelsState.loading());
     }
-    
+
     await _fetchAndEmitData(emit, currentSelectedId);
   }
 
@@ -54,8 +54,10 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
 
       await localRepo.addTravel(event.name, userId);
       syncService.syncLocalToCloud(userId);
-      
-      final currentSelectedId = state is TravelsLoaded ? (state as TravelsLoaded).selectedTravelId : null;
+
+      final currentSelectedId = state is TravelsLoaded
+          ? (state as TravelsLoaded).selectedTravelId
+          : null;
       await _fetchAndEmitData(emit, currentSelectedId);
     } catch (e) {
       emit(TravelsState.error(Failure.database(e.toString())));
@@ -91,8 +93,10 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
         event.photoPaths,
       );
       syncService.syncLocalToCloud(userId);
-      
-      final currentSelectedId = state is TravelsLoaded ? (state as TravelsLoaded).selectedTravelId : null;
+
+      final currentSelectedId = state is TravelsLoaded
+          ? (state as TravelsLoaded).selectedTravelId
+          : null;
       await _fetchAndEmitData(emit, currentSelectedId);
     } catch (e) {
       emit(TravelsState.error(Failure.database(e.toString())));
@@ -107,10 +111,17 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
       final userId = await authRepo.getCurrentUserId();
       if (userId == null) return;
 
-      await localRepo.addWantToGoPlace(event.name, event.lat, event.lng, userId);
+      await localRepo.addWantToGoPlace(
+        event.name,
+        event.lat,
+        event.lng,
+        userId,
+      );
       syncService.syncLocalToCloud(userId);
-      
-      final currentSelectedId = state is TravelsLoaded ? (state as TravelsLoaded).selectedTravelId : null;
+
+      final currentSelectedId = state is TravelsLoaded
+          ? (state as TravelsLoaded).selectedTravelId
+          : null;
       await _fetchAndEmitData(emit, currentSelectedId);
     } catch (e) {
       emit(TravelsState.error(Failure.database(e.toString())));
@@ -127,8 +138,10 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
       if (userId != null) {
         syncService.syncLocalToCloud(userId);
       }
-      
-      final currentSelectedId = state is TravelsLoaded ? (state as TravelsLoaded).selectedTravelId : null;
+
+      final currentSelectedId = state is TravelsLoaded
+          ? (state as TravelsLoaded).selectedTravelId
+          : null;
       await _fetchAndEmitData(emit, currentSelectedId);
     } catch (e) {
       emit(TravelsState.error(Failure.database(e.toString())));
@@ -165,15 +178,17 @@ class TravelsBloc extends Bloc<TravelsEvent, TravelsState> {
         }
       }
 
-      emit(TravelsState.loaded(
-        travels: travels,
-        allNotes: allNotes,
-        timelineNotes: timelineNotes.cast(),
-        notePhotos: photosMap,
-        allTimelinePhotos: allPhotos,
-        wantToGoPlaces: wantToGoPlaces,
-        selectedTravelId: selectedTravelId,
-      ));
+      emit(
+        TravelsState.loaded(
+          travels: travels,
+          allNotes: allNotes,
+          timelineNotes: timelineNotes.cast(),
+          notePhotos: photosMap,
+          allTimelinePhotos: allPhotos,
+          wantToGoPlaces: wantToGoPlaces,
+          selectedTravelId: selectedTravelId,
+        ),
+      );
     } catch (e) {
       emit(TravelsState.error(Failure.database(e.toString())));
     }

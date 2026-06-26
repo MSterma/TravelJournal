@@ -15,20 +15,34 @@ final locator = GetIt.instance;
 
 void setupLocator() {
   locator.registerLazySingleton<AppDatabase>(() => AppDatabase());
-  locator.registerLazySingleton<LocalRepo>(() => LocalRepo(locator<AppDatabase>()));
+  locator.registerLazySingleton<LocalRepo>(
+    () => LocalRepo(locator<AppDatabase>()),
+  );
   locator.registerLazySingleton<FirebaseAuth>(() => FirebaseAuth.instance);
-  locator.registerLazySingleton<AuthRepo>(() => AuthRepo(locator<FirebaseAuth>()));
+  locator.registerLazySingleton<AuthRepo>(
+    () => AuthRepo(locator<FirebaseAuth>()),
+  );
 
   locator.registerLazySingleton<Dio>(() => Dio());
   locator.registerLazySingleton<ApiClient>(() => ApiClient(locator<Dio>()));
-  locator.registerLazySingleton<CountryRepo>(() => CountryRepo(locator<ApiClient>()));
+  locator.registerLazySingleton<CountryRepo>(
+    () => CountryRepo(locator<ApiClient>()),
+  );
 
-  locator.registerLazySingleton<FirebaseFirestore>(() => FirebaseFirestore.instance);
-  locator.registerLazySingleton<SyncService>(() => SyncService(locator<LocalRepo>(), locator<FirebaseFirestore>()));
-  locator.registerLazySingleton<NotificationService>(() => NotificationService());
-  locator.registerLazySingleton<LocationService>(() => LocationService(
-    localRepo: locator<LocalRepo>(),
-    authRepo: locator<AuthRepo>(),
-    notificationService: locator<NotificationService>(),
-  ));
+  locator.registerLazySingleton<FirebaseFirestore>(
+    () => FirebaseFirestore.instance,
+  );
+  locator.registerLazySingleton<SyncService>(
+    () => SyncService(locator<LocalRepo>(), locator<FirebaseFirestore>()),
+  );
+  locator.registerLazySingleton<NotificationService>(
+    () => NotificationService(),
+  );
+  locator.registerLazySingleton<LocationService>(
+    () => LocationService(
+      localRepo: locator<LocalRepo>(),
+      authRepo: locator<AuthRepo>(),
+      notificationService: locator<NotificationService>(),
+    ),
+  );
 }

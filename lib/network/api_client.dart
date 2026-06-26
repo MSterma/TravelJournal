@@ -17,8 +17,8 @@ abstract class ApiClient {
 
   @GET(AppUrls.countriesEndpoint)
   Future<CountryResponse> getCountries(
-      @Query('limit') int limit,
-      @Query('offset') int offset,
-      @Query('q') String? query,
-      );
+    @Query('limit') int limit,
+    @Query('offset') int offset,
+    @Query('q') String? query,
+  );
 }

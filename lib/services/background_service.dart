@@ -58,9 +58,7 @@ void onStart(ServiceInstance service) async {
     debugPrint('BG Isolate: Failed to load .env: $e');
   }
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final db = AppDatabase();
   final localRepo = LocalRepo(db);
@@ -71,7 +69,7 @@ void onStart(ServiceInstance service) async {
     authRepo: authRepo,
     notificationService: notificationService,
   );
-  
+
   final l10n = lookupAppLocalizations(PlatformDispatcher.instance.locale);
   await notificationService.init(
     channelName: l10n.proximityAlertsChannelName,
@@ -101,7 +99,9 @@ void onStart(ServiceInstance service) async {
       distanceFilter: 10,
     ),
   ).listen((Position position) async {
-    debugPrint('BG Isolate: Location Update: ${position.latitude}, ${position.longitude}');
+    debugPrint(
+      'BG Isolate: Location Update: ${position.latitude}, ${position.longitude}',
+    );
 
     service.invoke('update', {
       'latitude': position.latitude,
@@ -117,11 +117,16 @@ void onStart(ServiceInstance service) async {
     for (final place in places) {
       if (place.isVisited) continue;
 
-      final distance = locationService.calculateDistanceToPlace(position, place);
+      final distance = locationService.calculateDistanceToPlace(
+        position,
+        place,
+      );
 
       if (distance < AppConstants.proximityDistanceThreshold) {
         final lastNotified = notifiedPlaces[place.id];
-        if (lastNotified == null || now.difference(lastNotified).inHours >= AppConstants.notificationIntervalHours) {
+        if (lastNotified == null ||
+            now.difference(lastNotified).inHours >=
+                AppConstants.notificationIntervalHours) {
           notifiedPlaces[place.id] = now;
           await notificationService.showProximityNotification(
             id: place.id,
@@ -129,7 +134,10 @@ void onStart(ServiceInstance service) async {
             lat: place.lat,
             lng: place.lng,
             title: l10n.proximityNotificationTitle,
-            body: l10n.proximityNotificationBody(place.name, locationService.formatDistance(distance, l10n)),
+            body: l10n.proximityNotificationBody(
+              place.name,
+              locationService.formatDistance(distance, l10n),
+            ),
           );
         }
       }

@@ -23,9 +23,7 @@ class AuthWrapper extends StatelessWidget {
         if (state is AuthAuthenticated) {
           return const MainScreen();
         } else if (state is AuthInitial) {
-          return const Scaffold(
-            body: LoadingIndicator(),
-          );
+          return const Scaffold(body: LoadingIndicator());
         }
         return const LoginScreen();
       },

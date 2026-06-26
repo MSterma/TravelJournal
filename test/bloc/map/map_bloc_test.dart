@@ -19,8 +19,10 @@ void main() {
     db = AppDatabase.memory();
     localRepo = LocalRepo(db);
     mockAuthRepo = MockAuthRepo();
-    
-    when(() => mockAuthRepo.getCurrentUserId()).thenAnswer((_) async => 'user123');
+
+    when(
+      () => mockAuthRepo.getCurrentUserId(),
+    ).thenAnswer((_) async => 'user123');
 
     mapBloc = MapBloc(localRepo, mockAuthRepo);
   });
@@ -36,10 +38,7 @@ void main() {
       mapBloc.add(const LoadMarkers());
       mapBloc.add(const LoadMarkers());
 
-      await expectLater(
-        mapBloc.stream,
-        emitsThrough(isA<MapLoaded>()),
-      );
+      await expectLater(mapBloc.stream, emitsThrough(isA<MapLoaded>()));
     });
   });
 }

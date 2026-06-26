@@ -15,7 +15,6 @@ import '../../bloc/travels/travels_bloc.dart';
 import '../../bloc/travels/travels_event.dart';
 import '../../services/location_service.dart';
 
-
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -30,7 +29,9 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    _notificationSubscription = locator<NotificationService>().onNotificationClick.listen(_handleNotificationPayload);
+    _notificationSubscription = locator<NotificationService>()
+        .onNotificationClick
+        .listen(_handleNotificationPayload);
     _initGlobalLocationTracking();
   }
 
@@ -41,7 +42,9 @@ class _MainScreenState extends State<MainScreen> {
       debugPrint('MainScreen: Starting global location tracking');
       locationService.startTracking();
     } else {
-      debugPrint('MainScreen: Location permission not granted for global tracking');
+      debugPrint(
+        'MainScreen: Location permission not granted for global tracking',
+      );
     }
   }
 
@@ -58,7 +61,9 @@ class _MainScreenState extends State<MainScreen> {
       });
 
       final locationService = locator<LocationService>();
-      final position = await locationService.handlePermission().then((hasPerm) async {
+      final position = await locationService.handlePermission().then((
+        hasPerm,
+      ) async {
         if (hasPerm) return await locationService.getCurrentPosition();
         return null;
       });
@@ -83,6 +88,7 @@ class _MainScreenState extends State<MainScreen> {
       }
     }
   }
+
   final List<Widget> _screens = [
     const CountriesTab(),
     const MapScreen(),

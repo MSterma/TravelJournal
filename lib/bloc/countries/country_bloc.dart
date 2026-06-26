@@ -8,7 +8,7 @@ import '../common/failures.dart';
 
 class CountryBloc extends Bloc<CountryEvent, CountryState> {
   CountryBloc(this.repo, this.authRepo, this.syncService)
-      : super(const CountryState.loading()) {
+    : super(const CountryState.loading()) {
     on<LoadCountries>(_onLoadCountries);
     on<LoadMoreCountries>(_onLoadMoreCountries);
     on<SearchCountries>(_onSearchCountries);
@@ -31,10 +31,16 @@ class CountryBloc extends Bloc<CountryEvent, CountryState> {
     try {
       _currentOffset = 0;
       _currentQuery = null;
-      final data =
-          await repo.getCountries(limit: _limit, offset: _currentOffset);
-      emit(CountryState.loaded(
-          countries: data, hasReachedMax: data.length < _limit));
+      final data = await repo.getCountries(
+        limit: _limit,
+        offset: _currentOffset,
+      );
+      emit(
+        CountryState.loaded(
+          countries: data,
+          hasReachedMax: data.length < _limit,
+        ),
+      );
     } catch (e) {
       emit(CountryState.error(Failure.network(e.toString())));
     }
@@ -56,15 +62,26 @@ class CountryBloc extends Bloc<CountryEvent, CountryState> {
       _currentOffset = 0;
       _currentQuery = event.query.isEmpty ? null : event.query;
       final data = await repo.getCountries(
-          limit: _limit, offset: _currentOffset, query: _currentQuery);
-      emit(CountryState.loaded(
+        limit: _limit,
+        offset: _currentOffset,
+        query: _currentQuery,
+      );
+      emit(
+        CountryState.loaded(
           countries: data,
           hasReachedMax: data.length < _limit,
-          isSearching: false));
+          isSearching: false,
+        ),
+      );
     } catch (e) {
       if (e.toString().contains('404')) {
-        emit(const CountryState.loaded(
-            countries: [], hasReachedMax: true, isSearching: false));
+        emit(
+          const CountryState.loaded(
+            countries: [],
+            hasReachedMax: true,
+            isSearching: false,
+          ),
+        );
       } else {
         emit(CountryState.error(Failure.network(e.toString())));
       }
@@ -93,17 +110,23 @@ class CountryBloc extends Bloc<CountryEvent, CountryState> {
       try {
         _currentOffset += _limit;
         final data = await repo.getCountries(
-            limit: _limit, offset: _currentOffset, query: _currentQuery);
+          limit: _limit,
+          offset: _currentOffset,
+          query: _currentQuery,
+        );
 
         if (data.isEmpty) {
           emit(
-              loadedState.copyWith(hasReachedMax: true, isFetchingMore: false));
+            loadedState.copyWith(hasReachedMax: true, isFetchingMore: false),
+          );
         } else {
-          emit(loadedState.copyWith(
-            countries: [...loadedState.countries, ...data],
-            hasReachedMax: data.length < _limit,
-            isFetchingMore: false,
-          ));
+          emit(
+            loadedState.copyWith(
+              countries: [...loadedState.countries, ...data],
+              hasReachedMax: data.length < _limit,
+              isFetchingMore: false,
+            ),
+          );
         }
       } catch (_) {
         emit(loadedState.copyWith(isFetchingMore: false));

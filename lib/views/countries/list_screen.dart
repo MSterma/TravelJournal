@@ -79,19 +79,21 @@ class _ListScreenState extends State<ListScreen> {
                 : widget.countries.isEmpty
                 ? Center(child: Text(l10n.noResults))
                 : ListView.builder(
-              controller: _scrollController,
-              itemCount: widget.countries.length + (widget.isFetchingMore ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index >= widget.countries.length) {
-                  return const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: LoadingIndicator(),
-                  );
-                }
+                    controller: _scrollController,
+                    itemCount:
+                        widget.countries.length +
+                        (widget.isFetchingMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index >= widget.countries.length) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: LoadingIndicator(),
+                        );
+                      }
 
-                return CountryListItem(country: widget.countries[index]);
-              },
-            ),
+                      return CountryListItem(country: widget.countries[index]);
+                    },
+                  ),
           ),
         ],
       ),
@@ -125,9 +127,7 @@ class _SearchBar extends StatelessWidget {
             icon: const Icon(Icons.clear),
             onPressed: onClear,
           ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
         ),
         onSubmitted: onSubmitted,
       ),

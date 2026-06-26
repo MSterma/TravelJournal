@@ -96,11 +96,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           ? null
                           : () {
                               context.read<AuthBloc>().add(
-                                    AuthSignInRequested(
-                                      _emailController.text,
-                                      _passwordController.text,
-                                    ),
-                                  );
+                                AuthSignInRequested(
+                                  _emailController.text,
+                                  _passwordController.text,
+                                ),
+                              );
                             },
                       child: Text(l10n.logIn),
                     ),
@@ -121,11 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               if (isLoading)
-                const AbsorbPointer(
-                  child: Center(
-                    child: LoadingIndicator(),
-                  ),
-                ),
+                const AbsorbPointer(child: Center(child: LoadingIndicator())),
             ],
           );
         },

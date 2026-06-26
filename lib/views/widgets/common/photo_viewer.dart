@@ -80,7 +80,8 @@ class _PhotoViewerState extends State<PhotoViewer> {
         itemBuilder: (context, index) {
           final path = widget.photos[index];
           final isPlaceholder = path == '__PLACEHOLDER__';
-          final exists = widget.source == PhotoSource.network ||
+          final exists =
+              widget.source == PhotoSource.network ||
               (!isPlaceholder && File(path).existsSync());
 
           return InteractiveViewer(
@@ -89,20 +90,17 @@ class _PhotoViewerState extends State<PhotoViewer> {
             child: Center(
               child: exists
                   ? (widget.source == PhotoSource.file
-                      ? Image.file(
-                          File(path),
-                          fit: BoxFit.contain,
-                        )
-                      : Image.network(
-                          path,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(
-                            Icons.error,
-                            color: Colors.white,
-                            size: 50,
-                          ),
-                        ))
+                        ? Image.file(File(path), fit: BoxFit.contain)
+                        : Image.network(
+                            path,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Icon(
+                                  Icons.error,
+                                  color: Colors.white,
+                                  size: 50,
+                                ),
+                          ))
                   : const ImagePlaceholder(width: 300, height: 300),
             ),
           );

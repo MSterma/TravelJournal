@@ -11,6 +11,7 @@ import 'package:travel_journal/database/app_database.dart';
 import '../../utils/race_detector.dart';
 
 class MockAuthRepo extends Mock implements AuthRepo {}
+
 class MockSyncService extends Mock implements SyncService {}
 
 void main() {
@@ -25,10 +26,14 @@ void main() {
     localRepo = LocalRepo(db);
     mockAuthRepo = MockAuthRepo();
     mockSyncService = MockSyncService();
-    
-    when(() => mockAuthRepo.getCurrentUserId()).thenAnswer((_) async => 'user123');
+
+    when(
+      () => mockAuthRepo.getCurrentUserId(),
+    ).thenAnswer((_) async => 'user123');
     when(() => mockSyncService.performFullSync(any())).thenAnswer((_) async {});
-    when(() => mockSyncService.syncLocalToCloud(any())).thenAnswer((_) async {});
+    when(
+      () => mockSyncService.syncLocalToCloud(any()),
+    ).thenAnswer((_) async {});
 
     travelsBloc = TravelsBloc(
       localRepo: localRepo,
@@ -43,36 +48,44 @@ void main() {
   });
 
   group('TravelsBloc Race Condition Tests', () {
-    test('Multiple LoadTravelsData events should be handled gracefully', () async {
-      for (int i = 0; i < 100; i++) {
-        travelsBloc.add(const LoadTravelsData());
-      }
+    test(
+      'Multiple LoadTravelsData events should be handled gracefully',
+      () async {
+        for (int i = 0; i < 100; i++) {
+          travelsBloc.add(const LoadTravelsData());
+        }
 
-      await expectLater(
-        travelsBloc.stream,
-        emitsThrough(isA<TravelsLoaded>()),
-      );
-    });
+        await expectLater(
+          travelsBloc.stream,
+          emitsThrough(isA<TravelsLoaded>()),
+        );
+      },
+    );
 
-    test('Rapid AddTravelRequested events should maintain consistency', () async {
-      final names = ['Trip A', 'Trip B', 'Trip C'];
-      
-      for (final name in names) {
-        travelsBloc.add(AddTravelRequested(name));
-      }
+    test(
+      'Rapid AddTravelRequested events should maintain consistency',
+      () async {
+        final names = ['Trip A', 'Trip B', 'Trip C'];
 
-      await expectLater(
-        travelsBloc.stream,
-        emitsThrough(predicate<TravelsState>((state) {
-          if (state is TravelsLoaded) {
-            return state.travels.length >= 3;
-          }
-          return false;
-        })),
-      );
+        for (final name in names) {
+          travelsBloc.add(AddTravelRequested(name));
+        }
 
-      final travels = await localRepo.getTravels('user123');
-      expect(travels.length, 3);
-    });
+        await expectLater(
+          travelsBloc.stream,
+          emitsThrough(
+            predicate<TravelsState>((state) {
+              if (state is TravelsLoaded) {
+                return state.travels.length >= 3;
+              }
+              return false;
+            }),
+          ),
+        );
+
+        final travels = await localRepo.getTravels('user123');
+        expect(travels.length, 3);
+      },
+    );
   });
 }
