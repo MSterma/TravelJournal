@@ -1,12 +1,16 @@
-name: Deploy to Firebase
+name: Build & Release APK
 
 on:
   push:
-    branches: [ main ] 
+    tags:
+      - 'v*' # Uruchom, gdy wypchniesz tag np. v1.0.1
+
+permissions:
+  contents: write # Wymagane, aby GitHub mógł stworzyć Release
 
 jobs:
-  deploy_android:
-    name: Build & Deploy Android
+  release:
+    name: Build & Upload Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -36,9 +40,13 @@ jobs:
       - name: Build APK (Release)
         run: flutter build apk --release
 
-      - name: Upload to Firebase App Distribution
-        uses: w9jds/firebase-action@master
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          args: appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk --app ${{ secrets.FIREBASE_ANDROID_APP_ID }} --groups "testers"
+          files: build/app/outputs/flutter-apk/app-release.apk
+          name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_APP_DISTRIBUTION_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
