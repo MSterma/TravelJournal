@@ -72,7 +72,8 @@ class TravelsMap extends StatelessWidget {
             MarkerLayer(
               markers: [
                 ...state.allNotes.map((n) {
-                  final isSelectedGroup = state.selectedTravelId != null &&
+                  final isSelectedGroup =
+                      state.selectedTravelId != null &&
                       n.travelId == state.selectedTravelId;
                   return Marker(
                     point: LatLng(n.lat, n.lng),
@@ -92,8 +93,13 @@ class TravelsMap extends StatelessWidget {
                   String? distanceText;
                   if (currentPosition != null) {
                     final distance = locationService.calculateDistanceToPlace(
-                        currentPosition!, p);
-                    distanceText = locationService.formatDistance(distance, l10n);
+                      currentPosition!,
+                      p,
+                    );
+                    distanceText = locationService.formatDistance(
+                      distance,
+                      l10n,
+                    );
                   }
 
                   return Marker(
@@ -113,7 +119,9 @@ class TravelsMap extends StatelessWidget {
                           if (distanceText != null)
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 2),
+                                horizontal: 4,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.8),
                                 borderRadius: BorderRadius.circular(4),
@@ -136,7 +144,9 @@ class TravelsMap extends StatelessWidget {
                 if (currentPosition != null)
                   Marker(
                     point: LatLng(
-                        currentPosition!.latitude, currentPosition!.longitude),
+                      currentPosition!.latitude,
+                      currentPosition!.longitude,
+                    ),
                     width: 40,
                     height: 40,
                     child: const Icon(

@@ -19,22 +19,26 @@ class TravelsControls extends StatelessWidget {
       left: 16,
       child: Container(
         decoration: BoxDecoration(
-            color: Colors.blue[700], borderRadius: BorderRadius.circular(25)),
+          color: Colors.blue[700],
+          borderRadius: BorderRadius.circular(25),
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-                icon: const Icon(Icons.add, color: Colors.white),
-                onPressed: onAddNote),
+              icon: const Icon(Icons.add, color: Colors.white),
+              onPressed: onAddNote,
+            ),
             const VerticalDivider(width: 1, color: Colors.white24),
             IconButton(
-                icon: const Icon(Icons.explore, color: Colors.white),
-                onPressed: onAddWantToGo),
+              icon: const Icon(Icons.explore, color: Colors.white),
+              onPressed: onAddWantToGo,
+            ),
             const VerticalDivider(width: 1, color: Colors.white24),
             IconButton(
-                icon:
-                    const Icon(Icons.notifications_active, color: Colors.white),
-                onPressed: onTestNotification),
+              icon: const Icon(Icons.notifications_active, color: Colors.white),
+              onPressed: onTestNotification,
+            ),
           ],
         ),
       ),

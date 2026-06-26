@@ -68,13 +68,17 @@ class _TravelsScreenState extends State<TravelsScreen> {
       }
     });
 
-    _mapCenterSubscription =
-        locationService.mapCenterController.stream.listen((position) {
+    _mapCenterSubscription = locationService.mapCenterController.stream.listen((
+      position,
+    ) {
       if (mounted) {
         setState(() {
           _currentPosition = position;
         });
-        _mapController.move(LatLng(position.latitude, position.longitude), 15.0);
+        _mapController.move(
+          LatLng(position.latitude, position.longitude),
+          15.0,
+        );
       }
     });
   }
@@ -106,8 +110,10 @@ class _TravelsScreenState extends State<TravelsScreen> {
     final locationService = locator<LocationService>();
     String? distanceText;
     if (_currentPosition != null) {
-      final distance =
-          locationService.calculateDistanceToPlace(_currentPosition!, place);
+      final distance = locationService.calculateDistanceToPlace(
+        _currentPosition!,
+        place,
+      );
       distanceText = locationService.formatDistance(distance, l10n);
     }
 
@@ -124,13 +130,16 @@ class _TravelsScreenState extends State<TravelsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(place.name,
-                style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            Text(
+              place.name,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
             if (distanceText != null) ...[
               const SizedBox(height: 4),
-              Text(distanceText,
-                  style: TextStyle(color: Colors.grey[600], fontSize: 16)),
+              Text(
+                distanceText,
+                style: TextStyle(color: Colors.grey[600], fontSize: 16),
+              ),
             ],
             const SizedBox(height: 24),
             SizedBox(
@@ -138,17 +147,17 @@ class _TravelsScreenState extends State<TravelsScreen> {
               child: ElevatedButton.icon(
                 onPressed: () {
                   context.read<TravelsBloc>().add(
-                        TravelsEvent.togglePlaceVisited(
-                          id: place.id,
-                          isVisited: !place.isVisited,
-                        ),
-                      );
+                    TravelsEvent.togglePlaceVisited(
+                      id: place.id,
+                      isVisited: !place.isVisited,
+                    ),
+                  );
                   Navigator.pop(ctx);
                 },
                 icon: Icon(place.isVisited ? Icons.undo : Icons.check_circle),
-                label: Text(place.isVisited
-                    ? l10n.unmarkAsVisited
-                    : l10n.markAsVisited),
+                label: Text(
+                  place.isVisited ? l10n.unmarkAsVisited : l10n.markAsVisited,
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: place.isVisited ? Colors.grey : Colors.green,
                   foregroundColor: Colors.white,
@@ -173,7 +182,9 @@ class _TravelsScreenState extends State<TravelsScreen> {
       lng: _mapController.camera.center.longitude,
       title: l10n.proximityNotificationTitle,
       body: l10n.proximityNotificationBody(
-          "Test Place", locationService.formatDistance(0, l10n)),
+        "Test Place",
+        locationService.formatDistance(0, l10n),
+      ),
     );
   }
 
@@ -216,17 +227,23 @@ class _TravelsScreenState extends State<TravelsScreen> {
       title: l10n.wantToGo,
       label: l10n.placeName,
       onSubmit: (val) {
-        context.read<TravelsBloc>().add(TravelsEvent.addWantToGoPlace(
-              name: val,
-              lat: center.latitude,
-              lng: center.longitude,
-            ));
+        context.read<TravelsBloc>().add(
+          TravelsEvent.addWantToGoPlace(
+            name: val,
+            lat: center.latitude,
+            lng: center.longitude,
+          ),
+        );
       },
     );
   }
 
-  void _showNoteDetails(Note note, String travelName, List<String> photos,
-      AppLocalizations l10n) {
+  void _showNoteDetails(
+    Note note,
+    String travelName,
+    List<String> photos,
+    AppLocalizations l10n,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -251,16 +268,23 @@ class _TravelsScreenState extends State<TravelsScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                      color: Colors.grey[500],
-                      borderRadius: BorderRadius.circular(10)),
+                    color: Colors.grey[500],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
-              Text(note.name,
-                  style: const TextStyle(
-                      fontSize: 22, fontWeight: FontWeight.bold)),
+              Text(
+                note.name,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 8),
-              Text('${l10n.travelLabel}$travelName',
-                  style: const TextStyle(color: Colors.grey)),
+              Text(
+                '${l10n.travelLabel}$travelName',
+                style: const TextStyle(color: Colors.grey),
+              ),
               const SizedBox(height: 16),
               Text(note.userNote ?? l10n.noNoteContent),
               const SizedBox(height: 16),
@@ -279,17 +303,25 @@ class _TravelsScreenState extends State<TravelsScreen> {
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: InkWell(
-                          onTap: () => PhotoViewer.show(context,
-                              photos: photos,
-                              initialIndex: i,
-                              source: PhotoSource.file),
+                          onTap: () => PhotoViewer.show(
+                            context,
+                            photos: photos,
+                            initialIndex: i,
+                            source: PhotoSource.file,
+                          ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: exists
-                                ? Image.file(File(path),
-                                    width: 100, height: 100, fit: BoxFit.cover)
+                                ? Image.file(
+                                    File(path),
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                  )
                                 : const ImagePlaceholder(
-                                    width: 100, height: 100),
+                                    width: 100,
+                                    height: 100,
+                                  ),
                           ),
                         ),
                       );
@@ -314,8 +346,9 @@ class _TravelsScreenState extends State<TravelsScreen> {
           if (state is TravelsError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                  content: Text(state.failure.message),
-                  backgroundColor: Colors.red),
+                content: Text(state.failure.message),
+                backgroundColor: Colors.red,
+              ),
             );
           }
         },
@@ -331,9 +364,9 @@ class _TravelsScreenState extends State<TravelsScreen> {
             if (state is TravelsError) {
               return ErrorView(
                 message: state.failure.message,
-                onRetry: () => context
-                    .read<TravelsBloc>()
-                    .add(const TravelsEvent.loadData()),
+                onRetry: () => context.read<TravelsBloc>().add(
+                  const TravelsEvent.loadData(),
+                ),
               );
             }
 
@@ -344,13 +377,15 @@ class _TravelsScreenState extends State<TravelsScreen> {
                     mapController: _mapController,
                     currentPosition: _currentPosition,
                     onMarkerTap: (n) {
-                      context
-                          .read<TravelsBloc>()
-                          .add(TravelsEvent.selectTravel(n.travelId));
+                      context.read<TravelsBloc>().add(
+                        TravelsEvent.selectTravel(n.travelId),
+                      );
                       if (_sheetController.isAttached) {
-                        _sheetController.animateTo(0.6,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut);
+                        _sheetController.animateTo(
+                          0.6,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
                       }
                     },
                     onPlaceTap: (p) => _showPlaceDetails(p, l10n),
@@ -359,8 +394,11 @@ class _TravelsScreenState extends State<TravelsScreen> {
                   const Center(
                     child: Padding(
                       padding: EdgeInsets.only(bottom: 48.0),
-                      child: Icon(Icons.add_location_alt,
-                          color: Colors.green, size: 48),
+                      child: Icon(
+                        Icons.add_location_alt,
+                        color: Colors.green,
+                        size: 48,
+                      ),
                     ),
                   ),
                   TravelsControls(

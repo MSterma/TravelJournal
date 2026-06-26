@@ -25,16 +25,16 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   try {
     await dotenv.load(fileName: ".env");
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
     setupLocator();
-    
+
     runApp(const MyApp());
-    
+
     // Non-blocking initialization of services
     _initializeServices();
   } catch (e) {
@@ -46,13 +46,15 @@ void main() async {
 
 Future<void> _initializeServices() async {
   try {
-    final l10n = lookupAppLocalizations(WidgetsBinding.instance.platformDispatcher.locale);
-    
+    final l10n = lookupAppLocalizations(
+      WidgetsBinding.instance.platformDispatcher.locale,
+    );
+
     await locator<NotificationService>().init(
       channelName: l10n.proximityAlertsChannelName,
       channelDescription: l10n.proximityAlertsChannelDesc,
     );
-    
+
     await initializeBackgroundService(l10n);
     await locator<LocationService>().init();
   } catch (e) {
@@ -68,10 +70,9 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(
-          create: (context) => AuthBloc(
-              locator<AuthRepo>(),
-              locator<SyncService>()
-          )..add(AuthCheckRequested()),
+          create: (context) =>
+              AuthBloc(locator<AuthRepo>(), locator<SyncService>())
+                ..add(AuthCheckRequested()),
         ),
         BlocProvider<CountryBloc>(
           create: (context) => CountryBloc(

@@ -19,10 +19,12 @@ class LocationService {
   final AuthRepo authRepo;
   final NotificationService notificationService;
 
-  final StreamController<Position> _positionController = StreamController<Position>.broadcast();
+  final StreamController<Position> _positionController =
+      StreamController<Position>.broadcast();
   Stream<Position> get positionStream => _positionController.stream;
 
-  final StreamController<Position> mapCenterController = StreamController<Position>.broadcast();
+  final StreamController<Position> mapCenterController =
+      StreamController<Position>.broadcast();
 
   StreamSubscription<Position>? _positionSubscription;
   final Map<int, DateTime> _notifiedPlaces = {};
@@ -62,11 +64,12 @@ class LocationService {
       distanceFilter: AppConstants.locationDistanceFilter,
     );
 
-    _positionSubscription = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
-            (Position position) {
-          processPosition(position);
-        }
-    );
+    _positionSubscription =
+        Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+          (Position position) {
+            processPosition(position);
+          },
+        );
 
     _isTracking = true;
   }
@@ -120,16 +123,23 @@ class LocationService {
 
       if (distance < AppConstants.proximityDistanceThreshold) {
         final lastNotified = _notifiedPlaces[place.id];
-        if (lastNotified == null || now.difference(lastNotified).inHours >= AppConstants.notificationIntervalHours) {
+        if (lastNotified == null ||
+            now.difference(lastNotified).inHours >=
+                AppConstants.notificationIntervalHours) {
           _notifiedPlaces[place.id] = now;
-          final l10n = lookupAppLocalizations(PlatformDispatcher.instance.locale);
+          final l10n = lookupAppLocalizations(
+            PlatformDispatcher.instance.locale,
+          );
           await notificationService.showProximityNotification(
             id: place.id,
             placeName: place.name,
             lat: place.lat,
             lng: place.lng,
             title: l10n.proximityNotificationTitle,
-            body: l10n.proximityNotificationBody(place.name, formatDistance(distance, l10n)),
+            body: l10n.proximityNotificationBody(
+              place.name,
+              formatDistance(distance, l10n),
+            ),
           );
         }
       }

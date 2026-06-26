@@ -9,7 +9,9 @@ import 'package:travel_journal/database/app_database.dart';
 import '../utils/race_detector.dart';
 
 class MockAuthRepo extends Mock implements AuthRepo {}
+
 class MockNotificationService extends Mock implements NotificationService {}
+
 class FakePosition extends Fake implements Position {
   @override
   final double latitude;
@@ -18,7 +20,8 @@ class FakePosition extends Fake implements Position {
   @override
   final DateTime timestamp;
 
-  FakePosition({required this.latitude, required this.longitude}) : timestamp = DateTime.now();
+  FakePosition({required this.latitude, required this.longitude})
+    : timestamp = DateTime.now();
 }
 
 void main() {
@@ -45,32 +48,47 @@ void main() {
   });
 
   group('LocationService Race Condition Tests', () {
-    test('processPosition should debounce notifications correctly even with rapid updates', () async {
-      const userId = 'user123';
-      when(() => mockAuthRepo.getCurrentUserId()).thenAnswer((_) async => userId);
-      when(() => mockNotificationService.showProximityNotification(
-        id: any(named: 'id'),
-        placeName: any(named: 'placeName'),
-        lat: any(named: 'lat'),
-        lng: any(named: 'lng'),
-        title: any(named: 'title'),
-        body: any(named: 'body'),
-      )).thenAnswer((_) async {});
+    test(
+      'processPosition should debounce notifications correctly even with rapid updates',
+      () async {
+        const userId = 'user123';
+        when(
+          () => mockAuthRepo.getCurrentUserId(),
+        ).thenAnswer((_) async => userId);
+        when(
+          () => mockNotificationService.showProximityNotification(
+            id: any(named: 'id'),
+            placeName: any(named: 'placeName'),
+            lat: any(named: 'lat'),
+            lng: any(named: 'lng'),
+            title: any(named: 'title'),
+            body: any(named: 'body'),
+          ),
+        ).thenAnswer((_) async {});
 
-      await localRepo.addWantToGoPlace('Target Place', 10.0, 10.0, userId);
+        await localRepo.addWantToGoPlace('Target Place', 10.0, 10.0, userId);
 
-      final positionNear = FakePosition(latitude: 10.0001, longitude: 10.0001);
+        final positionNear = FakePosition(
+          latitude: 10.0001,
+          longitude: 10.0001,
+        );
 
-      await RaceDetector.run(10, () => locationService.processPosition(positionNear));
+        await RaceDetector.run(
+          10,
+          () => locationService.processPosition(positionNear),
+        );
 
-      verify(() => mockNotificationService.showProximityNotification(
-        id: any(named: 'id'),
-        placeName: any(named: 'placeName'),
-        lat: any(named: 'lat'),
-        lng: any(named: 'lng'),
-        title: any(named: 'title'),
-        body: any(named: 'body'),
-      )).called(1);
-    });
+        verify(
+          () => mockNotificationService.showProximityNotification(
+            id: any(named: 'id'),
+            placeName: any(named: 'placeName'),
+            lat: any(named: 'lat'),
+            lng: any(named: 'lng'),
+            title: any(named: 'title'),
+            body: any(named: 'body'),
+          ),
+        ).called(1);
+      },
+    );
   });
 }

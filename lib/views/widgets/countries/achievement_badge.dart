@@ -40,8 +40,10 @@ class AchievementBadge extends StatelessWidget {
           ),
           if (showProgressBar && !_isUnlocked)
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 8.0,
+                vertical: 4.0,
+              ),
               child: Column(
                 children: [
                   LinearProgressIndicator(

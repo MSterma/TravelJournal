@@ -23,12 +23,17 @@ import 'dart:async';
 class MockNotificationService extends Mock implements NotificationService {
   final _clickController = StreamController<Map<String, dynamic>>.broadcast();
   @override
-  Stream<Map<String, dynamic>> get onNotificationClick => _clickController.stream;
+  Stream<Map<String, dynamic>> get onNotificationClick =>
+      _clickController.stream;
 
   Function(int, String, double, double, String?, String?)? onShow;
 
   @override
-  Future<void> init({String? channelName, String? channelDescription, bool requestPermissionsOnId = true}) async {
+  Future<void> init({
+    String? channelName,
+    String? channelDescription,
+    bool requestPermissionsOnId = true,
+  }) async {
     debugPrint('MockNotificationService: init');
   }
 
@@ -46,7 +51,9 @@ class MockNotificationService extends Mock implements NotificationService {
     String? title,
     String? body,
   }) async {
-    debugPrint('MockNotificationService: showProximityNotification for $placeName');
+    debugPrint(
+      'MockNotificationService: showProximityNotification for $placeName',
+    );
     onShow?.call(id, placeName, lat, lng, title, body);
   }
 
@@ -68,7 +75,9 @@ class TestLocationService extends LocationService {
 
   @override
   void startTracking() {
-    debugPrint('TestLocationService: startTracking (mocked - no real geolocator)');
+    debugPrint(
+      'TestLocationService: startTracking (mocked - no real geolocator)',
+    );
   }
 
   @override
@@ -78,25 +87,35 @@ class TestLocationService extends LocationService {
 }
 
 class FakePosition extends Fake implements Position {
-  FakePosition({required this.latitude, required this.longitude}) : timestamp = DateTime.now();
+  FakePosition({required this.latitude, required this.longitude})
+    : timestamp = DateTime.now();
 
-  @override final double latitude;
-  @override final double longitude;
-  @override final DateTime timestamp;
-  @override final double accuracy = 0;
-  @override final double altitude = 0;
-  @override final double heading = 0;
-  @override final double speed = 0;
-  @override final double speedAccuracy = 0;
-  @override final double altitudeAccuracy = 0;
-  @override final double headingAccuracy = 0;
+  @override
+  final double latitude;
+  @override
+  final double longitude;
+  @override
+  final DateTime timestamp;
+  @override
+  final double accuracy = 0;
+  @override
+  final double altitude = 0;
+  @override
+  final double heading = 0;
+  @override
+  final double speed = 0;
+  @override
+  final double speedAccuracy = 0;
+  @override
+  final double altitudeAccuracy = 0;
+  @override
+  final double headingAccuracy = 0;
 }
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('E2E Real Infrastructure Proximity Test', () {
-    
     setUpAll(() async {
       debugPrint('Global Setup...');
       try {
@@ -107,11 +126,11 @@ void main() {
           await dotenv.load(fileName: ".env.example");
         } catch (_) {}
       }
-      
+
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-      
+
       registerFallbackValue(FakePosition(latitude: 0, longitude: 0));
     });
 
@@ -121,11 +140,11 @@ void main() {
         await locator<AppDatabase>().close();
       }
       await locator.reset();
-      setupLocator(); 
-      
+      setupLocator();
+
       locator.unregister<AppDatabase>();
       locator.registerSingleton<AppDatabase>(AppDatabase.memory());
-      
+
       locator.unregister<LocalRepo>();
       locator.registerSingleton<LocalRepo>(LocalRepo(locator<AppDatabase>()));
 
@@ -138,7 +157,7 @@ void main() {
 
       locator.unregister<NotificationService>();
       locator.registerSingleton<NotificationService>(notificationService);
-      
+
       locator.unregister<LocationService>();
       locator.registerSingleton<LocationService>(locationService);
     });
@@ -151,126 +170,149 @@ void main() {
         if (userId != null) {
           final localRepo = locator<LocalRepo>();
           final syncService = locator<SyncService>();
-          
+
           await syncService.clearCloudData(userId);
           await localRepo.clearUserData(userId);
-          
+
           await authRepo.firebaseAuth.currentUser?.delete();
-          
+
           await authRepo.signOut();
         }
       } catch (e) {
         debugPrint('Error during tearDown: $e');
       }
-      
+
       if (locator.isRegistered<AppDatabase>()) {
         await locator<AppDatabase>().close();
       }
     });
 
-    testWidgets('Full flow: Register -> Add WantToGo -> Move -> Notify -> Click -> Add Note', (tester) async {
-      await tester.pumpWidget(const MyApp());
-      await tester.pumpAndSettle();
-
-      // 1. Registration Flow
-      debugPrint('Navigating to Registration...');
-      final l10n = await tester.runAsync(() async {
-        return lookupAppLocalizations(WidgetsBinding.instance.platformDispatcher.locale);
-      });
-      
-      final noAccountBtn = find.text(l10n!.noAccount);
-      await tester.tap(noAccountBtn);
-      await tester.pumpAndSettle();
-
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final email = 'test_e2e_$timestamp@example.com';
-      final password = 'password123';
-
-      await tester.enterText(find.widgetWithText(TextField, l10n.email), email);
-      await tester.enterText(find.widgetWithText(TextField, l10n.password), password);
-      
-      debugPrint('Creating account: $email');
-      await tester.tap(find.text(l10n.createAccount));
-      
-
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      // 2. Navigate to Travels Tab
-      debugPrint('Navigating to Travels tab...');
-      final travelsTab = find.byIcon(Icons.timeline).last;
-      await tester.tap(travelsTab);
-      await tester.pumpAndSettle();
-
-      final allowBtn = find.text('While using the app');
-      if (tester.any(allowBtn)) {
-        await tester.tap(allowBtn);
+    testWidgets(
+      'Full flow: Register -> Add WantToGo -> Move -> Notify -> Click -> Add Note',
+      (tester) async {
+        await tester.pumpWidget(const MyApp());
         await tester.pumpAndSettle();
-      }
-      // 3. Add a WantToGo place
-      debugPrint('Adding WantToGo place...');
-      final addWantToGoBtn = find.byIcon(Icons.explore).first;
-      await tester.tap(addWantToGoBtn);
-      await tester.pumpAndSettle();
 
-      final destName = 'E2E Destination $timestamp';
-      await tester.enterText(find.byType(TextField), destName);
-      await tester.tap(find.text(l10n.save.toUpperCase()));
-      await tester.pumpAndSettle();
+        // 1. Registration Flow
+        debugPrint('Navigating to Registration...');
+        final l10n = await tester.runAsync(() async {
+          return lookupAppLocalizations(
+            WidgetsBinding.instance.platformDispatcher.locale,
+          );
+        });
 
-      final localRepo = locator<LocalRepo>();
-      final authRepo = locator<AuthRepo>();
-      final userId = await authRepo.getCurrentUserId();
-      final places = await localRepo.getWantToGoPlaces(userId!);
-      final dest = places.firstWhere((p) => p.name == destName);
-      debugPrint('Destination saved at: ${dest.lat}, ${dest.lng}');
+        final noAccountBtn = find.text(l10n!.noAccount);
+        await tester.tap(noAccountBtn);
+        await tester.pumpAndSettle();
 
-      // 4. Simulate Movement
-      final notificationService = locator<NotificationService>() as MockNotificationService;
-      final locationService = locator<LocationService>();
-      
-      bool notificationTriggered = false;
-      Map<String, dynamic>? capturedPayload;
-      notificationService.onShow = (id, name, lat, lng, t, b) {
-        notificationTriggered = true;
-        capturedPayload = {
-          'type': 'proximity_note',
-          'placeName': name,
-          'lat': lat,
-          'lng': lng,
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        final email = 'test_e2e_$timestamp@example.com';
+        final password = 'password123';
+
+        await tester.enterText(
+          find.widgetWithText(TextField, l10n.email),
+          email,
+        );
+        await tester.enterText(
+          find.widgetWithText(TextField, l10n.password),
+          password,
+        );
+
+        debugPrint('Creating account: $email');
+        await tester.tap(find.text(l10n.createAccount));
+
+        await tester.pumpAndSettle(const Duration(seconds: 5));
+
+        // 2. Navigate to Travels Tab
+        debugPrint('Navigating to Travels tab...');
+        final travelsTab = find.byIcon(Icons.timeline).last;
+        await tester.tap(travelsTab);
+        await tester.pumpAndSettle();
+
+        final allowBtn = find.text('While using the app');
+        if (tester.any(allowBtn)) {
+          await tester.tap(allowBtn);
+          await tester.pumpAndSettle();
+        }
+        // 3. Add a WantToGo place
+        debugPrint('Adding WantToGo place...');
+        final addWantToGoBtn = find.byIcon(Icons.explore).first;
+        await tester.tap(addWantToGoBtn);
+        await tester.pumpAndSettle();
+
+        final destName = 'E2E Destination $timestamp';
+        await tester.enterText(find.byType(TextField), destName);
+        await tester.tap(find.text(l10n.save.toUpperCase()));
+        await tester.pumpAndSettle();
+
+        final localRepo = locator<LocalRepo>();
+        final authRepo = locator<AuthRepo>();
+        final userId = await authRepo.getCurrentUserId();
+        final places = await localRepo.getWantToGoPlaces(userId!);
+        final dest = places.firstWhere((p) => p.name == destName);
+        debugPrint('Destination saved at: ${dest.lat}, ${dest.lng}');
+
+        // 4. Simulate Movement
+        final notificationService =
+            locator<NotificationService>() as MockNotificationService;
+        final locationService = locator<LocationService>();
+
+        bool notificationTriggered = false;
+        Map<String, dynamic>? capturedPayload;
+        notificationService.onShow = (id, name, lat, lng, t, b) {
+          notificationTriggered = true;
+          capturedPayload = {
+            'type': 'proximity_note',
+            'placeName': name,
+            'lat': lat,
+            'lng': lng,
+          };
         };
-      };
 
-      debugPrint('Simulating movement towards destination...');
-      final testPosition = FakePosition(latitude: dest.lat + 0.0001, longitude: dest.lng + 0.0001);
-      
-      // Verify distance calculation logic explicitly
-      final calculatedDistance = locationService.calculateDistanceToPlace(testPosition, dest);
-      debugPrint('Calculated distance to destination: $calculatedDistance');
-      expect(calculatedDistance, lessThan(AppConstants.proximityDistanceThreshold));
+        debugPrint('Simulating movement towards destination...');
+        final testPosition = FakePosition(
+          latitude: dest.lat + 0.0001,
+          longitude: dest.lng + 0.0001,
+        );
 
-      // Final move into threshold
-      await locationService.processPosition(testPosition);
-      await tester.pumpAndSettle();
+        // Verify distance calculation logic explicitly
+        final calculatedDistance = locationService.calculateDistanceToPlace(
+          testPosition,
+          dest,
+        );
+        debugPrint('Calculated distance to destination: $calculatedDistance');
+        expect(
+          calculatedDistance,
+          lessThan(AppConstants.proximityDistanceThreshold),
+        );
 
-      expect(notificationTriggered, isTrue);
-      debugPrint('Notification triggered!');
+        // Final move into threshold
+        await locationService.processPosition(testPosition);
+        await tester.pumpAndSettle();
 
-      // 5. Click Notification
-      debugPrint('Simulating notification click...');
-      notificationService.simulateClick(capturedPayload!);
-      await tester.pumpAndSettle();
+        expect(notificationTriggered, isTrue);
+        debugPrint('Notification triggered!');
 
-      // 6. Verify Note Form and Save
-      debugPrint('Saving Note...');
-      expect(find.text(l10n.newNote), findsOneWidget);
-      await tester.enterText(find.widgetWithText(TextField, l10n.nameRequired), 'E2E Real Note');
-      await tester.tap(find.text(l10n.save.toUpperCase()));
-      await tester.pumpAndSettle();
+        // 5. Click Notification
+        debugPrint('Simulating notification click...');
+        notificationService.simulateClick(capturedPayload!);
+        await tester.pumpAndSettle();
 
-      // 7. Final Verification
-      final notes = await localRepo.getAllNotes(userId);
-      expect(notes.any((n) => n.name == 'E2E Real Note'), isTrue);
-      debugPrint('Test Successful!');
-    });
+        // 6. Verify Note Form and Save
+        debugPrint('Saving Note...');
+        expect(find.text(l10n.newNote), findsOneWidget);
+        await tester.enterText(
+          find.widgetWithText(TextField, l10n.nameRequired),
+          'E2E Real Note',
+        );
+        await tester.tap(find.text(l10n.save.toUpperCase()));
+        await tester.pumpAndSettle();
+
+        // 7. Final Verification
+        final notes = await localRepo.getAllNotes(userId);
+        expect(notes.any((n) => n.name == 'E2E Real Note'), isTrue);
+        debugPrint('Test Successful!');
+      },
+    );
   });
 }

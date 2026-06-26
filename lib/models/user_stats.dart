@@ -22,19 +22,19 @@ abstract class UserStats with _$UserStats {
   }) = _UserStats;
 
   factory UserStats.empty() => const UserStats(
-        totalPhotos: 0,
-        todayPhotos: 0,
-        totalNotes: 0,
-        todayNotes: 0,
-        totalCountries: 0,
-        todayCountries: 0,
-        last30DaysActivity: [],
-        photosActivity: [],
-        notesActivity: [],
-        countriesActivity: [],
-        dailyAverage: 0.0,
-        countriesThisMonth: [],
-        totalTrips: 0,
-        currentStreak: 0,
-      );
+    totalPhotos: 0,
+    todayPhotos: 0,
+    totalNotes: 0,
+    todayNotes: 0,
+    totalCountries: 0,
+    todayCountries: 0,
+    last30DaysActivity: [],
+    photosActivity: [],
+    notesActivity: [],
+    countriesActivity: [],
+    dailyAverage: 0.0,
+    countriesThisMonth: [],
+    totalTrips: 0,
+    currentStreak: 0,
+  );
 }

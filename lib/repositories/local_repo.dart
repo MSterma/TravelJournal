@@ -9,13 +9,19 @@ class LocalRepo {
   final _uuid = const Uuid();
 
   Future<void> markVisited(
-      String countryName, String userId, double lat, double lng) async {
+    String countryName,
+    String userId,
+    double lat,
+    double lng,
+  ) async {
     await db.transaction(() async {
       final exists = await checkVisited(countryName, userId);
       if (exists) return;
 
       final id = _uuid.v4();
-      await db.into(db.visitedCountries).insert(
+      await db
+          .into(db.visitedCountries)
+          .insert(
             VisitedCountriesCompanion.insert(
               id: id,
               countryCode: countryName,
@@ -30,8 +36,10 @@ class LocalRepo {
 
   Future<bool> checkVisited(String countryName, String userId) async {
     final query = db.select(db.visitedCountries)
-      ..where((tbl) =>
-          tbl.countryCode.equals(countryName) & tbl.userId.equals(userId));
+      ..where(
+        (tbl) =>
+            tbl.countryCode.equals(countryName) & tbl.userId.equals(userId),
+      );
     final result = await query.get();
     return result.isNotEmpty;
   }
@@ -43,24 +51,32 @@ class LocalRepo {
   }
 
   Future<void> markCountriesSynced(List<String> ids) async {
-    final query = db.update(db.visitedCountries)..where((tbl) => tbl.id.isIn(ids));
+    final query = db.update(db.visitedCountries)
+      ..where((tbl) => tbl.id.isIn(ids));
     await query.write(const VisitedCountriesCompanion(isSynced: Value(true)));
   }
 
   Future<String?> _getCountryId(String countryName, String userId) async {
     final query = db.select(db.visitedCountries)
-      ..where((tbl) =>
-          tbl.countryCode.equals(countryName) & tbl.userId.equals(userId));
+      ..where(
+        (tbl) =>
+            tbl.countryCode.equals(countryName) & tbl.userId.equals(userId),
+      );
     final results = await query.get();
     if (results.isEmpty) return null;
     return results.first.id;
   }
 
   Future<void> addPhoto(
-      String countryName, String imagePath, String userId) async {
+    String countryName,
+    String imagePath,
+    String userId,
+  ) async {
     final countryId = await _getCountryId(countryName, userId);
     if (countryId != null) {
-      await db.into(db.countryPhotos).insert(
+      await db
+          .into(db.countryPhotos)
+          .insert(
             CountryPhotosCompanion.insert(
               id: _uuid.v4(),
               countryId: countryId,
@@ -77,20 +93,29 @@ class LocalRepo {
     if (countryId == null) return [];
 
     final query = db.select(db.countryPhotos)
-      ..where((tbl) =>
-          tbl.countryId.equals(countryId) & tbl.userId.equals(userId));
+      ..where(
+        (tbl) => tbl.countryId.equals(countryId) & tbl.userId.equals(userId),
+      );
     final results = await query.get();
     return results.map((e) => e.imagePath).toList();
   }
 
-  Future<void> insertFromCloud(String id, String countryCode, String userId,
-      double lat, double lng, DateTime visitedAt) async {
-    final exists = await (db.select(db.visitedCountries)
-          ..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
+  Future<void> insertFromCloud(
+    String id,
+    String countryCode,
+    String userId,
+    double lat,
+    double lng,
+    DateTime visitedAt,
+  ) async {
+    final exists = await (db.select(
+      db.visitedCountries,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
     if (exists != null) return;
 
-    await db.into(db.visitedCountries).insert(
+    await db
+        .into(db.visitedCountries)
+        .insert(
           VisitedCountriesCompanion.insert(
             id: id,
             countryCode: countryCode,
@@ -110,19 +135,22 @@ class LocalRepo {
   }
 
   Future<void> clearUserData(String userId) async {
-    await (db.delete(db.visitedCountries)
-          ..where((tbl) => tbl.userId.equals(userId)))
-        .go();
-    await (db.delete(db.countryPhotos)
-          ..where((tbl) => tbl.userId.equals(userId)))
-        .go();
-    await (db.delete(db.travels)..where((tbl) => tbl.userId.equals(userId)))
-        .go();
+    await (db.delete(
+      db.visitedCountries,
+    )..where((tbl) => tbl.userId.equals(userId))).go();
+    await (db.delete(
+      db.countryPhotos,
+    )..where((tbl) => tbl.userId.equals(userId))).go();
+    await (db.delete(
+      db.travels,
+    )..where((tbl) => tbl.userId.equals(userId))).go();
     await (db.delete(db.notes)..where((tbl) => tbl.userId.equals(userId))).go();
   }
 
   Future<int> addTravel(String name, String userId) async {
-    return await db.into(db.travels).insert(
+    return await db
+        .into(db.travels)
+        .insert(
           TravelsCompanion.insert(
             travelName: name,
             userId: userId,
@@ -138,9 +166,17 @@ class LocalRepo {
     return await query.get();
   }
 
-  Future<int> addNote(String userId, double lat, double lng, String name,
-      String? userNote, int? travelId) async {
-    return await db.into(db.notes).insert(
+  Future<int> addNote(
+    String userId,
+    double lat,
+    double lng,
+    String name,
+    String? userNote,
+    int? travelId,
+  ) async {
+    return await db
+        .into(db.notes)
+        .insert(
           NotesCompanion.insert(
             userId: userId,
             name: name,
@@ -156,7 +192,8 @@ class LocalRepo {
   }
 
   Future<List<Note>> getNotes(String userId, int? travelId) async {
-    final query = db.select(db.notes)..where((tbl) => tbl.userId.equals(userId));
+    final query = db.select(db.notes)
+      ..where((tbl) => tbl.userId.equals(userId));
     if (travelId != null) {
       query.where((tbl) => tbl.travelId.equals(travelId));
     } else {
@@ -166,7 +203,8 @@ class LocalRepo {
   }
 
   Future<List<Note>> getAllNotes(String userId) async {
-    final query = db.select(db.notes)..where((tbl) => tbl.userId.equals(userId));
+    final query = db.select(db.notes)
+      ..where((tbl) => tbl.userId.equals(userId));
     query.orderBy([(t) => OrderingTerm(expression: t.date)]);
     return await query.get();
   }
@@ -178,9 +216,18 @@ class LocalRepo {
     return result.map((e) => e.photoPath).toList();
   }
 
-  Future<void> addNoteWithPhotos(String userId, double lat, double lng,
-      String name, String? userNote, int? travelId, List<String> photoPaths) async {
-    final noteId = await db.into(db.notes).insert(
+  Future<void> addNoteWithPhotos(
+    String userId,
+    double lat,
+    double lng,
+    String name,
+    String? userNote,
+    int? travelId,
+    List<String> photoPaths,
+  ) async {
+    final noteId = await db
+        .into(db.notes)
+        .insert(
           NotesCompanion.insert(
             userId: userId,
             name: name,
@@ -195,12 +242,9 @@ class LocalRepo {
         );
 
     for (final path in photoPaths) {
-      await db.into(db.notePhotos).insert(
-            NotePhotosCompanion.insert(
-              noteId: noteId,
-              photoPath: path,
-            ),
-          );
+      await db
+          .into(db.notePhotos)
+          .insert(NotePhotosCompanion.insert(noteId: noteId, photoPath: path));
     }
   }
 
@@ -227,8 +271,14 @@ class LocalRepo {
   }
 
   Future<int> addWantToGoPlace(
-      String name, double lat, double lng, String userId) async {
-    return await db.into(db.wantToGoPlaces).insert(
+    String name,
+    double lat,
+    double lng,
+    String userId,
+  ) async {
+    return await db
+        .into(db.wantToGoPlaces)
+        .insert(
           WantToGoPlacesCompanion.insert(
             name: name,
             lat: lat,
@@ -245,20 +295,26 @@ class LocalRepo {
     final cutoff = now.subtract(const Duration(hours: 24));
 
     final query = db.select(db.wantToGoPlaces)
-      ..where((tbl) =>
-          tbl.userId.equals(userId) &
-          (tbl.isVisited.equals(false) | tbl.visitedAt.isBiggerThanValue(cutoff)));
+      ..where(
+        (tbl) =>
+            tbl.userId.equals(userId) &
+            (tbl.isVisited.equals(false) |
+                tbl.visitedAt.isBiggerThanValue(cutoff)),
+      );
     return await query.get();
   }
 
   Future<void> togglePlaceVisited(int id, bool isVisited) async {
-    final query = db.update(db.wantToGoPlaces)..where((tbl) => tbl.id.equals(id));
-    await query.write(WantToGoPlacesCompanion(
-      isVisited: Value(isVisited),
-      visitedAt: Value(isVisited ? DateTime.now() : null),
-      isSynced: const Value(false),
-      updatedAt: Value(DateTime.now()),
-    ));
+    final query = db.update(db.wantToGoPlaces)
+      ..where((tbl) => tbl.id.equals(id));
+    await query.write(
+      WantToGoPlacesCompanion(
+        isVisited: Value(isVisited),
+        visitedAt: Value(isVisited ? DateTime.now() : null),
+        isSynced: const Value(false),
+        updatedAt: Value(DateTime.now()),
+      ),
+    );
   }
 
   Future<List<WantToGoPlace>> getUnsyncedWantToGoPlaces(String userId) async {
@@ -268,7 +324,8 @@ class LocalRepo {
   }
 
   Future<void> markWantToGoPlacesSynced(List<int> ids) async {
-    final query = db.update(db.wantToGoPlaces)..where((tbl) => tbl.id.isIn(ids));
+    final query = db.update(db.wantToGoPlaces)
+      ..where((tbl) => tbl.id.isIn(ids));
     await query.write(const WantToGoPlacesCompanion(isSynced: Value(true)));
   }
 
@@ -281,11 +338,14 @@ class LocalRepo {
     bool isVisited,
     DateTime? visitedAt,
   ) async {
-    final exists = await (db.select(db.wantToGoPlaces)..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
+    final exists = await (db.select(
+      db.wantToGoPlaces,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
     if (exists != null) return;
 
-    await db.into(db.wantToGoPlaces).insert(
+    await db
+        .into(db.wantToGoPlaces)
+        .insert(
           WantToGoPlacesCompanion.insert(
             id: Value(id),
             name: name,
@@ -300,12 +360,15 @@ class LocalRepo {
         );
   }
 
-  Future<void> insertTravelFromCloud(
-      int id, String name, String userId) async {
-    final exists = await (db.select(db.travels)..where((t) => t.id.equals(id))).getSingleOrNull();
+  Future<void> insertTravelFromCloud(int id, String name, String userId) async {
+    final exists = await (db.select(
+      db.travels,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
     if (exists != null) return;
 
-    await db.into(db.travels).insert(
+    await db
+        .into(db.travels)
+        .insert(
           TravelsCompanion.insert(
             id: Value(id),
             travelName: name,
@@ -326,11 +389,14 @@ class LocalRepo {
     int? travelId, {
     int photoCount = 0,
   }) async {
-    final exists = await (db.select(db.notes)..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
+    final exists = await (db.select(
+      db.notes,
+    )..where((t) => t.id.equals(id))).getSingleOrNull();
     if (exists != null) return;
 
-    await db.into(db.notes).insert(
+    await db
+        .into(db.notes)
+        .insert(
           NotesCompanion.insert(
             id: Value(id),
             userId: userId,
@@ -345,7 +411,9 @@ class LocalRepo {
         );
 
     for (int i = 0; i < photoCount; i++) {
-      await db.into(db.notePhotos).insert(
+      await db
+          .into(db.notePhotos)
+          .insert(
             NotePhotosCompanion.insert(
               noteId: id,
               photoPath: '__PLACEHOLDER__',
@@ -368,8 +436,9 @@ class LocalRepo {
 
     final visits = await getVisitedWithCoords(userId);
     final totalCountries = visits.length;
-    final todayCountries =
-        visits.where((v) => !v.visitedAt.isBefore(todayStart)).length;
+    final todayCountries = visits
+        .where((v) => !v.visitedAt.isBefore(todayStart))
+        .length;
 
     final countriesThisMonth = visits
         .where((v) => !v.visitedAt.isBefore(monthStart))
@@ -377,22 +446,25 @@ class LocalRepo {
         .toSet()
         .toList();
 
-    final countryPhotos = await (db.select(db.countryPhotos)
-          ..where((t) => t.userId.equals(userId)))
-        .get();
+    final countryPhotos = await (db.select(
+      db.countryPhotos,
+    )..where((t) => t.userId.equals(userId))).get();
     final noteIds = notes.map((n) => n.id).toList();
     List<NotePhoto> notePhotosList = [];
     if (noteIds.isNotEmpty) {
-      notePhotosList = await (db.select(db.notePhotos)
-            ..where((t) => t.noteId.isIn(noteIds)))
-          .get();
+      notePhotosList = await (db.select(
+        db.notePhotos,
+      )..where((t) => t.noteId.isIn(noteIds))).get();
     }
     final totalPhotos = countryPhotos.length + notePhotosList.length;
 
-    final todayNoteIds =
-        notes.where((n) => !n.date.isBefore(todayStart)).map((n) => n.id).toList();
-    final todayPhotos =
-        notePhotosList.where((p) => todayNoteIds.contains(p.noteId)).length;
+    final todayNoteIds = notes
+        .where((n) => !n.date.isBefore(todayStart))
+        .map((n) => n.id)
+        .toList();
+    final todayPhotos = notePhotosList
+        .where((p) => todayNoteIds.contains(p.noteId))
+        .length;
 
     List<int> noteActivity = List.filled(30, 0);
     List<int> countryActivity = List.filled(30, 0);
@@ -400,8 +472,9 @@ class LocalRepo {
     List<int> photoActivity = List.filled(30, 0);
 
     for (var n in notes) {
-      final diff =
-          todayStart.difference(DateTime(n.date.year, n.date.month, n.date.day)).inDays;
+      final diff = todayStart
+          .difference(DateTime(n.date.year, n.date.month, n.date.day))
+          .inDays;
       if (diff >= 0 && diff < 30) {
         noteActivity[29 - diff]++;
         combinedActivity[29 - diff]++;
@@ -409,7 +482,9 @@ class LocalRepo {
     }
     for (var v in visits) {
       final diff = todayStart
-          .difference(DateTime(v.visitedAt.year, v.visitedAt.month, v.visitedAt.day))
+          .difference(
+            DateTime(v.visitedAt.year, v.visitedAt.month, v.visitedAt.day),
+          )
           .inDays;
       if (diff >= 0 && diff < 30) {
         countryActivity[29 - diff]++;
@@ -419,22 +494,24 @@ class LocalRepo {
 
     final Map<int, DateTime> noteDateMap = {for (var n in notes) n.id: n.date};
     final Map<String, DateTime> countryDateMap = {
-      for (var v in visits) v.id: v.visitedAt
+      for (var v in visits) v.id: v.visitedAt,
     };
 
     for (var p in notePhotosList) {
       final date = noteDateMap[p.noteId];
       if (date != null) {
-        final diff =
-            todayStart.difference(DateTime(date.year, date.month, date.day)).inDays;
+        final diff = todayStart
+            .difference(DateTime(date.year, date.month, date.day))
+            .inDays;
         if (diff >= 0 && diff < 30) photoActivity[29 - diff]++;
       }
     }
     for (var cp in countryPhotos) {
       final date = countryDateMap[cp.countryId];
       if (date != null) {
-        final diff =
-            todayStart.difference(DateTime(date.year, date.month, date.day)).inDays;
+        final diff = todayStart
+            .difference(DateTime(date.year, date.month, date.day))
+            .inDays;
         if (diff >= 0 && diff < 30) photoActivity[29 - diff]++;
       }
     }

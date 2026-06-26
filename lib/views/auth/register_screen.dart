@@ -95,11 +95,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ? null
                           : () {
                               context.read<AuthBloc>().add(
-                                    AuthSignUpRequested(
-                                      _emailController.text,
-                                      _passwordController.text,
-                                    ),
-                                  );
+                                AuthSignUpRequested(
+                                  _emailController.text,
+                                  _passwordController.text,
+                                ),
+                              );
                             },
                       child: Text(l10n.createAccount),
                     ),
@@ -107,11 +107,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               if (isLoading)
-                const AbsorbPointer(
-                  child: Center(
-                    child: LoadingIndicator(),
-                  ),
-                ),
+                const AbsorbPointer(child: Center(child: LoadingIndicator())),
             ],
           );
         },

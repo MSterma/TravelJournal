@@ -7,8 +7,7 @@ part 'map_state.freezed.dart';
 @freezed
 abstract class MapState with _$MapState {
   const factory MapState.loading() = MapLoading;
-  const factory MapState.loaded({
-    required List<VisitedCountry> markers,
-  }) = MapLoaded;
+  const factory MapState.loaded({required List<VisitedCountry> markers}) =
+      MapLoaded;
   const factory MapState.error(Failure failure) = MapError;
 }

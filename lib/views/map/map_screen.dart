@@ -24,10 +24,9 @@ class MapScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return BlocProvider(
-      create: (context) => MapBloc(
-        locator<LocalRepo>(),
-        locator<AuthRepo>(),
-      )..add(const LoadMarkers()),
+      create: (context) =>
+          MapBloc(locator<LocalRepo>(), locator<AuthRepo>())
+            ..add(const LoadMarkers()),
       child: Scaffold(
         appBar: AppBar(title: Text(l10n.visitedPlaces)),
         body: BlocBuilder<MapBloc, MapState>(
@@ -68,8 +67,9 @@ class MapScreen extends StatelessWidget {
                             backgroundColor: Colors.transparent,
                             builder: (context) => Padding(
                               padding: EdgeInsets.only(
-                                bottom:
-                                    MediaQuery.of(context).viewInsets.bottom,
+                                bottom: MediaQuery.of(
+                                  context,
+                                ).viewInsets.bottom,
                               ),
                               child: FractionallySizedBox(
                                 heightFactor: 0.85,

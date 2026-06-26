@@ -84,7 +84,11 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Widget _buildStatsContent(
-      BuildContext context, String userId, AppLocalizations l10n, String email) {
+    BuildContext context,
+    String userId,
+    AppLocalizations l10n,
+    String email,
+  ) {
     return FutureBuilder<UserStats>(
       future: locator<LocalRepo>().getUserStats(userId),
       builder: (context, snapshot) {
@@ -93,8 +97,9 @@ class _AccountScreenState extends State<AccountScreen> {
         }
         final stats = snapshot.data!;
 
-        final userName =
-            email != l10n.noEmail ? email.split('@')[0] : 'Użytkownik';
+        final userName = email != l10n.noEmail
+            ? email.split('@')[0]
+            : 'Użytkownik';
         final displayName = userName.isNotEmpty
             ? userName[0].toUpperCase() + userName.substring(1)
             : 'Użytkownik';
@@ -116,7 +121,10 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Widget _buildTopStatsGrid(
-      BuildContext context, UserStats stats, AppLocalizations l10n) {
+    BuildContext context,
+    UserStats stats,
+    AppLocalizations l10n,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -127,9 +135,10 @@ class _AccountScreenState extends State<AccountScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l10n.statsToday,
-              style:
-                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(
+            l10n.statsToday,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -147,17 +156,20 @@ class _AccountScreenState extends State<AccountScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               StatItem(
-                  label: l10n.statsPhotos,
-                  value: stats.totalPhotos,
-                  isTotal: true),
+                label: l10n.statsPhotos,
+                value: stats.totalPhotos,
+                isTotal: true,
+              ),
               StatItem(
-                  label: l10n.statsNotes,
-                  value: stats.totalNotes,
-                  isTotal: true),
+                label: l10n.statsNotes,
+                value: stats.totalNotes,
+                isTotal: true,
+              ),
               StatItem(
-                  label: l10n.statsCountries,
-                  value: stats.totalCountries,
-                  isTotal: true),
+                label: l10n.statsCountries,
+                value: stats.totalCountries,
+                isTotal: true,
+              ),
             ],
           ),
         ],
@@ -204,15 +216,20 @@ class _AccountScreenState extends State<AccountScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     description,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant
-                          .withValues(alpha: 0.7),
+                      color: theme.colorScheme.onSurfaceVariant.withValues(
+                        alpha: 0.7,
+                      ),
                     ),
                   ),
                 ],
@@ -231,12 +248,17 @@ class _AccountScreenState extends State<AccountScreen> {
               },
               items: [
                 DropdownMenuItem(
-                    value: ChartType.photos, child: Text(l10n.chartPhotos)),
+                  value: ChartType.photos,
+                  child: Text(l10n.chartPhotos),
+                ),
                 DropdownMenuItem(
-                    value: ChartType.notes, child: Text(l10n.chartNotes)),
+                  value: ChartType.notes,
+                  child: Text(l10n.chartNotes),
+                ),
                 DropdownMenuItem(
-                    value: ChartType.countries,
-                    child: Text(l10n.chartCountries)),
+                  value: ChartType.countries,
+                  child: Text(l10n.chartCountries),
+                ),
               ],
             ),
           ],
@@ -317,9 +339,11 @@ class _AccountScreenState extends State<AccountScreen> {
                   show: true,
                   border: Border(
                     bottom: BorderSide(
-                        color: theme.dividerColor.withValues(alpha: 0.2)),
+                      color: theme.dividerColor.withValues(alpha: 0.2),
+                    ),
                     left: BorderSide(
-                        color: theme.dividerColor.withValues(alpha: 0.2)),
+                      color: theme.dividerColor.withValues(alpha: 0.2),
+                    ),
                   ),
                 ),
                 lineBarsData: [
@@ -346,7 +370,9 @@ class _AccountScreenState extends State<AccountScreen> {
                         return LineTooltipItem(
                           barSpot.y.toInt().toString(),
                           const TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         );
                       }).toList();
                     },
@@ -361,12 +387,16 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Widget _buildCountriesThisMonth(
-      List<String> countries, AppLocalizations l10n) {
+    List<String> countries,
+    AppLocalizations l10n,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l10n.statsCountriesThisMonth,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+        Text(
+          l10n.statsCountriesThisMonth,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
         const SizedBox(height: 12),
         if (countries.isEmpty)
           Text(l10n.noData, style: const TextStyle(color: Colors.grey))
@@ -375,29 +405,38 @@ class _AccountScreenState extends State<AccountScreen> {
             spacing: 8,
             runSpacing: 8,
             children: countries
-                .map((c) => Flag.fromString(
-                      c,
+                .map(
+                  (c) => Flag.fromString(
+                    c,
+                    height: 25,
+                    width: 35,
+                    replacement: Container(
                       height: 25,
                       width: 35,
-                      replacement: Container(
-                        height: 25,
-                        width: 35,
-                        color: Colors.grey[700],
-                        alignment: Alignment.center,
-                        child: Text(
-                            c.length >= 2 ? c.substring(0, 2).toUpperCase() : c,
-                            style: const TextStyle(
-                                fontSize: 10, color: Colors.white)),
+                      color: Colors.grey[700],
+                      alignment: Alignment.center,
+                      child: Text(
+                        c.length >= 2 ? c.substring(0, 2).toUpperCase() : c,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.white,
+                        ),
                       ),
-                    ))
+                    ),
+                  ),
+                )
                 .toList(),
           ),
       ],
     );
   }
 
-  Widget _buildAchievements(BuildContext context, UserStats stats, String name,
-      AppLocalizations l10n) {
+  Widget _buildAchievements(
+    BuildContext context,
+    UserStats stats,
+    String name,
+    AppLocalizations l10n,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -407,9 +446,10 @@ class _AccountScreenState extends State<AccountScreen> {
       ),
       child: Column(
         children: [
-          Text(l10n.statsAchievements(name),
-              style:
-                  const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(
+            l10n.statsAchievements(name),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 24),
           GridView.count(
             crossAxisCount: 3,
@@ -419,42 +459,48 @@ class _AccountScreenState extends State<AccountScreen> {
             physics: const NeverScrollableScrollPhysics(),
             children: [
               AchievementBadge(
-                  icon: Icons.camera_alt,
-                  color: Colors.blueGrey,
-                  label: '100 ${l10n.statsPhotos}',
-                  progress: stats.totalPhotos,
-                  target: 100),
+                icon: Icons.camera_alt,
+                color: Colors.blueGrey,
+                label: '100 ${l10n.statsPhotos}',
+                progress: stats.totalPhotos,
+                target: 100,
+              ),
               AchievementBadge(
-                  icon: Icons.work,
-                  color: Colors.brown,
-                  label: '10 ${l10n.statsTrips}',
-                  progress: stats.totalTrips,
-                  target: 10),
+                icon: Icons.work,
+                color: Colors.brown,
+                label: '10 ${l10n.statsTrips}',
+                progress: stats.totalTrips,
+                target: 10,
+              ),
               AchievementBadge(
-                  icon: Icons.local_fire_department,
-                  color: Colors.orange,
-                  label: l10n.statsStreak(7),
-                  progress: stats.currentStreak,
-                  target: 7),
+                icon: Icons.local_fire_department,
+                color: Colors.orange,
+                label: l10n.statsStreak(7),
+                progress: stats.currentStreak,
+                target: 7,
+              ),
               AchievementBadge(
-                  icon: Icons.map,
-                  color: Colors.green,
-                  label: '50 ${l10n.statsCountries}',
-                  progress: stats.totalCountries,
-                  target: 50),
+                icon: Icons.map,
+                color: Colors.green,
+                label: '50 ${l10n.statsCountries}',
+                progress: stats.totalCountries,
+                target: 50,
+              ),
               AchievementBadge(
-                  icon: Icons.star,
-                  color: Colors.amber,
-                  label: '50 ${l10n.statsTrips}',
-                  progress: stats.totalTrips,
-                  target: 50),
+                icon: Icons.star,
+                color: Colors.amber,
+                label: '50 ${l10n.statsTrips}',
+                progress: stats.totalTrips,
+                target: 50,
+              ),
               AchievementBadge(
-                  icon: Icons.photo_library,
-                  color: Colors.indigo,
-                  label: '1000 ${l10n.statsPhotos}',
-                  progress: stats.totalPhotos,
-                  target: 1000,
-                  showProgressBar: true),
+                icon: Icons.photo_library,
+                color: Colors.indigo,
+                label: '1000 ${l10n.statsPhotos}',
+                progress: stats.totalPhotos,
+                target: 1000,
+                showProgressBar: true,
+              ),
             ],
           ),
         ],
@@ -478,9 +524,13 @@ class _AccountScreenState extends State<AccountScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (errorMsg != null) ...[
-                  Text(errorMsg!,
-                      style: const TextStyle(
-                          color: Colors.red, fontWeight: FontWeight.bold)),
+                  Text(
+                    errorMsg!,
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                 ],
                 TextField(
@@ -491,7 +541,8 @@ class _AccountScreenState extends State<AccountScreen> {
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: Icon(
-                          obscure ? Icons.visibility : Icons.visibility_off),
+                        obscure ? Icons.visibility : Icons.visibility_off,
+                      ),
                       onPressed: () => setState(() => obscure = !obscure),
                     ),
                   ),
@@ -505,7 +556,8 @@ class _AccountScreenState extends State<AccountScreen> {
                     border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: Icon(
-                          obscure ? Icons.visibility : Icons.visibility_off),
+                        obscure ? Icons.visibility : Icons.visibility_off,
+                      ),
                       onPressed: () => setState(() => obscure = !obscure),
                     ),
                   ),
@@ -514,7 +566,9 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
             actions: [
               TextButton(
-                  onPressed: () => Navigator.pop(c), child: Text(l10n.cancel)),
+                onPressed: () => Navigator.pop(c),
+                child: Text(l10n.cancel),
+              ),
               ElevatedButton(
                 onPressed: () async {
                   if (newCtrl.text.length < 6) {
@@ -529,15 +583,17 @@ class _AccountScreenState extends State<AccountScreen> {
                   setState(() => errorMsg = null);
 
                   try {
-                    await locator<FirebaseAuth>()
-                        .setLanguageCode(l10n.localeName);
-                    await locator<FirebaseAuth>()
-                        .currentUser
-                        ?.updatePassword(newCtrl.text);
+                    await locator<FirebaseAuth>().setLanguageCode(
+                      l10n.localeName,
+                    );
+                    await locator<FirebaseAuth>().currentUser?.updatePassword(
+                      newCtrl.text,
+                    );
                     if (context.mounted) {
                       Navigator.pop(c);
                       ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(l10n.passwordChanged)));
+                        SnackBar(content: Text(l10n.passwordChanged)),
+                      );
                     }
                   } on FirebaseAuthException catch (e) {
                     if (e.code == 'requires-recent-login') {
@@ -559,17 +615,24 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   void _clearDb(
-      BuildContext context, String userId, AppLocalizations l10n) async {
+    BuildContext context,
+    String userId,
+    AppLocalizations l10n,
+  ) async {
     await locator<LocalRepo>().clearUserData(userId);
     await locator<SyncService>().clearCloudData(userId);
     if (context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(l10n.databaseFlushed)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.databaseFlushed)));
     }
   }
 
   void _deleteAccount(
-      BuildContext context, String userId, AppLocalizations l10n) async {
+    BuildContext context,
+    String userId,
+    AppLocalizations l10n,
+  ) async {
     try {
       await locator<FirebaseAuth>().setLanguageCode(l10n.localeName);
       await locator<LocalRepo>().clearUserData(userId);
@@ -580,18 +643,26 @@ class _AccountScreenState extends State<AccountScreen> {
     } on FirebaseAuthException catch (e) {
       if (context.mounted) {
         if (e.code == 'requires-recent-login') {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
               content: Text(l10n.requiresRecentLogin),
-              backgroundColor: Colors.red));
+              backgroundColor: Colors.red,
+            ),
+          );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text(l10n.cloudError), backgroundColor: Colors.red));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.cloudError),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(l10n.errorMsg), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.errorMsg), backgroundColor: Colors.red),
+        );
       }
     }
   }

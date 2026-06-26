@@ -13,10 +13,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
   final LocalRepo localRepo;
   final AuthRepo authRepo;
 
-  Future<void> _onLoadMarkers(
-    LoadMarkers event,
-    Emitter<MapState> emit,
-  ) async {
+  Future<void> _onLoadMarkers(LoadMarkers event, Emitter<MapState> emit) async {
     emit(const MapState.loading());
     try {
       final userId = await authRepo.getCurrentUserId();

@@ -5,26 +5,35 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
-  final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
-  
-  final StreamController<Map<String, dynamic>> _onNotificationClick = StreamController<Map<String, dynamic>>.broadcast();
-  Stream<Map<String, dynamic>> get onNotificationClick => _onNotificationClick.stream;
+  final FlutterLocalNotificationsPlugin _notificationsPlugin =
+      FlutterLocalNotificationsPlugin();
 
-  Future<void> init({String? channelName, String? channelDescription, bool requestPermissionsOnId = true}) async {
+  final StreamController<Map<String, dynamic>> _onNotificationClick =
+      StreamController<Map<String, dynamic>>.broadcast();
+  Stream<Map<String, dynamic>> get onNotificationClick =>
+      _onNotificationClick.stream;
+
+  Future<void> init({
+    String? channelName,
+    String? channelDescription,
+    bool requestPermissionsOnId = true,
+  }) async {
     debugPrint('Initializing NotificationService...');
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const DarwinInitializationSettings initializationSettingsIOS = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
+    const DarwinInitializationSettings initializationSettingsIOS =
+        DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+        );
 
-    const InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
-    );
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsIOS,
+        );
 
     await _notificationsPlugin.initialize(
       initializationSettings,
@@ -45,16 +54,21 @@ class NotificationService {
       debugPrint('Creating Android notification channel...');
       await _notificationsPlugin
           .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
-          ?.createNotificationChannel(AndroidNotificationChannel(
-            'proximity_channel',
-            channelName ?? 'Proximity Alerts',
-            description: channelDescription ?? 'Notifications when you are near a saved place',
-            importance: Importance.max,
-            playSound: true,
-            enableVibration: true,
-            showBadge: true,
-          ));
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.createNotificationChannel(
+            AndroidNotificationChannel(
+              'proximity_channel',
+              channelName ?? 'Proximity Alerts',
+              description:
+                  channelDescription ??
+                  'Notifications when you are near a saved place',
+              importance: Importance.max,
+              playSound: true,
+              enableVibration: true,
+              showBadge: true,
+            ),
+          );
     }
 
     if (requestPermissionsOnId) {
@@ -66,20 +80,20 @@ class NotificationService {
     debugPrint('Requesting notification permissions...');
     if (Platform.isAndroid) {
       final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
-          _notificationsPlugin.resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
-      final granted = await androidImplementation?.requestNotificationsPermission();
+          _notificationsPlugin
+              .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin
+              >();
+      final granted = await androidImplementation
+          ?.requestNotificationsPermission();
       debugPrint('Android Notification permission granted: $granted');
     } else if (Platform.isIOS) {
-       final granted = await _notificationsPlugin
+      final granted = await _notificationsPlugin
           .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
-          ?.requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
-       debugPrint('iOS Notification permission granted: $granted');
+            IOSFlutterLocalNotificationsPlugin
+          >()
+          ?.requestPermissions(alert: true, badge: true, sound: true);
+      debugPrint('iOS Notification permission granted: $granted');
     }
   }
 
@@ -92,18 +106,19 @@ class NotificationService {
     String? body,
   }) async {
     debugPrint('Showing proximity notification for $placeName (ID: $id)');
-    final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'proximity_channel',
-      'Proximity Alerts',
-      channelDescription: 'Notifications when you are near a saved place',
-      importance: Importance.max,
-      priority: Priority.high,
-      ticker: 'Proximity Alert',
-      icon: '@mipmap/ic_launcher',
-      largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
-      playSound: true,
-      enableVibration: true,
-    );
+    final AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+          'proximity_channel',
+          'Proximity Alerts',
+          channelDescription: 'Notifications when you are near a saved place',
+          importance: Importance.max,
+          priority: Priority.high,
+          ticker: 'Proximity Alert',
+          icon: '@mipmap/ic_launcher',
+          largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+          playSound: true,
+          enableVibration: true,
+        );
 
     const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
       presentAlert: true,

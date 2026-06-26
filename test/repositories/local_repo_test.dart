@@ -18,20 +18,34 @@ void main() {
   });
 
   group('LocalRepo Race Condition Tests', () {
-    test('markVisited should not create duplicate entries when called concurrently', () async {
-      const countryName = 'Testland';
-      const userId = 'user123';
-      const lat = 10.0;
-      const lng = 20.0;
+    test(
+      'markVisited should not create duplicate entries when called concurrently',
+      () async {
+        const countryName = 'Testland';
+        const userId = 'user123';
+        const lat = 10.0;
+        const lng = 20.0;
 
-      await RaceDetector.run(100, () => localRepo.markVisited(countryName, userId, lat, lng));
+        await RaceDetector.run(
+          100,
+          () => localRepo.markVisited(countryName, userId, lat, lng),
+        );
 
-      final results = await (db.select(db.visitedCountries)
-            ..where((t) => t.countryCode.equals(countryName) & t.userId.equals(userId)))
-          .get();
+        final results =
+            await (db.select(db.visitedCountries)..where(
+                  (t) =>
+                      t.countryCode.equals(countryName) &
+                      t.userId.equals(userId),
+                ))
+                .get();
 
-      expect(results.length, 1, reason: 'Should only have 1 entry for the same country and user');
-    });
+        expect(
+          results.length,
+          1,
+          reason: 'Should only have 1 entry for the same country and user',
+        );
+      },
+    );
 
     test('addNoteWithPhotos should handle concurrent calls safely', () async {
       const userId = 'user123';
@@ -40,7 +54,18 @@ void main() {
       const name = 'My Note';
       final photos = ['path/1.jpg', 'path/2.jpg'];
 
-      await RaceDetector.run(5, () => localRepo.addNoteWithPhotos(userId, lat, lng, name, 'note', null, photos));
+      await RaceDetector.run(
+        5,
+        () => localRepo.addNoteWithPhotos(
+          userId,
+          lat,
+          lng,
+          name,
+          'note',
+          null,
+          photos,
+        ),
+      );
 
       final notes = await localRepo.getAllNotes(userId);
       expect(notes.length, 5);
@@ -55,10 +80,10 @@ void main() {
   group('LocalRepo Business Logic Tests', () {
     test('getWantToGoPlaces should filter correctly', () async {
       const userId = 'user1';
-      
+
       await localRepo.addWantToGoPlace('Place 1', 1.0, 1.0, userId);
       await localRepo.addWantToGoPlace('Place 2', 2.0, 2.0, userId);
-      
+
       final placesBefore = await localRepo.getWantToGoPlaces(userId);
       expect(placesBefore.length, 2);
 

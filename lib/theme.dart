@@ -25,6 +25,7 @@ class AppTheme {
       ),
     );
   }
+
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
@@ -45,7 +46,6 @@ class AppTheme {
         type: BottomNavigationBarType.fixed,
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
       ),
-
     );
   }
 }

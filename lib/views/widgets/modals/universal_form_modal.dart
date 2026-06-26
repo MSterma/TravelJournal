@@ -2,12 +2,22 @@ import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 
 class UniversalFormModal extends StatefulWidget {
-  const UniversalFormModal({super.key, required this.title, required this.label, required this.onSubmit});
+  const UniversalFormModal({
+    super.key,
+    required this.title,
+    required this.label,
+    required this.onSubmit,
+  });
   final String title;
   final String label;
   final Function(String) onSubmit;
 
-  static void show(BuildContext context, {required String title, required String label, required Function(String) onSubmit}) {
+  static void show(
+    BuildContext context, {
+    required String title,
+    required String label,
+    required Function(String) onSubmit,
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -20,10 +30,14 @@ class UniversalFormModal extends StatefulWidget {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           padding: const EdgeInsets.all(16.0),
-          child: UniversalFormModal(title: title, label: label, onSubmit: (val) {
-            Navigator.pop(ctx);
-            onSubmit(val);
-          }),
+          child: UniversalFormModal(
+            title: title,
+            label: label,
+            onSubmit: (val) {
+              Navigator.pop(ctx);
+              onSubmit(val);
+            },
+          ),
         ),
       ),
     );
@@ -48,11 +62,17 @@ class _UniversalFormModalState extends State<UniversalFormModal> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(widget.title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        Text(
+          widget.title,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 16),
         TextField(
           controller: _controller,
-          decoration: InputDecoration(labelText: widget.label, border: const OutlineInputBorder()),
+          decoration: InputDecoration(
+            labelText: widget.label,
+            border: const OutlineInputBorder(),
+          ),
           autofocus: true,
         ),
         const SizedBox(height: 16),

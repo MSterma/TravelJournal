@@ -11,5 +11,6 @@ abstract class CountryEvent with _$CountryEvent {
   const factory CountryEvent.selectCountry(Country country) = SelectCountry;
   const factory CountryEvent.markVisited(String countryName) = MarkVisited;
   const factory CountryEvent.clearSelection() = ClearSelection;
-  const factory CountryEvent.addPhoto(String countryName, String imagePath) = AddPhoto;
+  const factory CountryEvent.addPhoto(String countryName, String imagePath) =
+      AddPhoto;
 }
